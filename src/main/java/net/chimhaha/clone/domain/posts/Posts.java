@@ -27,7 +27,7 @@ public class Posts {
     private String content; // 내용
 
     @Column
-    private String tag; // 말머리
+    private String category; // 말머리
 
     @Column()
     @ColumnDefault("0")
@@ -37,12 +37,18 @@ public class Posts {
     private Short popularFlag;
 
     @Builder
-    public Posts(String title, String content, String tag, Integer views, Short popularFlag) {
+    public Posts(String title, String content, String category, Integer views, Short popularFlag) {
         this.title = title;
         this.content = content;
-        this.tag = tag;
+        this.category = category;
         this.views = views;
         this.popularFlag = popularFlag;
+    }
+
+    public void update(String title, String content, String category) {
+        this.title = title;
+        this.content = content;
+        this.category = category;
     }
 
     /* @prePersist 어노테이션은 새로 생성된 엔티티가 영속상태가 되기 이전에 실행된다.
