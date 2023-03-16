@@ -3,6 +3,7 @@ package net.chimhaha.clone.domain.posts;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.chimhaha.clone.domain.BaseTimeEntity;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Posts {
+public class Posts extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +27,15 @@ public class Posts {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content; // 내용
 
-    @Column
+    @Column(nullable = false)
     private String category; // 말머리
 
     @Column()
     @ColumnDefault("0")
     private Integer views; // 조회수
 
-    @Column(columnDefinition = "TINYINT", name = "popular_flag")
-    private Short popularFlag;
+    @Column(columnDefinition = "TINYINT", name = "popular_flag", nullable = false)
+    private Short popularFlag; // 인기글(침하하) 허용 플래그
 
     @Builder
     public Posts(String title, String content, String category, Integer views, Short popularFlag) {
