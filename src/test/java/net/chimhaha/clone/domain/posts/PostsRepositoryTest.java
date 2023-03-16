@@ -20,6 +20,11 @@ public class PostsRepositoryTest {
     @Autowired
     PostsRepository postsRepository;
 
+    String title = "테스트 게시글";
+    String content = "테스트 본문";
+    String category = "침착맨";
+    Short flag = 1;
+
     /* @AfterEach를 단 메소드는 매 단위 테스트가 끝날 때마다 호출 */
     @AfterEach
     public void cleanup() {
@@ -29,11 +34,6 @@ public class PostsRepositoryTest {
     /* 단위 테스트 메소드 */
     @Test
     public void 게시글저장_불러오기() {
-        String title = "테스트 게시글";
-        String content = "테스트 본문";
-        String category = "주펄";
-        Short flag = 1;
-
         // given
         postsRepository.save(Posts.builder()
                 .title(title)
@@ -57,11 +57,6 @@ public class PostsRepositoryTest {
 
     @Test
     public void 게시글_수정하기() {
-        String title = "테스트 게시글";
-        String content = "테스트 본문";
-        String category = "주펄";
-        Short flag = 1;
-
         // given
         postsRepository.save(Posts.builder()
                 .title(title)
@@ -82,11 +77,6 @@ public class PostsRepositoryTest {
 
     @Test
     public void 게시글_삭제하기() {
-        String title = "테스트 게시글";
-        String content = "테스트 본문";
-        String category = "주펄";
-        Short flag = 1;
-
         // given
         Posts posts = postsRepository.save(Posts.builder()
                 .title(title)
