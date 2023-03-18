@@ -31,6 +31,7 @@ public class PostsService {
         return postsRepository.save(posts).getId();
     }
 
+    @Transactional(readOnly = true)
     public List<PostsFindByCategoryResponseDto> findByCategory(String category) {
         List<Posts> categorizedPosts = postsRepository.findByCategory(category);
         List<PostsFindByCategoryResponseDto> responses = new ArrayList<>();
@@ -43,6 +44,7 @@ public class PostsService {
 
     public PostsFindByIdResponseDto findById(Long id) {
         Posts posts = postsRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
+        posts.increaseViewCount(); // 조회수 증가
 
         return new PostsFindByIdResponseDto(posts);
     }
