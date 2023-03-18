@@ -1,0 +1,121 @@
+package net.chimhaha.clone.service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.domain.posts.PostsRepository;
+import net.chimhaha.clone.web.dto.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.PostsFindByIdResponseDto;
+import net.chimhaha.clone.web.dto.PostsSaveRequestDto;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
+@ExtendWith(MockitoExtension.class) // service 레이어 테스트 시 사용하는 어노테이션
+public class PostsServiceTest {
+
+    @Mock
+    private PostsRepository postsRepository;
+
+    @InjectMocks
+    private PostsService postsService;
+
+    String title = "테스트 게시글";
+    String content = "테스트 본문";
+    String category = "침착맨";
+    Short flag = 1;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @Test
+    public void 게시글_저장() {
+        //given
+        PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+        Posts posts = Posts.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .category(dto.getCategory())
+                .popularFlag(dto.getPopularFlag())
+                .build();
+
+        Long fakePostsId = 1L;
+        /* ReflectionTestUtils는 객체의 private field에 값을 주입할 수 있다. */
+        ReflectionTestUtils.setField(posts, "id", fakePostsId); // 가짜 게시글 id 주입
+
+        given(postsRepository.save(any(Posts.class)))
+                .willReturn(posts);
+        //when
+        Long createdPostsId = postsService.save(dto);
+
+        //then
+        assertEquals(createdPostsId, fakePostsId);
+    }
+
+    @Test
+    public void 카테고리별_Posts조회() {
+        // given
+        List<PostsFindByCategoryResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
+        List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
+
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
+        ReflectionTestUtils.setField(posts, "id", 1L);
+        expectedPostsResponseList.add(new PostsFindByCategoryResponseDto(posts));
+        postsList.add(posts);
+
+        given(postsRepository.findByCategory(any(String.class)))
+                .willReturn(postsList);
+
+        //when
+        List<PostsFindByCategoryResponseDto> postsResponseList = postsService.findByCategory("침착맨");
+
+        //then
+        assertEquals(postsResponseList.get(0).getCategory(), expectedPostsResponseList.get(0).getCategory());
+    }
+
+    @Test
+    public void 게시글_id로_조회() {
+        //given
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
+        Long fakePostsId = 1L;
+        ReflectionTestUtils.setField(posts, "id", fakePostsId);
+        ReflectionTestUtils.setField(posts, "views", 0);
+        PostsFindByIdResponseDto expectedDto = new PostsFindByIdResponseDto(posts);
+
+        ReflectionTestUtils.setField(expectedDto,"views", 1); // 조회수 증가 반영
+        
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.ofNullable(posts));
+        //when
+        Long postsId = 1L;
+        PostsFindByIdResponseDto dto = postsService.findById(postsId);
+        //then
+        assertAll(() -> assertEquals(expectedDto.getId(), dto.getId()),
+                () -> assertEquals(expectedDto.getViews(), dto.getViews()));
+    }
+}
