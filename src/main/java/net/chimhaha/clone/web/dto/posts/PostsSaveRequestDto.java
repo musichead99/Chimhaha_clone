@@ -1,4 +1,4 @@
-package net.chimhaha.clone.web.dto;
+package net.chimhaha.clone.web.dto.posts;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -67,7 +67,7 @@ public class PostsRepositoryTest {
 
         // when
         Posts savedPosts = postsRepository.findAll().get(0);
-        savedPosts.update("테스트 게시글 2", "테스트 본문 2", "쇼츠 요청");
+        savedPosts.update("테스트 게시글 2", "테스트 본문 2", "쇼츠 요청", flag);
         Posts updatedPosts = postsRepository.save(savedPosts);
 
         assertEquals("테스트 게시글 2", updatedPosts.getTitle());

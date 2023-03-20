@@ -1,19 +1,17 @@
 package net.chimhaha.clone.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.PostsFindByCategoryResponseDto;
-import net.chimhaha.clone.web.dto.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.LinkedList;
 import java.util.List;

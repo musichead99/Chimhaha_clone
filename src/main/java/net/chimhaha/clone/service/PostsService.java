@@ -3,9 +3,10 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.PostsFindByCategoryResponseDto;
-import net.chimhaha.clone.web.dto.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

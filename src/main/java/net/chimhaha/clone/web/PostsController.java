@@ -2,9 +2,10 @@ package net.chimhaha.clone.web;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.PostsFindByCategoryResponseDto;
-import net.chimhaha.clone.web.dto.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
