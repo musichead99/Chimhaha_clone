@@ -44,9 +44,26 @@ public class PostsService {
     }
 
     public PostsFindByIdResponseDto findById(Long id) {
-        Posts posts = postsRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
-        posts.increaseViewCount(); // 조회수 증가
+        Posts posts = postsRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
 
         return new PostsFindByIdResponseDto(posts);
     }
+
+    @Transactional
+    public void increaseViewCount(Long id) {
+        Posts posts = postsRepository.findById(id).get();
+        posts.increaseViewCount();
+    }
+
+    @Transactional
+    public Long update(Long id, PostsUpdateRequestDto dto) {
+        Posts posts = postsRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(id + "해당 게시글이 존재하지 않습니다."));
+
+        posts.update(dto.getTitle(), dto.getContent(), dto.getCategory(), dto.getPopularFlag());
+
+        return posts.getId();
+    }
+
 }

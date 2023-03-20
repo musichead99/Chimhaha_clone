@@ -30,6 +30,12 @@ public class PostsController {
 
     @GetMapping("posts/{id}")
     public PostsFindByIdResponseDto findById(@PathVariable("id")Long id) {
+        postsService.increaseViewCount(id);
         return postsService.findById(id);
+    }
+
+    @PutMapping("posts/{id}")
+    public Long update(@PathVariable("id")Long id, @RequestBody PostsUpdateRequestDto dto) {
+        return postsService.update(id, dto);
     }
 }

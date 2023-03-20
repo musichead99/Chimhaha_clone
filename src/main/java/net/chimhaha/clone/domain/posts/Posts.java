@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 
@@ -46,10 +45,11 @@ public class Posts extends BaseTimeEntity {
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, String category) {
+    public void update(String title, String content, String category, Short flag) {
         this.title = title;
         this.content = content;
         this.category = category;
+        this.popularFlag = flag;
     }
 
     public void increaseViewCount() {
