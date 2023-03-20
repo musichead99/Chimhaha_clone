@@ -6,11 +6,13 @@ import net.chimhaha.clone.service.PostsService;
 import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.LinkedList;
@@ -18,8 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -65,7 +66,13 @@ public class PostsControllerTest {
     public void 카테고리별_Posts조회() throws Exception {
         // given
         List<PostsFindByCategoryResponseDto> postsList = new LinkedList<>();
-        Posts posts = Posts.builder().title(title).content(content).category(category).popularFlag(flag).build();
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
         for(int i = 0; i < 5; i++) {
             postsList.add(new PostsFindByCategoryResponseDto(posts));
         }
@@ -83,15 +90,54 @@ public class PostsControllerTest {
     @Test
     public void 게시글_id로_조회() throws Exception {
         //given
-        Posts posts = Posts.builder().title(title).content(content).category(category).popularFlag(flag).build();
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
         PostsFindByIdResponseDto dto = new PostsFindByIdResponseDto(posts);
         given(postsService.findById(any())).willReturn(dto);
 
         //when
         //then
-        mvc.perform(get("posts/1"))
+        mvc.perform(get("/posts/1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(dto)));
+    }
+
+    @Test
+    public void 게시글_수정() throws Exception {
+        //given
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+        Long postId = 1l;
+        ReflectionTestUtils.setField(posts, "id", postId);
+        ReflectionTestUtils.setField(posts, "views", 0);
+
+        String updatedContent = "태스트 본문 2";
+        PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
+                .title(title)
+                .content(updatedContent)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
+        given(postsService.update(any(Long.class), any(PostsUpdateRequestDto.class)))
+                .willReturn(postId);
+        //when
+        //then
+        mvc.perform(put("/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(postId.toString()));
     }
 }
