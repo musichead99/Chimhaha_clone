@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -37,5 +38,11 @@ public class PostsController {
     @PutMapping("posts/{id}")
     public Long update(@PathVariable("id")Long id, @RequestBody PostsUpdateRequestDto dto) {
         return postsService.update(id, dto);
+    }
+
+    @DeleteMapping("posts/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        postsService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

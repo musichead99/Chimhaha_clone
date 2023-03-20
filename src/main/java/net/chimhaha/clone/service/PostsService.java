@@ -66,4 +66,9 @@ public class PostsService {
         return posts.getId();
     }
 
+    @Transactional
+    public void delete(Long id) {
+        postsRepository.deleteById(id);
+    }
+
 }
