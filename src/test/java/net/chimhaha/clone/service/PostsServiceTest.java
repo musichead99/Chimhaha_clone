@@ -6,6 +6,7 @@ import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,6 +59,7 @@ public class PostsServiceTest {
 
         given(postsRepository.save(any(Posts.class)))
                 .willReturn(posts);
+
         //when
         Long createdPostsId = postsService.save(dto);
 
@@ -106,16 +108,70 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(posts, "id", fakePostsId);
         ReflectionTestUtils.setField(posts, "views", 0);
         PostsFindByIdResponseDto expectedDto = new PostsFindByIdResponseDto(posts);
-
-        ReflectionTestUtils.setField(expectedDto,"views", 1); // 조회수 증가 반영
         
         given(postsRepository.findById(any(Long.class)))
                 .willReturn(Optional.ofNullable(posts));
         //when
         Long postsId = 1L;
         PostsFindByIdResponseDto dto = postsService.findById(postsId);
+
         //then
-        assertAll(() -> assertEquals(expectedDto.getId(), dto.getId()),
-                () -> assertEquals(expectedDto.getViews(), dto.getViews()));
+        assertEquals(expectedDto.getId(), dto.getId());
+    }
+
+    @Test
+    public void 게시글_수정() {
+        // given
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+        Long postsId = 1L;
+        ReflectionTestUtils.setField(posts, "id", postsId);
+        ReflectionTestUtils.setField(posts, "views", 0);
+
+        String updatedContent = "테스트 본문 2"; // 수정된 본문
+        PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
+                .title(title)
+                .content(updatedContent)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.ofNullable(posts));
+
+        // when
+        Long updatedId = postsService.update(postsId, dto);
+
+        // then
+        assertAll(() -> assertEquals(postsId, updatedId),
+                () -> assertEquals(updatedContent, posts.getContent()));
+    }
+
+    @Test
+    public void 조회수_증가() {
+        //given
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+
+        int defaultViews = 0;
+        ReflectionTestUtils.setField(posts, "id", 1L);
+        ReflectionTestUtils.setField(posts, "views", defaultViews);
+
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.ofNullable(posts));
+
+        //when
+        postsService.increaseViewCount(1l);
+
+        //then
+        assertEquals(defaultViews + 1, posts.getViews());
     }
 }
