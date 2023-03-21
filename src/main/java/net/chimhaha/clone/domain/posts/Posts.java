@@ -27,7 +27,7 @@ public class Posts extends BaseTimeEntity {
     private String content; // 내용
 
     @Column(nullable = false)
-    private String category; // 말머리
+    private String subject; // 말머리
 
     @Column()
     @ColumnDefault("0")
@@ -37,18 +37,18 @@ public class Posts extends BaseTimeEntity {
     private Short popularFlag; // 인기글(침하하) 허용 플래그
 
     @Builder
-    public Posts(String title, String content, String category, Integer views, Short popularFlag) {
+    public Posts(String title, String content, String subject, Integer views, Short popularFlag) {
         this.title = title;
         this.content = content;
-        this.category = category;
+        this.subject = subject;
         this.views = views;
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, String category, Short flag) {
+    public void update(String title, String content, String subject, Short flag) {
         this.title = title;
         this.content = content;
-        this.category = category;
+        this.subject = subject;
         this.popularFlag = flag;
     }
 

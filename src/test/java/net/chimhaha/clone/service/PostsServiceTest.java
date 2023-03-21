@@ -3,7 +3,7 @@ package net.chimhaha.clone.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -35,7 +35,7 @@ public class PostsServiceTest {
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String category = "침착맨";
+    String subject = "침착맨";
     Short flag = 1;
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -45,13 +45,13 @@ public class PostsServiceTest {
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
         Posts posts = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .category(dto.getCategory())
+                .subject(dto.getSubject())
                 .popularFlag(dto.getPopularFlag())
                 .build();
 
@@ -72,28 +72,28 @@ public class PostsServiceTest {
     @Test
     public void 카테고리별_Posts조회() {
         // given
-        List<PostsFindByCategoryResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
+        List<PostsFindBySubjectResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
         List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
 
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
         ReflectionTestUtils.setField(posts, "id", 1L);
-        expectedPostsResponseList.add(new PostsFindByCategoryResponseDto(posts));
+        expectedPostsResponseList.add(new PostsFindBySubjectResponseDto(posts));
         postsList.add(posts);
 
-        given(postsRepository.findByCategory(any(String.class)))
+        given(postsRepository.findBySubject(any(String.class)))
                 .willReturn(postsList);
 
         //when
-        List<PostsFindByCategoryResponseDto> postsResponseList = postsService.findByCategory("침착맨");
+        List<PostsFindBySubjectResponseDto> postsResponseList = postsService.findBySubject("침착맨");
 
         //then
-        assertEquals(postsResponseList.get(0).getCategory(), expectedPostsResponseList.get(0).getCategory());
+        assertEquals(postsResponseList.get(0).getSubject(), expectedPostsResponseList.get(0).getSubject());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
@@ -127,7 +127,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
         Long postsId = 1L;
@@ -138,7 +138,7 @@ public class PostsServiceTest {
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
                 .content(updatedContent)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
@@ -159,7 +159,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 

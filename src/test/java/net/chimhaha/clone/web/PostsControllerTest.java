@@ -3,7 +3,7 @@ package net.chimhaha.clone.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindByCategoryResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -38,7 +38,7 @@ public class PostsControllerTest {
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String category = "침착맨";
+    String subject = "침착맨";
     Short flag = 1;
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -48,7 +48,7 @@ public class PostsControllerTest {
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
@@ -64,21 +64,21 @@ public class PostsControllerTest {
     }
 
     @Test
-    public void 카테고리별_Posts조회() throws Exception {
+    public void 말머리별_Posts조회() throws Exception {
         // given
-        List<PostsFindByCategoryResponseDto> postsList = new LinkedList<>();
+        List<PostsFindBySubjectResponseDto> postsList = new LinkedList<>();
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
         for(int i = 0; i < 5; i++) {
-            postsList.add(new PostsFindByCategoryResponseDto(posts));
+            postsList.add(new PostsFindBySubjectResponseDto(posts));
         }
 
-        given(postsService.findByCategory(any())).willReturn(postsList);
+        given(postsService.findBySubject(any())).willReturn(postsList);
 
         //when
         //then
@@ -94,7 +94,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
@@ -115,7 +115,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
         Long postId = 1l;
@@ -126,7 +126,7 @@ public class PostsControllerTest {
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
                 .content(updatedContent)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
 
@@ -148,7 +148,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build();
         Long postId = 1l;

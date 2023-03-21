@@ -1,13 +1,9 @@
 package net.chimhaha.clone.domain.posts;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +18,7 @@ public class PostsRepositoryTest {
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String category = "침착맨";
+    String subject = "침착맨";
     Short flag = 1;
 
     /* @AfterEach를 단 메소드는 매 단위 테스트가 끝날 때마다 호출 */
@@ -38,7 +34,7 @@ public class PostsRepositoryTest {
         postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build());
 
@@ -49,7 +45,7 @@ public class PostsRepositoryTest {
         // then
         assertAll(() -> assertEquals(title, post.getTitle()),
                 () -> assertEquals(content, post.getContent()),
-                () -> assertEquals(category, post.getCategory()),
+                () -> assertEquals(subject, post.getSubject()),
                 () -> assertEquals(0,post.getViews()),
                 () -> assertEquals(flag, post.getPopularFlag())
         );
@@ -61,7 +57,7 @@ public class PostsRepositoryTest {
         postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build());
 
@@ -72,7 +68,7 @@ public class PostsRepositoryTest {
 
         assertEquals("테스트 게시글 2", updatedPosts.getTitle());
         assertEquals("테스트 본문 2", updatedPosts.getContent());
-        assertEquals("쇼츠 요청", updatedPosts.getCategory());
+        assertEquals("쇼츠 요청", updatedPosts.getSubject());
     }
 
     @Test
@@ -81,7 +77,7 @@ public class PostsRepositoryTest {
         Posts posts = postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)
-                .category(category)
+                .subject(subject)
                 .popularFlag(flag)
                 .build());
 

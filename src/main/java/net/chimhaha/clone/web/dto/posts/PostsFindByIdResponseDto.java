@@ -13,7 +13,7 @@ public class PostsFindByIdResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String category;
+    private String subject;
     private LocalDateTime createdDate;
     private Integer views;
 
@@ -22,7 +22,7 @@ public class PostsFindByIdResponseDto {
         this.id = posts.getId();
         this.title = posts.getTitle();
         this.content = posts.getContent();
-        this.category = posts.getCategory();
+        this.subject = posts.getSubject();
         this.createdDate = posts.getCreatedDate();
         this.views = posts.getViews();
     }
