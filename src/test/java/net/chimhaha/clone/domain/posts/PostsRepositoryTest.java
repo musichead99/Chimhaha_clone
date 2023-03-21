@@ -86,7 +86,7 @@ public class PostsRepositoryTest {
                 .build());
 
         // when
-        postsRepository.delete(posts);
+        postsRepository.deleteById(posts.getId());
         Optional<Posts> optionalPosts = postsRepository.findById(posts.getId());
 
         // given

@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -139,5 +140,26 @@ public class PostsControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(postId.toString()));
+    }
+
+    @Test
+    public void 게시글_삭제() throws Exception {
+        // given
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+        Long postId = 1l;
+        ReflectionTestUtils.setField(posts, "id", postId);
+        ReflectionTestUtils.setField(posts, "views", 0);
+
+        doNothing().when(postsService).delete(any(Long.class));
+        // when
+        // then
+        mvc.perform(delete("/posts/{id}", 1))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }

@@ -21,6 +21,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class) // service 레이어 테스트 시 사용하는 어노테이션
 public class PostsServiceTest {
@@ -173,5 +175,19 @@ public class PostsServiceTest {
 
         //then
         assertEquals(defaultViews + 1, posts.getViews());
+    }
+
+    @Test
+    public void 게시글_삭제() {
+        // given
+        Long postsId = 1L;
+
+        // when
+        postsService.delete(postsId);
+
+        // then
+        /* postsService.delete()가 반환값이 없으므로 delete()내부의 postsRepository가 제대로 실행되었는지를 검증한다
+        *  verify를 통해서 deletebyId가 예상대로 1번 호출되었는지를 검증한다 */
+        verify(postsRepository, times(1)).deleteById(postsId);
     }
 }
