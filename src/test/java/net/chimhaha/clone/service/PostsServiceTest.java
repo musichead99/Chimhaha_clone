@@ -1,6 +1,8 @@
 package net.chimhaha.clone.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -30,6 +32,9 @@ public class PostsServiceTest {
     @Mock
     private PostsRepository postsRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @InjectMocks
     private PostsService postsService;
 
@@ -37,6 +42,11 @@ public class PostsServiceTest {
     String content = "테스트 본문";
     String subject = "침착맨";
     Short flag = 1;
+    Category category = Category.builder()
+            .name("침착맨")
+            .content("침착맨에 대해 이야기하는 게시판입니다")
+            .likeLimit(10)
+            .build();
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -70,7 +80,7 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 카테고리별_Posts조회() {
+    public void 말머리별_게시글_조회() {
         // given
         List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
         List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
@@ -78,6 +88,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -97,11 +108,41 @@ public class PostsServiceTest {
     }
 
     @Test
+    public void 카테고리별_게시글_조회() {
+        // given
+
+        List<Posts> postsList = new LinkedList<>();
+        Posts post = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .subject(subject)
+                .popularFlag(flag)
+                .build();
+        postsList.add(post);
+
+        given(categoryRepository.getReferenceByName(any(String.class)))
+                .willReturn(Optional.ofNullable(category));
+        given(postsRepository.findByCategory(any(Category.class)))
+                .willReturn(postsList);
+
+        // when
+        List<PostsFindResponseDto> postsResponseList = postsService.findByCategory("침착맨");
+
+        // then
+        assertAll(() -> assertEquals(postsList.get(0).getTitle(), postsResponseList.get(0).getTitle()),
+                () -> assertEquals(postsList.get(0).getCategory().getName(), postsResponseList.get(0).getCategory()),
+                () -> verify(postsRepository, times(1)).findByCategory(category),
+                () -> verify(categoryRepository, times(1)).getReferenceByName("침착맨"));
+    }
+
+    @Test
     public void 게시글_id로_조회() {
         //given
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -127,6 +168,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -159,6 +201,7 @@ public class PostsServiceTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();

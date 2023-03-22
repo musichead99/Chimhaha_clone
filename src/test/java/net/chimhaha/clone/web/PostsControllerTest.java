@@ -1,6 +1,7 @@
 package net.chimhaha.clone.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -40,10 +41,16 @@ public class PostsControllerTest {
     String content = "테스트 본문";
     String subject = "침착맨";
     Short flag = 1;
+    Category category = Category.builder()
+            .name("침착맨")
+            .content("침착맨에 대해 이야기하는 게시판입니다")
+            .likeLimit(10)
+            .build();
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void Posts_등록() throws Exception {
+    public void  게시글_등록() throws Exception {
         //given
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
@@ -64,12 +71,13 @@ public class PostsControllerTest {
     }
 
     @Test
-    public void 말머리별_Posts조회() throws Exception {
+    public void 말머리별_게시글_조회() throws Exception {
         // given
         List<PostsFindResponseDto> postsList = new LinkedList<>();
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -89,11 +97,37 @@ public class PostsControllerTest {
     }
 
     @Test
+    public void 카테고리별_게시글_조회() throws Exception {
+        // given
+        List<PostsFindResponseDto> postsList = new LinkedList<>();
+        Posts post = Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .subject(subject)
+                .popularFlag(flag)
+                .build();
+
+        postsList.add(new PostsFindResponseDto(post));
+
+        given(postsService.findByCategory(any(String.class)))
+                .willReturn(postsList);
+        // when
+        // then
+        mvc.perform(get("/posts-category?category=침착맨"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
+
+    }
+
+    @Test
     public void 게시글_id로_조회() throws Exception {
         //given
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -115,6 +149,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -148,6 +183,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .category(category)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
