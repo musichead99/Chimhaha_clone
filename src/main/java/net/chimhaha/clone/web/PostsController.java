@@ -23,9 +23,19 @@ public class PostsController {
         return new ResponseEntity<>(postsService.save(dto), HttpStatus.CREATED);
     }
 
-    @GetMapping("posts")
-    public List<PostsFindBySubjectResponseDto> findByCategory(@RequestParam String subject) {
+    @GetMapping("/posts")
+    public List<PostsFindResponseDto> find() {
+        return postsService.find();
+    }
+
+    @GetMapping("/posts-subject")
+    public List<PostsFindResponseDto> findBySubject(@RequestParam String subject) {
         return postsService.findBySubject(subject);
+    }
+
+    @GetMapping("/posts-category")
+    public List<PostsFindResponseDto> findByCategory(@RequestParam String category) {
+        return postsService.findByCategory(category);
     }
 
     @GetMapping("/posts/{id}")
