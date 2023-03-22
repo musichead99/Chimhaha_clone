@@ -1,5 +1,7 @@
 package net.chimhaha.clone.domain.posts;
 
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.category.CategoryRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class PostsRepositoryTest {
     @Autowired
     PostsRepository postsRepository;
 
+    @Autowired
+    CategoryRepository categoryRepository;
+
     String title = "테스트 게시글";
     String content = "테스트 본문";
     String subject = "침착맨";
@@ -25,6 +30,7 @@ public class PostsRepositoryTest {
     @AfterEach
     public void cleanup() {
         postsRepository.deleteAll();
+
     }
 
     /* 단위 테스트 메소드 */
@@ -87,5 +93,50 @@ public class PostsRepositoryTest {
 
         // given
         assertFalse(optionalPosts.isPresent());
+    }
+
+    @Test
+    public void 카테고리로_게시글_조회하기() {
+        // given
+
+        Category category = Category.builder()
+                .name("침착맨")
+                .content("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+
+        category = categoryRepository.save(category);
+
+        Posts post = postsRepository.save(Posts.builder()
+                .title(title)
+                .content(content)
+                .category(category)
+                .subject(subject)
+                .popularFlag(flag)
+                .build());
+
+        // when
+        List<Posts> categorizedPosts = postsRepository.findByCategory(category);
+        Posts categorizedPost = categorizedPosts.get(0);
+
+        // then
+        assertEquals(post.getCategory(), categorizedPost.getCategory());
+    }
+
+    @Test
+    public void 말머리로_게시글_불러오기() {
+        // given
+        Posts post = postsRepository.save(Posts.builder()
+                .title(title)
+                .content(content)
+                .subject(subject)
+                .popularFlag(flag)
+                .build());
+
+        // when
+        Posts postBySubject = postsRepository.findBySubject(subject).get(0);
+
+        // then
+        assertEquals(postBySubject.getSubject(), subject);
     }
 }
