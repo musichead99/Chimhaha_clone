@@ -3,7 +3,7 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -33,12 +33,12 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindBySubjectResponseDto> findBySubject(String subject) {
+    public List<PostsFindResponseDto> findBySubject(String subject) {
         List<Posts> postsBySubject = postsRepository.findBySubject(subject);
-        List<PostsFindBySubjectResponseDto> responses = new ArrayList<>();
+        List<PostsFindResponseDto> responses = new ArrayList<>();
 
         for(Posts post : postsBySubject) {
-            responses.add(new PostsFindBySubjectResponseDto(post));
+            responses.add(new PostsFindResponseDto(post));
         }
         return responses;
     }

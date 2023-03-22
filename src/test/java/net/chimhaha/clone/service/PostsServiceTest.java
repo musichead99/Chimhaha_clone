@@ -3,7 +3,7 @@ package net.chimhaha.clone.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -72,7 +72,7 @@ public class PostsServiceTest {
     @Test
     public void 카테고리별_Posts조회() {
         // given
-        List<PostsFindBySubjectResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
+        List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
         List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
 
         Posts posts = Posts.builder()
@@ -83,14 +83,14 @@ public class PostsServiceTest {
                 .build();
 
         ReflectionTestUtils.setField(posts, "id", 1L);
-        expectedPostsResponseList.add(new PostsFindBySubjectResponseDto(posts));
+        expectedPostsResponseList.add(new PostsFindResponseDto(posts));
         postsList.add(posts);
 
         given(postsRepository.findBySubject(any(String.class)))
                 .willReturn(postsList);
 
         //when
-        List<PostsFindBySubjectResponseDto> postsResponseList = postsService.findBySubject("침착맨");
+        List<PostsFindResponseDto> postsResponseList = postsService.findBySubject("침착맨");
 
         //then
         assertEquals(postsResponseList.get(0).getSubject(), expectedPostsResponseList.get(0).getSubject());

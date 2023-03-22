@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class PostsFindBySubjectResponseDto {
+public class PostsFindResponseDto {
     private Long id;
     private String title;
     private String subject;
     private LocalDateTime createdDate;
     private Integer views;
 
-    public PostsFindBySubjectResponseDto(Posts posts) {
+    public PostsFindResponseDto(Posts posts) {
         this.id = posts.getId();
         this.title = posts.getTitle();
         this.subject = posts.getSubject();

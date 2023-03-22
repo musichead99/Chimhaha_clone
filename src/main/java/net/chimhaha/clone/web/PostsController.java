@@ -2,7 +2,7 @@ package net.chimhaha.clone.web;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -28,18 +28,18 @@ public class PostsController {
         return postsService.findBySubject(subject);
     }
 
-    @GetMapping("posts/{id}")
+    @GetMapping("/posts/{id}")
     public PostsFindByIdResponseDto findById(@PathVariable("id")Long id) {
         postsService.increaseViewCount(id);
         return postsService.findById(id);
     }
 
-    @PutMapping("posts/{id}")
+    @PutMapping("/posts/{id}")
     public Long update(@PathVariable("id")Long id, @RequestBody PostsUpdateRequestDto dto) {
         return postsService.update(id, dto);
     }
 
-    @DeleteMapping("posts/{id}")
+    @DeleteMapping("/posts/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         postsService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

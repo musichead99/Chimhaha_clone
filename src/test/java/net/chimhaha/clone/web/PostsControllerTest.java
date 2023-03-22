@@ -3,7 +3,7 @@ package net.chimhaha.clone.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindBySubjectResponseDto;
+import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
@@ -66,7 +66,7 @@ public class PostsControllerTest {
     @Test
     public void 말머리별_Posts조회() throws Exception {
         // given
-        List<PostsFindBySubjectResponseDto> postsList = new LinkedList<>();
+        List<PostsFindResponseDto> postsList = new LinkedList<>();
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
@@ -75,7 +75,7 @@ public class PostsControllerTest {
                 .build();
 
         for(int i = 0; i < 5; i++) {
-            postsList.add(new PostsFindBySubjectResponseDto(posts));
+            postsList.add(new PostsFindResponseDto(posts));
         }
 
         given(postsService.findBySubject(any())).willReturn(postsList);
