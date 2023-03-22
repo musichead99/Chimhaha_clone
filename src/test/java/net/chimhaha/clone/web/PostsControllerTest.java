@@ -82,7 +82,7 @@ public class PostsControllerTest {
 
         //when
         //then
-        mvc.perform(get("/posts?category=침착맨"))
+        mvc.perform(get("/posts-subject?subject=침착맨"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
