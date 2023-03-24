@@ -33,9 +33,9 @@ public class PostsController {
         return postsService.findBySubject(subject);
     }
 
-    @GetMapping("/posts-category")
-    public List<PostsFindResponseDto> findByCategory(@RequestParam String category) {
-        return postsService.findByCategory(category);
+    @GetMapping("/posts-board")
+    public List<PostsFindResponseDto> findByBoard(@RequestParam String board) {
+        return postsService.findByBoard(board);
     }
 
     @GetMapping("/posts/{id}")

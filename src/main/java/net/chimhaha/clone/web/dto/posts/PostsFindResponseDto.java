@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class PostsFindResponseDto {
     private Long id;
     private String title;
-    private String category;
+    private String board;
     private String subject;
     private LocalDateTime createdDate;
     private Integer views;
@@ -19,7 +19,7 @@ public class PostsFindResponseDto {
     public PostsFindResponseDto(Posts posts) {
         this.id = posts.getId();
         this.title = posts.getTitle();
-        this.category = posts.getCategory().getName();
+        this.board = posts.getBoard().getName();
         this.subject = posts.getSubject();
         this.createdDate = posts.getCreatedDate();
         this.views = posts.getViews();

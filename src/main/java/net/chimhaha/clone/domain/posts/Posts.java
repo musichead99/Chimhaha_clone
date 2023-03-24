@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.converter.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
-import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.boards.Boards;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
@@ -40,14 +40,14 @@ public class Posts extends BaseTimeEntity {
     private Boolean popularFlag; // 인기글(침하하) 허용 플래그
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    @JoinColumn(name = "board_id", nullable = false)
+    private Boards board;
 
     @Builder
-    public Posts(String title, String content, Category category, String subject, Integer views, Boolean popularFlag) {
+    public Posts(String title, String content, Boards board, String subject, Integer views, Boolean popularFlag) {
         this.title = title;
         this.content = content;
-        this.category = category;
+        this.board = board;
         this.subject = subject;
         this.views = views;
         this.popularFlag = popularFlag;

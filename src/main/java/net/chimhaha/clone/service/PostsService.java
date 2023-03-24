@@ -1,8 +1,8 @@
 package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
-import net.chimhaha.clone.domain.category.Category;
-import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -20,19 +20,19 @@ import java.util.List;
 public class PostsService {
 
     private final PostsRepository postsRepository;
-    private final CategoryRepository categoryRepository;
+    private final BoardsRepository boardsRepository;
 
     @Transactional
     public Long save(PostsSaveRequestDto dto) {
 
-        Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+        Boards board = boardsRepository.getReferenceById(dto.getBoardId());
 
         Posts posts = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .subject(dto.getSubject())
                 .popularFlag(dto.getPopularFlag())
-                .category(category)
+                .board(board)
                 .build();
 
         return postsRepository.save(posts).getId();
@@ -53,11 +53,11 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> findByCategory(String categoryName) {
-        Category category = categoryRepository.getReferenceByName(categoryName)
+    public List<PostsFindResponseDto> findByBoard(String categoryName) {
+        Boards boards = boardsRepository.getReferenceByName(categoryName)
                 .orElseThrow(() -> new IllegalArgumentException(categoryName + " 카테고리가 존재하지 않습니다"));
 
-        List<Posts> posts = postsRepository.findByCategory(category);
+        List<Posts> posts = postsRepository.findByBoard(boards);
 
         return makeEntityToDto(posts);
     }

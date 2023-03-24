@@ -1,4 +1,4 @@
-package net.chimhaha.clone.domain.category;
+package net.chimhaha.clone.domain.boards;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Category {
+public class Boards {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class Category {
     private Integer likeLimit;
 
     @Builder
-    public Category(String name, String description, Integer likeLimit) {
+    public Boards(String name, String description, Integer likeLimit) {
         this.name = name;
         this.description = description;
         this.likeLimit = likeLimit;

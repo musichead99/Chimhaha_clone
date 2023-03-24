@@ -1,4 +1,4 @@
-package net.chimhaha.clone.domain.category;
+package net.chimhaha.clone.domain.boards;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -8,30 +8,30 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-public class CategoryRepositoryTest {
+public class BoardsRepositoryTest {
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private BoardsRepository boardsRepository;
 
     @AfterEach
     public void cleanup() {
-        categoryRepository.deleteAll();
+        boardsRepository.deleteAll();
     }
 
     @Test
     public void 카테고리_이름으로_카테고리_조회() {
         // given
-        Category category = Category.builder()
+        Boards board = Boards.builder()
                 .name("침착맨")
                 .description("침착맨에 대해 이야기하는 게시판입니다")
                 .likeLimit(10)
                 .build();
 
-        categoryRepository.save(category);
+        boardsRepository.save(board);
         // when
-        Category categorychim =  categoryRepository.getReferenceByName("침착맨").get();
+        Boards categorychim =  boardsRepository.getReferenceByName("침착맨").get();
 
         // then
-        assertEquals(category.getDescription(), categorychim.getDescription());
+        assertEquals(board.getDescription(), categorychim.getDescription());
     }
 }
