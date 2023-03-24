@@ -24,7 +24,7 @@ public class PostsRepositoryTest {
     String title = "테스트 게시글";
     String content = "테스트 본문";
     String subject = "침착맨";
-    Short flag = 1;
+    Boolean flag = true;
 
     /* @AfterEach를 단 메소드는 매 단위 테스트가 끝날 때마다 호출 */
     @AfterEach

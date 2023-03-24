@@ -3,6 +3,7 @@ package net.chimhaha.clone.domain.posts;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.chimhaha.clone.converter.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.category.Category;
 import org.hibernate.annotations.ColumnDefault;
@@ -34,15 +35,16 @@ public class Posts extends BaseTimeEntity {
     @ColumnDefault("0")
     private Integer views; // 조회수
 
-    @Column(columnDefinition = "TINYINT", name = "popular_flag", nullable = false)
-    private Short popularFlag; // 인기글(침하하) 허용 플래그
+    @Convert(converter = BooleanToYNConverter.class)
+    @Column(name = "popular_flag", nullable = false)
+    private Boolean popularFlag; // 인기글(침하하) 허용 플래그
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Builder
-    public Posts(String title, String content, Category category, String subject, Integer views, Short popularFlag) {
+    public Posts(String title, String content, Category category, String subject, Integer views, Boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.category = category;
@@ -51,7 +53,7 @@ public class Posts extends BaseTimeEntity {
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, String subject, Short flag) {
+    public void update(String title, String content, String subject, Boolean flag) {
         this.title = title;
         this.content = content;
         this.subject = subject;

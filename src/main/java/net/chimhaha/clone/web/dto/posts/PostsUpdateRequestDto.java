@@ -10,10 +10,10 @@ public class PostsUpdateRequestDto {
     String title;
     String content;
     String subject;
-    Short popularFlag;
+    Boolean popularFlag;
 
     @Builder
-    public PostsUpdateRequestDto(String title, String content, String subject, Short popularFlag) {
+    public PostsUpdateRequestDto(String title, String content, String subject, Boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.subject = subject;
