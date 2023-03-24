@@ -12,10 +12,10 @@ public class PostsSaveRequestDto {
     private String content;
     private Long categoryId;
     private String subject;
-    private Short popularFlag;
+    private Boolean popularFlag;
 
     @Builder
-    public PostsSaveRequestDto(String title, String content, Long categoryId, String subject, Short popularFlag) {
+    public PostsSaveRequestDto(String title, String content, Long categoryId, String subject, Boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.categoryId = categoryId;
