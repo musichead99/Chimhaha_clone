@@ -43,7 +43,7 @@ public class PostsControllerTest {
     Short flag = 1;
     Category category = Category.builder()
             .name("침착맨")
-            .content("침착맨에 대해 이야기하는 게시판입니다")
+            .description("침착맨에 대해 이야기하는 게시판입니다")
             .likeLimit(10)
             .build();
 

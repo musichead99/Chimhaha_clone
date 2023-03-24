@@ -23,7 +23,7 @@ public class CategoryRepositoryTest {
         // given
         Category category = Category.builder()
                 .name("침착맨")
-                .content("침착맨에 대해 이야기하는 게시판입니다")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
                 .likeLimit(10)
                 .build();
 
@@ -32,6 +32,6 @@ public class CategoryRepositoryTest {
         Category categorychim =  categoryRepository.getReferenceByName("침착맨").get();
 
         // then
-        assertEquals(category.getContent(), categorychim.getContent());
+        assertEquals(category.getDescription(), categorychim.getDescription());
     }
 }

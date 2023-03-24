@@ -18,15 +18,15 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    private String content;
+    private String description;
 
     @Column(name = "like_limit", nullable = false)
     private Integer likeLimit;
 
     @Builder
-    public Category(String name, String content, Integer likeLimit) {
+    public Category(String name, String description, Integer likeLimit) {
         this.name = name;
-        this.content = content;
+        this.description = description;
         this.likeLimit = likeLimit;
     }
 }
