@@ -41,7 +41,7 @@ public class PostsControllerTest {
     String content = "테스트 본문";
     String subject = "침착맨";
     Boolean flag = true;
-    Boards boards = Boards.builder()
+    Boards board = Boards.builder()
             .name("침착맨")
             .description("침착맨에 대해 이야기하는 게시판입니다")
             .likeLimit(10)
@@ -77,7 +77,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .board(boards)
+                .board(board)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -90,7 +90,7 @@ public class PostsControllerTest {
 
         //when
         //then
-        mvc.perform(get("/posts-subject?subject=침착맨"))
+        mvc.perform(get("/침착맨/침착맨/posts"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
@@ -103,7 +103,7 @@ public class PostsControllerTest {
         Posts post = Posts.builder()
                 .title(title)
                 .content(content)
-                .board(boards)
+                .board(board)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -114,7 +114,7 @@ public class PostsControllerTest {
                 .willReturn(postsList);
         // when
         // then
-        mvc.perform(get("/posts-board?board=침착맨"))
+        mvc.perform(get("/침착맨/posts"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
@@ -127,7 +127,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .board(boards)
+                .board(board)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -149,7 +149,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .board(boards)
+                .board(board)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();
@@ -183,7 +183,7 @@ public class PostsControllerTest {
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
-                .board(boards)
+                .board(board)
                 .subject(subject)
                 .popularFlag(flag)
                 .build();

@@ -28,13 +28,13 @@ public class PostsController {
         return postsService.find();
     }
 
-    @GetMapping("/posts-subject")
-    public List<PostsFindResponseDto> findBySubject(@RequestParam String subject) {
+    @GetMapping("/{board}/{subject}/posts")
+    public List<PostsFindResponseDto> findBySubject(@PathVariable("board")String board, @PathVariable("subject") String subject) {
         return postsService.findBySubject(subject);
     }
 
-    @GetMapping("/posts-board")
-    public List<PostsFindResponseDto> findByBoard(@RequestParam String board) {
+    @GetMapping("/{board}/posts")
+    public List<PostsFindResponseDto> findByBoard(@PathVariable("board")String board) {
         return postsService.findByBoard(board);
     }
 
