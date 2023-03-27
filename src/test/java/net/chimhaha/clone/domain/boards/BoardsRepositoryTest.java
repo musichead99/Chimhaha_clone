@@ -1,12 +1,12 @@
 package net.chimhaha.clone.domain.boards;
 
+import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class BoardsRepositoryTest {
@@ -29,7 +29,7 @@ public class BoardsRepositoryTest {
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
-                .likeLimit(10)
+                .likeLimit(likeLimit)
                 .build();
 
         boardsRepository.save(board);
@@ -46,7 +46,7 @@ public class BoardsRepositoryTest {
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
-                .likeLimit(10)
+                .likeLimit(likeLimit)
                 .build();
         Long expectedId = 1L;
         // when
@@ -58,5 +58,37 @@ public class BoardsRepositoryTest {
                 () -> assertEquals(board.getDescription(), createdBoard.getDescription()),
                 () -> assertEquals(board.getLikeLimit(), createdBoard.getLikeLimit())
         );
+    }
+
+    @Test
+    public void 게시판_수정() {
+        // given
+        Boards board = Boards.builder()
+                .name(name)
+                .description(description)
+                .likeLimit(10)
+                .build();
+
+        BoardsUpdateRequestDto dto = BoardsUpdateRequestDto.builder()
+                .name("대인국(주펄)")
+                .description("주호민 자치령")
+                .likeLimit(20)
+                .build();
+
+        // when
+        Boards savedBoard = boardsRepository.save(board);
+        savedBoard.update(dto);
+        Boards updatedBoard = boardsRepository.save(savedBoard);
+
+        // then
+        assertAll(() -> assertEquals(savedBoard.getId(), updatedBoard.getId()),
+                () -> assertEquals("대인국(주펄)", updatedBoard.getName()),
+                () -> assertEquals("주호민 자치령", updatedBoard.getDescription()),
+                () -> assertEquals(20, updatedBoard.getLikeLimit()));
+    }
+
+    @Test
+    public void 게시판_삭제() {
+
     }
 }

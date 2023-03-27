@@ -1,8 +1,10 @@
 package net.chimhaha.clone.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
+import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,5 +60,28 @@ public class BoardsControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().string(boardId.toString()));
+    }
+
+    @Test
+    public void 게시판_수정() throws Exception {
+        // given
+        BoardsUpdateRequestDto dto = BoardsUpdateRequestDto.builder()
+                .name(name)
+                .description(description)
+                .likeLimit(likeLimit)
+                .build();
+
+        Long boardId = 1L;
+
+        given(boardsService.update(any(Long.class), any(BoardsUpdateRequestDto.class)))
+                .willReturn(1L);
+        // when
+        // then
+        mvc.perform(put("/boards/{id}", boardId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(content().string(boardId.toString()))
+                .andExpect(status().isOk());
     }
 }
