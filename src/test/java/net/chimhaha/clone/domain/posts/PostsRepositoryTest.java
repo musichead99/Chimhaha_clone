@@ -72,7 +72,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 게시글_수정하기() {
+    public void 게시글_수정() {
         // given
         Posts post = Posts.builder()
                 .title(title)
@@ -104,7 +104,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 게시글_삭제하기() {
+    public void 게시글_삭제() {
         // given
         Posts posts = postsRepository.save(Posts.builder()
                 .title(title)
@@ -123,7 +123,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 게시판명으로_게시글_조회하기() {
+    public void 게시판으로_게시글_조회() {
         // given
         Posts post = postsRepository.save(Posts.builder()
                 .title(title)
@@ -142,7 +142,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 카테고리로_게시글_불러오기() {
+    public void 카테고리로_게시글_조회() {
         // given
         Posts post = postsRepository.save(Posts.builder()
                 .title(title)

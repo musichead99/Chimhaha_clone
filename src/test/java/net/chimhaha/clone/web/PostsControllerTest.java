@@ -90,7 +90,7 @@ public class PostsControllerTest {
 
         //when
         //then
-        mvc.perform(get("/침착맨/침착맨/posts"))
+        mvc.perform(get("/posts?subject=침착맨"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
@@ -110,11 +110,11 @@ public class PostsControllerTest {
 
         postsList.add(new PostsFindResponseDto(post));
 
-        given(postsService.findByBoard(any(String.class)))
+        given(postsService.findByBoard(any(Long.class)))
                 .willReturn(postsList);
         // when
         // then
-        mvc.perform(get("/침착맨/posts"))
+        mvc.perform(get("/posts?board=1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));

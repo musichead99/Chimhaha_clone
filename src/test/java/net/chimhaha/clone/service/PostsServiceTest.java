@@ -121,19 +121,19 @@ public class PostsServiceTest {
                 .build();
         postsList.add(post);
 
-        given(boardsRepository.getReferenceByName(any(String.class)))
-                .willReturn(Optional.ofNullable(board));
+        given(boardsRepository.getReferenceById(any(Long.class)))
+                .willReturn(board);
         given(postsRepository.findByBoard(any(Boards.class)))
                 .willReturn(postsList);
 
         // when
-        List<PostsFindResponseDto> postsResponseList = postsService.findByBoard("침착맨");
+        List<PostsFindResponseDto> postsResponseList = postsService.findByBoard(1L);
 
         // then
         assertAll(() -> assertEquals(postsList.get(0).getTitle(), postsResponseList.get(0).getTitle()),
                 () -> assertEquals(postsList.get(0).getBoard().getName(), postsResponseList.get(0).getBoard()),
                 () -> verify(postsRepository, times(1)).findByBoard(board),
-                () -> verify(boardsRepository, times(1)).getReferenceByName("침착맨"));
+                () -> verify(boardsRepository, times(1)).getReferenceById(1L));
     }
 
     @Test
