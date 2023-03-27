@@ -53,9 +53,8 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> findByBoard(String categoryName) {
-        Boards boards = boardsRepository.getReferenceByName(categoryName)
-                .orElseThrow(() -> new IllegalArgumentException(categoryName + " 카테고리가 존재하지 않습니다"));
+    public List<PostsFindResponseDto> findByBoard(Long boardId) {
+        Boards boards = boardsRepository.getReferenceById(boardId);
 
         List<Posts> posts = postsRepository.findByBoard(boards);
 
