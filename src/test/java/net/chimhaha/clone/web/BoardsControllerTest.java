@@ -2,7 +2,9 @@ package net.chimhaha.clone.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.service.BoardsService;
+import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.Test;
@@ -10,12 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,6 +65,32 @@ public class BoardsControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().string(boardId.toString()));
+    }
+
+    @Test
+    public void 게시판_전체_조회() throws Exception {
+        // given
+        Boards board = Boards.builder()
+                .name(name)
+                .description(description)
+                .likeLimit(likeLimit)
+                .build();
+        Long boardId = 1L;
+        ReflectionTestUtils.setField(board, "id", boardId);
+
+        BoardsFindResponseDto dto = new BoardsFindResponseDto(board);
+        List<BoardsFindResponseDto> dtoList = new ArrayList<>();
+        dtoList.add(dto);
+
+        given(boardsService.find())
+                .willReturn(dtoList);
+
+        // when
+        // then
+        mvc.perform(get("/boards"))
+                .andDo(print())
+                .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
+                .andExpect(status().isOk());
     }
 
     @Test

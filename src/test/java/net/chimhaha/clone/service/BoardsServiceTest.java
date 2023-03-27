@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.posts.PostsRepository;
+import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -62,6 +65,33 @@ public class BoardsServiceTest {
 
         // then
         assertEquals(boardId, createdBoardId);
+    }
+
+    @Test
+    public void 게시판_전체_조회() {
+        // given
+        Boards board = Boards.builder()
+                .name(name)
+                .description(description)
+                .likeLimit(likeLimit)
+                .build();
+
+        List<Boards> boards = new ArrayList<>();
+        boards.add(board);
+
+        given(boardsRepository.findAll())
+                .willReturn(boards);
+        // when
+        List<BoardsFindResponseDto> dtoList =  boardsService.find();
+
+        // then
+        assertAll(
+                () -> assertEquals(1, dtoList.size()),
+                () -> assertEquals(board.getName(), dtoList.get(0).getName()),
+                () -> assertEquals(board.getDescription(), dtoList.get(0).getDescription()),
+                () -> assertEquals(board.getLikeLimit(), dtoList.get(0).getLikeLimit())
+        );
+
     }
 
     @Test
