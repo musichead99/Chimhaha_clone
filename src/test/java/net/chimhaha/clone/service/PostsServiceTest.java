@@ -50,7 +50,7 @@ public class PostsServiceTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void 게시글_저장() {
+    public void 게시글_등록() {
         //given
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)

@@ -2,6 +2,7 @@ package net.chimhaha.clone.domain.posts;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,22 +74,33 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_수정하기() {
         // given
-        postsRepository.save(Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
                 .subject(subject)
                 .popularFlag(flag)
-                .build());
+                .build();
+
+        PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
+                .title("테스트 게시글 2")
+                .content("테스트 본문 2")
+                .subject("쇼츠 요청")
+                .popularFlag(flag)
+                .build();
 
         // when
-        Posts savedPosts = postsRepository.findAll().get(0);
-        savedPosts.update("테스트 게시글 2", "테스트 본문 2", "쇼츠 요청", flag);
-        Posts updatedPosts = postsRepository.save(savedPosts);
+        Posts savedPost = postsRepository.save(post);
+        savedPost.update(dto);
+        Posts updatedPost = postsRepository.save(savedPost);
 
-        assertEquals("테스트 게시글 2", updatedPosts.getTitle());
-        assertEquals("테스트 본문 2", updatedPosts.getContent());
-        assertEquals("쇼츠 요청", updatedPosts.getSubject());
+        // then
+        assertAll(
+                () -> assertEquals(savedPost.getId(), updatedPost.getId()),
+                () -> assertEquals(dto.getTitle(), updatedPost.getTitle()),
+                () -> assertEquals(dto.getContent(), updatedPost.getContent()),
+                () -> assertEquals(dto.getSubject(), updatedPost.getSubject())
+        );
     }
 
     @Test
@@ -106,7 +118,7 @@ public class PostsRepositoryTest {
         postsRepository.deleteById(posts.getId());
         Optional<Posts> optionalPosts = postsRepository.findById(posts.getId());
 
-        // given
+        // then
         assertFalse(optionalPosts.isPresent());
     }
 
