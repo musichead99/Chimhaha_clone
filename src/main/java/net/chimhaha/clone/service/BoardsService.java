@@ -47,6 +47,11 @@ public class BoardsService {
         return board.getId();
     }
 
+    @Transactional
+    public void delete(Long id) {
+        boardsRepository.deleteById(id);
+    }
+
     private List<BoardsFindResponseDto> makeEntityToDto(List<Boards> boards) {
         List<BoardsFindResponseDto> responses = new ArrayList<>();
 

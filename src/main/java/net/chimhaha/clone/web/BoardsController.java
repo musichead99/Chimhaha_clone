@@ -32,4 +32,11 @@ public class BoardsController {
     public Long update(@PathVariable("id")Long id, @RequestBody BoardsUpdateRequestDto dto) {
         return boardsService.update(id, dto);
     }
+
+    @DeleteMapping("/boards/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        boardsService.delete(id);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
