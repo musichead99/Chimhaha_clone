@@ -3,11 +3,10 @@ package net.chimhaha.clone.web;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
+import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,5 +18,10 @@ public class BoardsController {
     public ResponseEntity<Long> save(@RequestBody BoardsSaveRequestDto dto) {
         Long boardId = boardsService.save(dto);
         return new ResponseEntity<>(boardId, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/boards/{id}")
+    public Long update(@PathVariable("id")Long id, @RequestBody BoardsUpdateRequestDto dto) {
+        return boardsService.update(id, dto);
     }
 }
