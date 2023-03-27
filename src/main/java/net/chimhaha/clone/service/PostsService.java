@@ -81,7 +81,7 @@ public class PostsService {
         Posts posts = postsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + "해당 게시글이 존재하지 않습니다."));
 
-        posts.update(dto.getTitle(), dto.getContent(), dto.getSubject(), dto.getPopularFlag());
+        posts.update(dto);
 
         return posts.getId();
     }

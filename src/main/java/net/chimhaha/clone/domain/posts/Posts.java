@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.chimhaha.clone.converter.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
@@ -53,11 +54,11 @@ public class Posts extends BaseTimeEntity {
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, String subject, Boolean flag) {
-        this.title = title;
-        this.content = content;
-        this.subject = subject;
-        this.popularFlag = flag;
+    public void update(PostsUpdateRequestDto dto) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.subject = dto.getSubject();
+        this.popularFlag = dto.getPopularFlag();
     }
 
     public void increaseViewCount() {
