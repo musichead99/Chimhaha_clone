@@ -20,5 +20,10 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
     Page<Posts> findAll(Pageable pageable);
 
     List<Posts> findBySubject(String Subject);
-    List<Posts> findByBoard(Boards board);
+
+    @Query(
+            value = "select distinct p from Posts p join fetch p.board where p.board = :board",
+            countQuery = "select count(p) from Posts p where p.board = :board"
+    )
+    Page<Posts> findByBoard(Boards board, Pageable pageable);
 }

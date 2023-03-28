@@ -40,8 +40,8 @@ public class PostsController {
     }
 
     @GetMapping(path = "/posts", params = "board")
-    public List<PostsFindResponseDto> findByBoard(@RequestParam("board")Long boardId) {
-        return postsService.findByBoard(boardId);
+    public Page<PostsFindResponseDto> findByBoard(@RequestParam("board")Long boardId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+        return postsService.findByBoard(boardId, pageable);
     }
 
     @GetMapping("/posts/{id}")

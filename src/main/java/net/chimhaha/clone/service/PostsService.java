@@ -56,12 +56,13 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> findByBoard(Long boardId) {
+    public Page<PostsFindResponseDto> findByBoard(Long boardId, Pageable pageable) {
         Boards boards = boardsRepository.getReferenceById(boardId);
 
-        List<Posts> posts = postsRepository.findByBoard(boards);
+        Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
+        List<PostsFindResponseDto> dtoList = makeEntityToDto(posts.getContent());
 
-        return makeEntityToDto(posts);
+        return new PageImpl<PostsFindResponseDto>(dtoList, pageable, dtoList.size());
     }
 
     @Transactional(readOnly = true)
