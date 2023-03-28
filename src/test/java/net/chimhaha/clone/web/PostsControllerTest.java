@@ -135,7 +135,7 @@ public class PostsControllerTest {
     }
 
     @Test
-    public void 게시판별_게시글_조회() throws Exception {
+    public void 페이징_게시판별_게시글_조회() throws Exception {
         // given
         List<PostsFindResponseDto> postsList = new LinkedList<>();
         Posts post = Posts.builder()
@@ -167,7 +167,7 @@ public class PostsControllerTest {
     }
 
     @Test
-    public void 게시글_id로_조회() throws Exception {
+    public void 게시글_상세_조회() throws Exception {
         //given
         Posts posts = Posts.builder()
                 .title(title)
