@@ -40,8 +40,9 @@ public class Posts extends BaseTimeEntity {
     @Column(name = "popular_flag", nullable = false)
     private Boolean popularFlag; // 인기글(침하하) 허용 플래그
 
+    /* fk설정 해제 */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Boards board;
 
     @Builder
