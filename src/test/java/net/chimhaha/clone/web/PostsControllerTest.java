@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -68,6 +72,43 @@ public class PostsControllerTest {
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated()) // 상태 코드 201(created)반환
                 .andExpect(content().string("1")); // 결과값으로 생성한 게시글의 id반환
+    }
+
+    @Test
+    public void 페이징_게시글_전체_조회() throws Exception {
+        // given
+        List<PostsFindResponseDto> dtoList = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            dtoList.add(new PostsFindResponseDto(post));
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        given(postsService.find(any(Pageable.class)))
+                .willReturn(pagedDtoList);
+
+        // when
+        // then
+        mvc.perform(get("/posts")
+                .param("page", "0"))
+                .andDo(print())
+                .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)))
+                .andExpect(status().isOk());
     }
 
     @Test

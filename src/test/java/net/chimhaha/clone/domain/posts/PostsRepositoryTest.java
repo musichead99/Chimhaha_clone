@@ -8,6 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +71,36 @@ public class PostsRepositoryTest {
                 () -> assertEquals(subject, post.getSubject()),
                 () -> assertEquals(0,post.getViews()),
                 () -> assertEquals(flag, post.getPopularFlag())
+        );
+    }
+
+    @Test
+    public void 페이징_게시글_전체_조회() {
+        // given
+        Posts post = Posts.builder()
+                .title(title)
+                .content(content)
+                .board(board)
+                .subject(subject)
+                .popularFlag(flag)
+                .build();
+
+        for(int i = 0; i < 5; i++) {
+            postsRepository.save(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page,size);
+
+        // when
+        Page<Posts> posts = postsRepository.findAll(pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, posts.getNumber()),
+                () -> assertEquals(size, posts.getSize()),
+                () -> assertEquals(1, posts.getContent().get(0).getId())
         );
     }
 

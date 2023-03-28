@@ -14,6 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.LinkedList;
@@ -77,6 +81,46 @@ public class PostsServiceTest {
 
         //then
         assertEquals(createdPostsId, fakePostsId);
+    }
+
+    @Test
+    public void 페이징_게시글_전체_조회() {
+        // given
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
+
+        given(postsRepository.findAll(any(Pageable.class)))
+                .willReturn(pagedPosts);
+
+        // when
+        Page<PostsFindResponseDto> dtoList = postsService.find(pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(1,dtoList.getContent().get(0).getId())
+        );
     }
 
     @Test
