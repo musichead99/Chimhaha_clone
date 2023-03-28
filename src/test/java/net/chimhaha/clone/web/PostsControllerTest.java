@@ -12,10 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -151,14 +148,21 @@ public class PostsControllerTest {
 
         postsList.add(new PostsFindResponseDto(post));
 
-        given(postsService.findByBoard(any(Long.class)))
-                .willReturn(postsList);
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<PostsFindResponseDto> dtoList = new PageImpl<>(postsList, pageable, postsList.size());
+
+        given(postsService.findByBoard(any(Long.class), any(Pageable.class)))
+                .willReturn(dtoList);
         // when
         // then
-        mvc.perform(get("/posts?board=1"))
+        mvc.perform(get("/posts")
+                        .param("board", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(dtoList)));
 
     }
 

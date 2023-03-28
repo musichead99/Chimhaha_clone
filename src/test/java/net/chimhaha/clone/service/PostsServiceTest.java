@@ -152,32 +152,44 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 게시판별_게시글_조회() {
+    public void 페이징_게시판별_게시글_조회() {
         // given
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
 
-        List<Posts> postsList = new LinkedList<>();
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build();
-        postsList.add(post);
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
 
         given(boardsRepository.getReferenceById(any(Long.class)))
                 .willReturn(board);
-        given(postsRepository.findByBoard(any(Boards.class)))
-                .willReturn(postsList);
+        given(postsRepository.findByBoard(any(Boards.class), any(Pageable.class)))
+                .willReturn(pagedPosts);
 
         // when
-        List<PostsFindResponseDto> postsResponseList = postsService.findByBoard(1L);
+        Page<PostsFindResponseDto> dtoList = postsService.findByBoard(1L, pageable);
 
         // then
-        assertAll(() -> assertEquals(postsList.get(0).getTitle(), postsResponseList.get(0).getTitle()),
-                () -> assertEquals(postsList.get(0).getBoard().getName(), postsResponseList.get(0).getBoard()),
-                () -> verify(postsRepository, times(1)).findByBoard(board),
-                () -> verify(boardsRepository, times(1)).getReferenceById(1L));
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(board.getName(),dtoList.getContent().get(0).getBoard())
+        );
     }
 
     @Test

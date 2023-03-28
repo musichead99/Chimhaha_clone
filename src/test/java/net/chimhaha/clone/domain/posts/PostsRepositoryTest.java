@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -158,20 +159,31 @@ public class PostsRepositoryTest {
     @Test
     public void 게시판으로_게시글_조회() {
         // given
-        Posts post = postsRepository.save(Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build());
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+            postsRepository.save(Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build());
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         // when
-        List<Posts> categorizedPosts = postsRepository.findByBoard(board);
-        Posts categorizedPost = categorizedPosts.get(0);
+        Page<Posts> posts = postsRepository.findByBoard(board, pageable);
 
         // then
-        assertEquals(post.getBoard(), categorizedPost.getBoard());
+        assertAll(
+                () -> assertEquals(page, posts.getNumber()),
+                () -> assertEquals(size, posts.getSize()),
+                () -> assertEquals(amount, posts.getNumberOfElements()),
+                () -> assertEquals(board.getName(), posts.getContent().get(0).getBoard().getName())
+        );
     }
 
     @Test
