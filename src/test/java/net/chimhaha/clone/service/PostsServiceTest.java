@@ -193,7 +193,7 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 게시글_id로_조회() {
+    public void 게시글_상세_조회() {
         //given
         Posts posts = Posts.builder()
                 .title(title)

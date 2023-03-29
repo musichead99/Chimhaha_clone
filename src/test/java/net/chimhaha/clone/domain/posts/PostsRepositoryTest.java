@@ -157,7 +157,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 게시판으로_게시글_조회() {
+    public void 게시판별_게시글_조회() {
         // given
         int amount = 5;
         for(int i = 0; i < amount; i++) {
@@ -187,7 +187,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 카테고리로_게시글_조회() {
+    public void 카테고리별_게시글_조회() {
         // given
         Posts post = postsRepository.save(Posts.builder()
                 .title(title)
