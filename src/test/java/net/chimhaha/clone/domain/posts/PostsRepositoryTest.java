@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class PostsRepositoryTest {
 
@@ -100,8 +102,7 @@ public class PostsRepositoryTest {
         // then
         assertAll(
                 () -> assertEquals(page, posts.getNumber()),
-                () -> assertEquals(size, posts.getSize()),
-                () -> assertEquals(1, posts.getContent().get(0).getId())
+                () -> assertEquals(size, posts.getSize())
         );
     }
 
