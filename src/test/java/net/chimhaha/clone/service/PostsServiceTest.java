@@ -14,6 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.LinkedList;
@@ -80,6 +84,46 @@ public class PostsServiceTest {
     }
 
     @Test
+    public void 페이징_게시글_전체_조회() {
+        // given
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
+
+        given(postsRepository.findAll(any(Pageable.class)))
+                .willReturn(pagedPosts);
+
+        // when
+        Page<PostsFindResponseDto> dtoList = postsService.find(pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(1,dtoList.getContent().get(0).getId())
+        );
+    }
+
+    @Test
     public void 카테고리별_게시글_조회() {
         // given
         List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
@@ -108,32 +152,44 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 게시판별_게시글_조회() {
+    public void 페이징_게시판별_게시글_조회() {
         // given
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
 
-        List<Posts> postsList = new LinkedList<>();
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build();
-        postsList.add(post);
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
 
-        given(boardsRepository.getReferenceByName(any(String.class)))
-                .willReturn(Optional.ofNullable(board));
-        given(postsRepository.findByBoard(any(Boards.class)))
-                .willReturn(postsList);
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
+
+        given(boardsRepository.getReferenceById(any(Long.class)))
+                .willReturn(board);
+        given(postsRepository.findByBoard(any(Boards.class), any(Pageable.class)))
+                .willReturn(pagedPosts);
 
         // when
-        List<PostsFindResponseDto> postsResponseList = postsService.findByBoard("침착맨");
+        Page<PostsFindResponseDto> dtoList = postsService.findByBoard(1L, pageable);
 
         // then
-        assertAll(() -> assertEquals(postsList.get(0).getTitle(), postsResponseList.get(0).getTitle()),
-                () -> assertEquals(postsList.get(0).getBoard().getName(), postsResponseList.get(0).getBoard()),
-                () -> verify(postsRepository, times(1)).findByBoard(board),
-                () -> verify(boardsRepository, times(1)).getReferenceByName("침착맨"));
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(board.getName(),dtoList.getContent().get(0).getBoard())
+        );
     }
 
     @Test

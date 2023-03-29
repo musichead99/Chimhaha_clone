@@ -9,6 +9,9 @@ import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +42,10 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> find() {
-        List<Posts> posts = postsRepository.findAll();
-
-        return makeEntityToDto(posts);
+    public Page<PostsFindResponseDto> find(Pageable pageable) {
+        Page<Posts> posts = postsRepository.findAll(pageable);
+        List<PostsFindResponseDto> dtoList = makeEntityToDto(posts.getContent());
+        return new PageImpl<PostsFindResponseDto>(dtoList, pageable, posts.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -53,13 +56,13 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> findByBoard(String categoryName) {
-        Boards boards = boardsRepository.getReferenceByName(categoryName)
-                .orElseThrow(() -> new IllegalArgumentException(categoryName + " 카테고리가 존재하지 않습니다"));
+    public Page<PostsFindResponseDto> findByBoard(Long boardId, Pageable pageable) {
+        Boards boards = boardsRepository.getReferenceById(boardId);
 
-        List<Posts> posts = postsRepository.findByBoard(boards);
+        Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
+        List<PostsFindResponseDto> dtoList = makeEntityToDto(posts.getContent());
 
-        return makeEntityToDto(posts);
+        return new PageImpl<PostsFindResponseDto>(dtoList, pageable, dtoList.size());
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +75,8 @@ public class PostsService {
 
     @Transactional
     public void increaseViewCount(Long id) {
-        Posts post = postsRepository.findById(id).get();
+        Posts post = postsRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
         post.increaseViewCount();
     }
 

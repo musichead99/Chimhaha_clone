@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,6 +72,43 @@ public class PostsControllerTest {
     }
 
     @Test
+    public void 페이징_게시글_전체_조회() throws Exception {
+        // given
+        List<PostsFindResponseDto> dtoList = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .board(board)
+                    .subject(subject)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            dtoList.add(new PostsFindResponseDto(post));
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        given(postsService.find(any(Pageable.class)))
+                .willReturn(pagedDtoList);
+
+        // when
+        // then
+        mvc.perform(get("/posts")
+                .param("page", "0"))
+                .andDo(print())
+                .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void 카테고리별_게시글_조회() throws Exception {
         // given
         List<PostsFindResponseDto> postsList = new LinkedList<>();
@@ -90,7 +128,7 @@ public class PostsControllerTest {
 
         //when
         //then
-        mvc.perform(get("/침착맨/침착맨/posts"))
+        mvc.perform(get("/posts?subject=침착맨"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
@@ -110,14 +148,21 @@ public class PostsControllerTest {
 
         postsList.add(new PostsFindResponseDto(post));
 
-        given(postsService.findByBoard(any(String.class)))
-                .willReturn(postsList);
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<PostsFindResponseDto> dtoList = new PageImpl<>(postsList, pageable, postsList.size());
+
+        given(postsService.findByBoard(any(Long.class), any(Pageable.class)))
+                .willReturn(dtoList);
         // when
         // then
-        mvc.perform(get("/침착맨/posts"))
+        mvc.perform(get("/posts")
+                        .param("board", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(dtoList)));
 
     }
 
