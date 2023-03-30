@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.chimhaha.clone.converter.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -45,11 +46,16 @@ public class Posts extends BaseTimeEntity {
     @JoinColumn(name = "board_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Boards board;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
     @Builder
-    public Posts(String title, String content, Boards board, String subject, Integer views, Boolean popularFlag) {
+    public Posts(String title, String content, Boards board, Category category, String subject, Integer views, Boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.board = board;
+        this.category = category;
         this.subject = subject;
         this.views = views;
         this.popularFlag = popularFlag;
