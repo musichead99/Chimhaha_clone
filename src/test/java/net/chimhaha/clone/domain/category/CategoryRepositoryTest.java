@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -56,6 +58,28 @@ public class CategoryRepositoryTest {
                 () -> assertEquals(1, storedCategory.getId()),
                 () -> assertEquals(category.getName(), storedCategory.getName()),
                 () -> assertEquals(category.getBoard().getName(), storedCategory.getBoard().getName())
+        );
+    }
+
+    @Test
+    public void 카테고리_전체_조회() {
+        // given
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+            categoryRepository.save(Category.builder()
+                    .name(name)
+                    .board(board)
+                    .build());
+        }
+
+        // when
+        List<Category> categories = categoryRepository.findAll();
+
+        // then
+        assertAll(
+                () -> assertEquals(amount, categories.size()),
+                () -> assertEquals(name, categories.get(0).getName()),
+                () -> assertEquals(board.getName(), categories.get(0).getBoard().getName())
         );
     }
 }

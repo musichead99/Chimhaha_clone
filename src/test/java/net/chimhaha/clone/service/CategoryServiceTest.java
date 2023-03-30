@@ -4,6 +4,7 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -13,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,5 +77,42 @@ public class CategoryServiceTest {
                 () -> verify(categoryRepository, times(1)).save(any(Category.class)),
                 () -> verify(boardsRepository, times(1)).getReferenceById(any(Long.class))
         );
+    }
+
+    @Test
+    public void 카테고리_전체_조회() {
+        // given
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+
+        List<Category> categories = new ArrayList<>();
+        int amount = 5;
+
+        for(int i = 0; i < amount; i++) {
+            categories.add(Category.builder()
+                    .name(name)
+                    .board(board)
+                    .build());
+        }
+
+        given(categoryRepository.findAll())
+                .willReturn(categories);
+
+        // when
+        List<CategoryFindResponseDto> dtoList = categoryService.find();
+
+        // then
+        assertAll(
+                () -> assertEquals(amount, dtoList.size()),
+                () -> assertEquals(categories.get(0).getId(), dtoList.get(0).getId()),
+                () -> assertEquals(categories.get(0).getName(), dtoList.get(0).getName()),
+                () -> assertEquals(categories.get(0).getBoard().getId(), dtoList.get(0).getBoardId()),
+                () -> assertEquals(categories.get(0).getBoard().getName(), dtoList.get(0).getBoardName()),
+                () -> verify(categoryRepository, times(1)).findAll()
+        );
+
     }
 }
