@@ -56,7 +56,7 @@ public class CategoryRepositoryTest {
 
         // then
         assertAll(
-                () -> assertEquals(1, storedCategory.getId()),
+                () -> assertNotNull(storedCategory.getId()), // 매번 deleteAll()을 해도 auto_increament값은 초기화되지 않으므로 id가 존재하는지만 테스트
                 () -> assertEquals(category.getName(), storedCategory.getName()),
                 () -> assertEquals(category.getBoard().getName(), storedCategory.getBoard().getName())
         );
