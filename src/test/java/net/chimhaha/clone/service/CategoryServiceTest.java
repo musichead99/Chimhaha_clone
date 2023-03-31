@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -113,6 +113,20 @@ public class CategoryServiceTest {
                 () -> assertEquals(categories.get(0).getBoard().getName(), dtoList.get(0).getBoardName()),
                 () -> verify(categoryRepository, times(1)).findAll()
         );
+    }
+
+    @Test
+    public void 카테고리_삭제() {
+        // given
+        Long categoryId = 1L;
+
+        willDoNothing().given(categoryRepository).deleteById(any(Long.class));
+
+        // when
+        categoryService.delete(categoryId);
+
+        // then
+        verify(categoryRepository, times(1)).deleteById(any(Long.class));
 
     }
 }

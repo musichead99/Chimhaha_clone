@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,5 +82,22 @@ public class CategoryRepositoryTest {
                 () -> assertEquals(name, categories.get(0).getName()),
                 () -> assertEquals(board.getName(), categories.get(0).getBoard().getName())
         );
+    }
+
+    @Test
+    public void 카테고리_삭제() {
+        // given
+        Category category = categoryRepository.save(Category.builder()
+                .name(name)
+                .board(board)
+                .build());
+        Long categoryId = category.getId();
+
+        // when
+        categoryRepository.deleteById(categoryId);
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+
+        // then
+        assertFalse(optionalCategory.isPresent());
     }
 }

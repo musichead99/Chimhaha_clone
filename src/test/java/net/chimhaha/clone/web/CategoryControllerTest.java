@@ -18,8 +18,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -90,5 +89,17 @@ public class CategoryControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
 
+    }
+
+    @Test
+    public void 카테고리_삭제() throws Exception {
+        // given
+        Long categoryId = 1L;
+
+        // when
+        // then
+        mvc.perform(delete("/category/{id}", categoryId))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }
