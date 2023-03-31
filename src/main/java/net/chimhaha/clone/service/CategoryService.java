@@ -46,4 +46,8 @@ public class CategoryService {
 
         return dtoList;
     }
+
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
+    }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query(
-            value = "select distinct c from Category c join fetch Boards b on c.board = b",
+            value = "select distinct c from Category c join fetch c.board",
             countQuery = "select count(c) from Category c")
     List<Category> findAll();
 }
