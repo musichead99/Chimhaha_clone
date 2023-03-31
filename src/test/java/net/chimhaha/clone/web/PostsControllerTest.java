@@ -8,6 +8,8 @@ import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 /* @SpringBootTest는 모든 빈을 로드하기 때문에 Controller계층만 테스트할 때는 @WebMvcTest를 사용 */
 @WebMvcTest(controllers = PostsController.class)
 public class PostsControllerTest {

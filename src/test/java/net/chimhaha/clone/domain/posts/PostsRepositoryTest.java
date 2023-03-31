@@ -3,9 +3,7 @@ package net.chimhaha.clone.domain.posts;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class PostsRepositoryTest {
@@ -48,8 +47,8 @@ public class PostsRepositoryTest {
     }
 
     @BeforeEach
-    public void settup() {
-        boardsRepository.save(board);
+    public void setup() {
+        board = boardsRepository.save(board);
     }
 
     /* 단위 테스트 메소드 */

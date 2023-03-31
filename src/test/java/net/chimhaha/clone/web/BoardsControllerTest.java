@@ -7,6 +7,8 @@ import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @WebMvcTest(controllers = BoardsController.class)
 public class BoardsControllerTest {
 

@@ -9,6 +9,8 @@ import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class) // service 레이어 테스트 시 사용하는 어노테이션
 public class PostsServiceTest {
 

@@ -6,6 +6,8 @@ import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class)
 public class BoardsServiceTest {
 
