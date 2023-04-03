@@ -1,5 +1,6 @@
 package net.chimhaha.clone.web.dto.posts;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.posts.Posts;
@@ -7,6 +8,7 @@ import net.chimhaha.clone.domain.posts.Posts;
 import java.time.LocalDateTime;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 public class PostsFindResponseDto {
     private Long id;
@@ -16,12 +18,14 @@ public class PostsFindResponseDto {
     private LocalDateTime createdDate;
     private Integer views;
 
-    public PostsFindResponseDto(Posts posts) {
-        this.id = posts.getId();
-        this.title = posts.getTitle();
-        this.board = posts.getBoard().getName();
-        this.subject = posts.getSubject();
-        this.createdDate = posts.getCreatedDate();
-        this.views = posts.getViews();
+    public static PostsFindResponseDto from(Posts post) {
+        return new PostsFindResponseDto(
+                post.getId(),
+                post.getTitle(),
+                post.getBoard().getName(),
+                post.getSubject(),
+                post.getCreatedDate(),
+                post.getViews()
+        );
     }
 }

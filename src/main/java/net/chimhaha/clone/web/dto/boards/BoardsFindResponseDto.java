@@ -1,8 +1,10 @@
 package net.chimhaha.clone.web.dto.boards;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.chimhaha.clone.domain.boards.Boards;
 
+@AllArgsConstructor
 @Getter
 public class BoardsFindResponseDto {
     private Long id;
@@ -10,10 +12,12 @@ public class BoardsFindResponseDto {
     private String description;
     private Integer likeLimit;
 
-    public BoardsFindResponseDto(Boards board) {
-        this.id = board.getId();
-        this.name = board.getName();
-        this.description = board.getDescription();
-        this.likeLimit = board.getLikeLimit();
+    public static BoardsFindResponseDto from(Boards board) {
+        return new BoardsFindResponseDto(
+                board.getId(),
+                board.getName(),
+                board.getDescription(),
+                board.getLikeLimit()
+        );
     }
 }
