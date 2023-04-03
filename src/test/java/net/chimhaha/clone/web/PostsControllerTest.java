@@ -172,7 +172,7 @@ public class PostsControllerTest {
     @Test
     public void 게시글_상세_조회() throws Exception {
         //given
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -180,12 +180,12 @@ public class PostsControllerTest {
                 .popularFlag(flag)
                 .build();
 
-        PostsFindByIdResponseDto dto = new PostsFindByIdResponseDto(posts);
+        PostsFindByIdResponseDto dto = PostsFindByIdResponseDto.from(post);
         given(postsService.findById(any())).willReturn(dto);
 
         //when
         //then
-        mvc.perform(get("/posts/1"))
+        mvc.perform(get("/posts/{id}", 1L))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(dto)));

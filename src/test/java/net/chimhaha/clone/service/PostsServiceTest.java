@@ -198,7 +198,7 @@ public class PostsServiceTest {
     @Test
     public void 게시글_상세_조회() {
         //given
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -207,12 +207,12 @@ public class PostsServiceTest {
                 .build();
 
         Long fakePostsId = 1L;
-        ReflectionTestUtils.setField(posts, "id", fakePostsId);
-        ReflectionTestUtils.setField(posts, "views", 0);
-        PostsFindByIdResponseDto expectedDto = new PostsFindByIdResponseDto(posts);
+        ReflectionTestUtils.setField(post, "id", fakePostsId);
+        ReflectionTestUtils.setField(post, "views", 0);
+        PostsFindByIdResponseDto expectedDto = PostsFindByIdResponseDto.from(post);
         
         given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(posts));
+                .willReturn(Optional.ofNullable(post));
         //when
         Long postsId = 1L;
         PostsFindByIdResponseDto dto = postsService.findById(postsId);
