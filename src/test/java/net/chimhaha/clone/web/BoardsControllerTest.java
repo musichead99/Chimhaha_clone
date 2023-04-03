@@ -1,6 +1,5 @@
 package net.chimhaha.clone.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.service.BoardsService;
@@ -81,7 +80,7 @@ public class BoardsControllerTest {
         Long boardId = 1L;
         ReflectionTestUtils.setField(board, "id", boardId);
 
-        BoardsFindResponseDto dto = new BoardsFindResponseDto(board);
+        BoardsFindResponseDto dto = BoardsFindResponseDto.from(board);
         List<BoardsFindResponseDto> dtoList = new ArrayList<>();
         dtoList.add(dto);
 

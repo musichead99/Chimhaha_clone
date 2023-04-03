@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -35,7 +36,9 @@ public class BoardsService {
     public List<BoardsFindResponseDto> find() {
         List<Boards> boards = boardsRepository.findAll();
 
-        return makeEntityToDto(boards);
+        return boards.stream()
+                .map(BoardsFindResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -52,12 +55,4 @@ public class BoardsService {
         boardsRepository.deleteById(id);
     }
 
-    private List<BoardsFindResponseDto> makeEntityToDto(List<Boards> boards) {
-        List<BoardsFindResponseDto> responses = new ArrayList<>();
-
-        for(Boards board : boards) {
-            responses.add(new BoardsFindResponseDto(board));
-        }
-        return responses;
-    }
 }

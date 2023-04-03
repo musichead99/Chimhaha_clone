@@ -10,13 +10,12 @@ import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
 import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -44,15 +43,17 @@ public class PostsService {
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> find(Pageable pageable) {
         Page<Posts> posts = postsRepository.findAll(pageable);
-        List<PostsFindResponseDto> dtoList = makeEntityToDto(posts.getContent());
-        return new PageImpl<PostsFindResponseDto>(dtoList, pageable, posts.getTotalElements());
+
+        return posts.map(PostsFindResponseDto::from);
     }
 
     @Transactional(readOnly = true)
     public List<PostsFindResponseDto> findBySubject(String subject) {
         List<Posts> posts = postsRepository.findBySubject(subject);
 
-        return makeEntityToDto(posts);
+        return posts.stream()
+                .map(PostsFindResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -60,9 +61,8 @@ public class PostsService {
         Boards boards = boardsRepository.getReferenceById(boardId);
 
         Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
-        List<PostsFindResponseDto> dtoList = makeEntityToDto(posts.getContent());
 
-        return new PageImpl<PostsFindResponseDto>(dtoList, pageable, dtoList.size());
+        return posts.map(PostsFindResponseDto::from);
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class PostsService {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
 
-        return new PostsFindByIdResponseDto(post);
+        return PostsFindByIdResponseDto.from(post);
     }
 
     @Transactional
@@ -93,14 +93,5 @@ public class PostsService {
     @Transactional
     public void delete(Long id) {
         postsRepository.deleteById(id);
-    }
-
-    private List<PostsFindResponseDto> makeEntityToDto(List<Posts> posts) {
-        List<PostsFindResponseDto> responses = new ArrayList<>();
-
-        for(Posts post : posts) {
-            responses.add(new PostsFindResponseDto(post));
-        }
-        return responses;
     }
 }

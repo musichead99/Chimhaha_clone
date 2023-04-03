@@ -1,11 +1,12 @@
 package net.chimhaha.clone.web.dto.category;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import net.chimhaha.clone.domain.category.Category;
+
 
 @Getter
-@NoArgsConstructor
+@AllArgsConstructor()
 public class CategoryFindResponseDto {
 
     private Long id;
@@ -13,11 +14,12 @@ public class CategoryFindResponseDto {
     private Long boardId;
     private String boardName;
 
-    @Builder
-    public CategoryFindResponseDto(Long id, String name ,Long boardId, String boardName) {
-        this.id = id;
-        this.name = name;
-        this.boardId = boardId;
-        this.boardName = boardName;
+    public static CategoryFindResponseDto from(Category category) {
+        return new CategoryFindResponseDto(
+                category.getId(),
+                category.getName(),
+                category.getBoard().getId(),
+                category.getBoard().getName()
+        );
     }
 }

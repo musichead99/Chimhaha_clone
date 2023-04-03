@@ -132,7 +132,7 @@ public class PostsServiceTest {
         List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
         List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -140,9 +140,9 @@ public class PostsServiceTest {
                 .popularFlag(flag)
                 .build();
 
-        ReflectionTestUtils.setField(posts, "id", 1L);
-        expectedPostsResponseList.add(new PostsFindResponseDto(posts));
-        postsList.add(posts);
+        ReflectionTestUtils.setField(post, "id", 1L);
+        expectedPostsResponseList.add(PostsFindResponseDto.from(post));
+        postsList.add(post);
 
         given(postsRepository.findBySubject(any(String.class)))
                 .willReturn(postsList);
@@ -198,7 +198,7 @@ public class PostsServiceTest {
     @Test
     public void 게시글_상세_조회() {
         //given
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -207,12 +207,12 @@ public class PostsServiceTest {
                 .build();
 
         Long fakePostsId = 1L;
-        ReflectionTestUtils.setField(posts, "id", fakePostsId);
-        ReflectionTestUtils.setField(posts, "views", 0);
-        PostsFindByIdResponseDto expectedDto = new PostsFindByIdResponseDto(posts);
+        ReflectionTestUtils.setField(post, "id", fakePostsId);
+        ReflectionTestUtils.setField(post, "views", 0);
+        PostsFindByIdResponseDto expectedDto = PostsFindByIdResponseDto.from(post);
         
         given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(posts));
+                .willReturn(Optional.ofNullable(post));
         //when
         Long postsId = 1L;
         PostsFindByIdResponseDto dto = postsService.findById(postsId);

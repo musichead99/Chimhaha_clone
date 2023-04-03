@@ -11,8 +11,8 @@ import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -37,18 +37,10 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryFindResponseDto> find() {
         List<Category> categories = categoryRepository.findAll();
-        List<CategoryFindResponseDto> dtoList = new LinkedList<>();
 
-        for(Category category : categories) {
-            dtoList.add(CategoryFindResponseDto.builder()
-                    .id(category.getId())
-                    .name(category.getName())
-                    .boardId(category.getBoard().getId())
-                    .boardName(category.getBoard().getName())
-                    .build());
-        }
-
-        return dtoList;
+        return categories.stream()
+                .map(CategoryFindResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
