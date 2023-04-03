@@ -2,6 +2,7 @@ package net.chimhaha.clone.domain.category;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class CategoryRepositoryTest {
 
     @BeforeEach
     public void setup() {
-        boardsRepository.save(board);
+        board = boardsRepository.save(board);
     }
 
     @AfterEach
@@ -82,6 +83,33 @@ public class CategoryRepositoryTest {
                 () -> assertEquals(name, categories.get(0).getName()),
                 () -> assertEquals(board.getName(), categories.get(0).getBoard().getName())
         );
+    }
+
+    @Test
+    public void 카테고리_수정() {
+        // given
+        Category category = Category.builder()
+                .name(name)
+                .board(board)
+                .build();
+
+        CategoryUpdateRequestDto dto = CategoryUpdateRequestDto.builder()
+                .name("침착맨 짤")
+                .boardId(board.getId())
+                .build();
+
+        // when
+        Category savedCategory = categoryRepository.save(category);
+        category.update(dto.getName(), board);
+        Category updatedCategory = categoryRepository.save(category);
+
+        // then
+        assertAll(
+                () -> assertEquals(savedCategory.getId(), updatedCategory.getId()),
+                () -> assertEquals(dto.getName(), updatedCategory.getName()),
+                () -> assertEquals(dto.getBoardId(), updatedCategory.getBoard().getId())
+        );
+
     }
 
     @Test

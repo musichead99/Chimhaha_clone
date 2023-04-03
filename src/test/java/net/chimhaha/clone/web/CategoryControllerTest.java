@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.service.CategoryService;
 import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,31 @@ public class CategoryControllerTest {
         mvc.perform(get("/category"))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void 카테고리_수정() throws Exception {
+        // given
+        Long boardId = 1L;
+        Long categoryId = 1L;
+
+        CategoryUpdateRequestDto dto = CategoryUpdateRequestDto.builder()
+                .name("침착맨 짤")
+                .boardId(boardId)
+                .build();
+
+        given(categoryService.update(any(Long.class), any(CategoryUpdateRequestDto.class)))
+                .willReturn(categoryId);
+
+        // when
+        // then
+        mvc.perform(put("/category/{id}", categoryId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(content().string(categoryId.toString()))
                 .andExpect(status().isOk());
 
     }
