@@ -132,7 +132,7 @@ public class PostsServiceTest {
         List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
         List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -140,9 +140,9 @@ public class PostsServiceTest {
                 .popularFlag(flag)
                 .build();
 
-        ReflectionTestUtils.setField(posts, "id", 1L);
-        expectedPostsResponseList.add(new PostsFindResponseDto(posts));
-        postsList.add(posts);
+        ReflectionTestUtils.setField(post, "id", 1L);
+        expectedPostsResponseList.add(PostsFindResponseDto.from(post));
+        postsList.add(post);
 
         given(postsRepository.findBySubject(any(String.class)))
                 .willReturn(postsList);

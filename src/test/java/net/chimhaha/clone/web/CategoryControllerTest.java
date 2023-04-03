@@ -72,12 +72,11 @@ public class CategoryControllerTest {
         Long boardId = 1L;
 
         for(int i = 0; i < amount; i++) {
-            dtoList.add(CategoryFindResponseDto.builder()
-                    .id(categoryId)
-                    .name(name)
-                    .boardId(boardId)
-                    .boardName(boardName)
-                    .build());
+            dtoList.add(new CategoryFindResponseDto(
+                    categoryId,
+                    name,
+                    boardId,
+                    boardName));
         }
 
         given(categoryService.find())

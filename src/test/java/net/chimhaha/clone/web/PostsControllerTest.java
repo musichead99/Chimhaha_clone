@@ -78,6 +78,7 @@ public class PostsControllerTest {
     public void 페이징_게시글_전체_조회() throws Exception {
         // given
         List<PostsFindResponseDto> dtoList = new LinkedList<>();
+        
         int amount = 5;
         for(int i = 0; i < amount; i++) {
 
@@ -90,7 +91,7 @@ public class PostsControllerTest {
                     .build();
 
             ReflectionTestUtils.setField(post,"id", i + 1L);
-            dtoList.add(new PostsFindResponseDto(post));
+            dtoList.add(PostsFindResponseDto.from(post));
         }
 
         int page = 0;
@@ -115,7 +116,7 @@ public class PostsControllerTest {
     public void 카테고리별_게시글_조회() throws Exception {
         // given
         List<PostsFindResponseDto> postsList = new LinkedList<>();
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .board(board)
@@ -124,7 +125,7 @@ public class PostsControllerTest {
                 .build();
 
         for(int i = 0; i < 5; i++) {
-            postsList.add(new PostsFindResponseDto(posts));
+            postsList.add(PostsFindResponseDto.from(post));
         }
 
         given(postsService.findBySubject(any())).willReturn(postsList);
@@ -149,7 +150,7 @@ public class PostsControllerTest {
                 .popularFlag(flag)
                 .build();
 
-        postsList.add(new PostsFindResponseDto(post));
+        postsList.add(PostsFindResponseDto.from(post));
 
         int page = 0;
         int size = 20;
