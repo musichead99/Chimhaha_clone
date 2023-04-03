@@ -6,6 +6,7 @@ import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -113,6 +115,46 @@ public class CategoryServiceTest {
                 () -> assertEquals(categories.get(0).getBoard().getName(), dtoList.get(0).getBoardName()),
                 () -> verify(categoryRepository, times(1)).findAll()
         );
+    }
+
+    @Test
+    public void 카테고리_수정() {
+        // given
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        Long boardId = 1L;
+        ReflectionTestUtils.setField(board, "id", boardId);
+
+        Category category = Category.builder()
+                .name(name)
+                .board(board)
+                .build();
+        Long categoryId = 1L;
+        ReflectionTestUtils.setField(category, "id", categoryId);
+
+        CategoryUpdateRequestDto dto = CategoryUpdateRequestDto.builder()
+                .name(name)
+                .boardId(boardId)
+                .build();
+
+        given(boardsRepository.getReferenceById(any(Long.class)))
+                .willReturn(board);
+        given(categoryRepository.findById(any(Long.class)))
+                .willReturn(Optional.ofNullable(category));
+
+        // when
+        Long updatedCategoryId = categoryService.update(categoryId, dto);
+
+        // then
+        assertAll(
+                () -> assertEquals(categoryId, updatedCategoryId),
+                () -> verify(boardsRepository, times(1)).getReferenceById(any(Long.class)),
+                () -> verify(categoryRepository, times(1)).findById(any(Long.class))
+        );
+
     }
 
     @Test
