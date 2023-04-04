@@ -18,8 +18,8 @@ public class MenuController {
     private final MenuService menuService;
 
     @PostMapping("/menu")
-    public Long create(@RequestBody MenuSaveRequestDto dto) {
-        return menuService.create(dto);
+    public ResponseEntity<Long> save(@RequestBody MenuSaveRequestDto dto) {
+        return new ResponseEntity<>(menuService.save(dto), HttpStatus.CREATED);
     }
 
     @GetMapping("/menu")
@@ -28,7 +28,7 @@ public class MenuController {
     }
 
     @PutMapping("/menu/{id}")
-    public Long update(@PathVariable Long id, @RequestBody MenuUpdateRequestDto dto) {
+    public Long update(@PathVariable("id") Long id, @RequestBody MenuUpdateRequestDto dto) {
         return menuService.update(id, dto);
     }
 

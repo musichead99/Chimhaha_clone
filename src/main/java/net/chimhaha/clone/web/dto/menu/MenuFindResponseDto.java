@@ -1,12 +1,14 @@
 package net.chimhaha.clone.web.dto.menu;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 @AllArgsConstructor
 public class MenuFindResponseDto {
     private Long id;

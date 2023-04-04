@@ -19,7 +19,7 @@ public class MenuService {
     private final MenuRepository menuRepository;
 
     @Transactional
-    public Long create(MenuSaveRequestDto dto) {
+    public Long save(MenuSaveRequestDto dto) {
         Menu menu = menuRepository.save(Menu.builder()
                 .name(dto.getName())
                 .build());
