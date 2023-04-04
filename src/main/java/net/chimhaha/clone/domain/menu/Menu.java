@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 
 import javax.persistence.*;
+import java.util.LinkedList;
 import java.util.List;
 
 @Getter
@@ -20,7 +21,7 @@ public class Menu {
     private String name;
 
     @OneToMany(mappedBy = "menu")
-    private List<Boards> boards;
+    private List<Boards> boards = new LinkedList<>();
 
     @Builder
     public Menu(String name) {
