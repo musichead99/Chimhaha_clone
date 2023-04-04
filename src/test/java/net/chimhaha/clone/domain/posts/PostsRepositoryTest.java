@@ -2,6 +2,7 @@ package net.chimhaha.clone.domain.posts;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,28 +35,30 @@ public class PostsRepositoryTest {
     String subject = "침착맨";
     Boolean flag = true;
 
-    Boards board = Boards.builder()
-            .name("침착맨")
-            .description("침착맨에 대해 이야기하는 게시판입니다")
-            .likeLimit(10)
-            .build();
-
     /* @AfterEach를 단 메소드는 매 단위 테스트가 끝날 때마다 호출 */
     @AfterEach
     public void cleanup() {
         postsRepository.deleteAll();
-        boardsRepository.deleteAll();
-    }
-
-    @BeforeEach
-    public void setup() {
-        board = boardsRepository.save(board);
     }
 
     /* 단위 테스트 메소드 */
     @Test
     public void 게시글저장_불러오기() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)
@@ -79,6 +83,20 @@ public class PostsRepositoryTest {
     @Test
     public void 페이징_게시글_전체_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Posts post = Posts.builder()
                 .title(title)
                 .content(content)
@@ -108,6 +126,20 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_수정() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Posts post = Posts.builder()
                 .title(title)
                 .content(content)
@@ -140,6 +172,20 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_삭제() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Posts posts = postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)
@@ -159,6 +205,20 @@ public class PostsRepositoryTest {
     @Test
     public void 게시판별_게시글_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         int amount = 5;
         for(int i = 0; i < amount; i++) {
             postsRepository.save(Posts.builder()
@@ -189,6 +249,20 @@ public class PostsRepositoryTest {
     @Test
     public void 카테고리별_게시글_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Posts post = postsRepository.save(Posts.builder()
                 .title(title)
                 .content(content)

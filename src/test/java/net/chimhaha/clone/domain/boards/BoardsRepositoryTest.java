@@ -1,5 +1,6 @@
 package net.chimhaha.clone.domain.boards;
 
+import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -33,11 +35,18 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_전체_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
+                .menu(menu)
                 .likeLimit(likeLimit)
                 .build();
+
         int ea = 1;
         boardsRepository.save(board);
 
@@ -57,9 +66,15 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_이름으로_레퍼런스_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
+                .menu(menu)
                 .likeLimit(likeLimit)
                 .build();
 
@@ -74,12 +89,19 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_등록() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
+                .menu(menu)
                 .likeLimit(likeLimit)
                 .build();
         Long expectedId = 1L;
+
         // when
         Boards createdBoard = boardsRepository.save(board);
 
@@ -94,9 +116,15 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_수정() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
         Boards board = Boards.builder()
                 .name(name)
                 .description(description)
+                .menu(menu)
                 .likeLimit(10)
                 .build();
 
