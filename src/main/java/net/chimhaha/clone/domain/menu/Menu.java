@@ -1,0 +1,33 @@
+package net.chimhaha.clone.domain.menu;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import net.chimhaha.clone.domain.boards.Boards;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+@Entity
+public class Menu {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "menu")
+    private List<Boards> boards;
+
+    @Builder
+    public Menu(String name) {
+        this.name = name;
+    }
+
+    public void update(String name) {
+        this.name = name;
+    }
+}
