@@ -2,6 +2,8 @@ package net.chimhaha.clone.service;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
@@ -34,6 +36,9 @@ public class BoardsServiceTest {
     private BoardsRepository boardsRepository;
 
     @Mock
+    private MenuRepository menuRepository;
+
+    @Mock
     private PostsRepository postsRepository;
 
     @InjectMocks // 위의 mock객체들을 주입
@@ -46,13 +51,19 @@ public class BoardsServiceTest {
     @Test
     public void 게시판_등록() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+
         BoardsSaveRequestDto dto = BoardsSaveRequestDto.builder()
+                .menuId(1L)
                 .name(name)
                 .description(description)
                 .likeLimit(likeLimit)
                 .build();
 
         Boards board = Boards.builder()
+                .menu(menu)
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .likeLimit(dto.getLikeLimit())
@@ -62,6 +73,8 @@ public class BoardsServiceTest {
 
         given(boardsRepository.save(any(Boards.class)))
                 .willReturn(board);
+        given(menuRepository.getReferenceById(any(Long.class)))
+                .willReturn(menu);
 
         // when
         Long createdBoardId = boardsService.save(dto);
