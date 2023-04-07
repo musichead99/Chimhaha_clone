@@ -28,12 +28,6 @@ public class CategoryRepositoryTest {
 
     String name = "침착맨";
 
-    @AfterEach
-    public void cleanup() {
-        categoryRepository.deleteAll();
-        boardsRepository.deleteAll();
-    }
-
     @Test
     public void 카테고리_등록() {
         // given

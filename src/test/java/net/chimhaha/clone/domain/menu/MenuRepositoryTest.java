@@ -18,11 +18,6 @@ public class MenuRepositoryTest {
     @Autowired
     private MenuRepository menuRepository;
 
-    @AfterEach
-    public void cleanup(){
-        menuRepository.deleteAll();
-    }
-
     @Test
     public void 메뉴_등록() {
         // given

@@ -2,7 +2,6 @@ package net.chimhaha.clone.domain.boards;
 
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -22,11 +21,6 @@ public class BoardsRepositoryTest {
 
     @Autowired
     private BoardsRepository boardsRepository;
-
-    @AfterEach
-    public void cleanup() {
-        boardsRepository.deleteAll();
-    }
 
     static String name = "침착맨";
     static String description = "침착맨에 대해 이야기하는 게시판입니다";
