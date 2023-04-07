@@ -3,15 +3,12 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
-import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

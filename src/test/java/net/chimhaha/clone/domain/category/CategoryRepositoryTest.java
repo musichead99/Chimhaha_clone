@@ -2,19 +2,20 @@ package net.chimhaha.clone.domain.category;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class CategoryRepositoryTest {
@@ -25,18 +26,7 @@ public class CategoryRepositoryTest {
     @Autowired
     BoardsRepository boardsRepository;
 
-    Boards board = Boards.builder()
-            .name("침착맨")
-            .description("침착맨에 대해 이야기하는 게시판입니다")
-            .likeLimit(10)
-            .build();
-
     String name = "침착맨";
-
-    @BeforeEach
-    public void setup() {
-        board = boardsRepository.save(board);
-    }
 
     @AfterEach
     public void cleanup() {
@@ -47,6 +37,20 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_등록() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Category category = Category.builder()
                 .name(name)
                 .board(board)
@@ -66,6 +70,20 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_전체_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         int amount = 5;
         for(int i = 0; i < amount; i++) {
             categoryRepository.save(Category.builder()
@@ -88,6 +106,20 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_수정() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Category category = Category.builder()
                 .name(name)
                 .board(board)
@@ -115,6 +147,20 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_삭제() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu,"id", 1L);
+
+        Boards board = Boards.builder()
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .menu(menu)
+                .likeLimit(10)
+                .build();
+
+        boardsRepository.save(board);
+
         Category category = categoryRepository.save(Category.builder()
                 .name(name)
                 .board(board)
