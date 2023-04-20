@@ -44,6 +44,11 @@ public class PostsController {
         return postsService.findByBoard(boardId, pageable);
     }
 
+    @GetMapping(path = "/posts", params = "menu")
+    public Page<PostsFindResponseDto> findByMenu(@RequestParam("menu")Long menuId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+        return postsService.findByMenu(menuId, pageable);
+    }
+
     @GetMapping("/posts/{id}")
     public PostsFindByIdResponseDto findById(@PathVariable("id")Long id) {
         postsService.increaseViewCount(id);

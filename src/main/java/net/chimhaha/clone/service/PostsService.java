@@ -73,6 +73,15 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
+    public Page<PostsFindResponseDto> findByMenu(Long menuId, Pageable pageable) {
+        Menu menu = menuRepository.getReferenceById(menuId);
+        
+        Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
+
+        return posts.map(PostsFindResponseDto::from);
+    }
+
+    @Transactional(readOnly = true)
     public PostsFindByIdResponseDto findById(Long id) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
@@ -103,4 +112,5 @@ public class PostsService {
     public void delete(Long id) {
         postsRepository.deleteById(id);
     }
+
 }
