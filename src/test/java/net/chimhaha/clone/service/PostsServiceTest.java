@@ -3,6 +3,10 @@ package net.chimhaha.clone.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -25,6 +29,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +45,13 @@ public class PostsServiceTest {
     private PostsRepository postsRepository;
 
     @Mock
+    private MenuRepository menuRepository;
+
+    @Mock
     private BoardsRepository boardsRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private PostsService postsService;
@@ -49,46 +60,88 @@ public class PostsServiceTest {
     String content = "테스트 본문";
     String subject = "침착맨";
     Boolean flag = true;
-    Boards board = Boards.builder()
-            .name("침착맨")
-            .description("침착맨에 대해 이야기하는 게시판입니다")
-            .likeLimit(10)
-            .build();
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void 게시글_등록() {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
-                .subject(subject)
+                .menuId(1L)
+                .boardId(1L)
+                .categoryId(1L)
                 .popularFlag(flag)
                 .build();
+
         Posts posts = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .subject(dto.getSubject())
+                .menu(menu)
+                .board(board)
+                .category(category)
                 .popularFlag(dto.getPopularFlag())
                 .build();
-
-        Long fakePostsId = 1L;
         /* ReflectionTestUtils는 객체의 private field에 값을 주입할 수 있다. */
-        ReflectionTestUtils.setField(posts, "id", fakePostsId); // 가짜 게시글 id 주입
+        ReflectionTestUtils.setField(posts, "id", 1L); // 가짜 게시글 id 주입
 
         given(postsRepository.save(any(Posts.class)))
                 .willReturn(posts);
+        given(menuRepository.getReferenceById(any(Long.class)))
+                .willReturn(menu);
+        given(boardsRepository.getReferenceById(any(Long.class)))
+                .willReturn(board);
+        given(categoryRepository.getReferenceById(any(Long.class)))
+                .willReturn(category);
 
         //when
         Long createdPostsId = postsService.save(dto);
 
         //then
-        assertEquals(createdPostsId, fakePostsId);
+        assertEquals(1L, createdPostsId);
     }
 
     @Test
     public void 페이징_게시글_전체_조회() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         List<Posts> posts = new LinkedList<>();
         int amount = 5;
         for(int i = 0; i < amount; i++) {
@@ -96,11 +149,11 @@ public class PostsServiceTest {
             Posts post = Posts.builder()
                     .title(title)
                     .content(content)
+                    .menu(menu)
                     .board(board)
-                    .subject(subject)
+                    .category(category)
                     .popularFlag(flag)
                     .build();
-
             ReflectionTestUtils.setField(post,"id", i + 1L);
             posts.add(post);
         }
@@ -129,34 +182,25 @@ public class PostsServiceTest {
     @Test
     public void 카테고리별_게시글_조회() {
         // given
-        List<PostsFindResponseDto> expectedPostsResponseList = new LinkedList<>(); // service 계층에서 반환될 리스트 예상
-        List<Posts> postsList = new LinkedList<>(); // repository가 반환할 리스트
-
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
+        Menu menu = Menu.builder()
+                .name("침착맨")
                 .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
 
-        ReflectionTestUtils.setField(post, "id", 1L);
-        expectedPostsResponseList.add(PostsFindResponseDto.from(post));
-        postsList.add(post);
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
 
-        given(postsRepository.findBySubject(any(String.class)))
-                .willReturn(postsList);
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
 
-        //when
-        List<PostsFindResponseDto> postsResponseList = postsService.findBySubject("침착맨");
-
-        //then
-        assertEquals(postsResponseList.get(0).getSubject(), expectedPostsResponseList.get(0).getSubject());
-    }
-
-    @Test
-    public void 페이징_게시판별_게시글_조회() {
-        // given
         List<Posts> posts = new LinkedList<>();
         int amount = 5;
         for(int i = 0; i < amount; i++) {
@@ -164,8 +208,71 @@ public class PostsServiceTest {
             Posts post = Posts.builder()
                     .title(title)
                     .content(content)
+                    .menu(menu)
                     .board(board)
-                    .subject(subject)
+                    .category(category)
+                    .popularFlag(flag)
+                    .build();
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
+
+        given(postsRepository.findByCategory(any(Category.class), any(Pageable.class)))
+                .willReturn(pagedPosts);
+
+        given(categoryRepository.getReferenceById(any(Long.class)))
+                .willReturn(category);
+
+        //when
+        Page<PostsFindResponseDto> dtoList = postsService.findByCategory(1L, pageable);
+
+        //then
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(1,dtoList.getContent().get(0).getId())
+        );
+    }
+
+    @Test
+    public void 페이징_게시판별_게시글_조회() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
                     .popularFlag(flag)
                     .build();
 
@@ -198,11 +305,31 @@ public class PostsServiceTest {
     @Test
     public void 게시글_상세_조회() {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts post = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
 
@@ -224,44 +351,85 @@ public class PostsServiceTest {
     @Test
     public void 게시글_수정() {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
         Long postsId = 1L;
         ReflectionTestUtils.setField(posts, "id", postsId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
-        String updatedContent = "테스트 본문 2"; // 수정된 본문
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
-                .content(updatedContent)
-                .subject(subject)
+                .content("테스트 본문 2")
+                .categoryId(1L)
                 .popularFlag(flag)
                 .build();
 
         given(postsRepository.findById(any(Long.class)))
                 .willReturn(Optional.ofNullable(posts));
+        given(categoryRepository.getReferenceById(any(Long.class)))
+                .willReturn(category);
 
         // when
         Long updatedId = postsService.update(postsId, dto);
 
         // then
         assertAll(() -> assertEquals(postsId, updatedId),
-                () -> assertEquals(updatedContent, posts.getContent()));
+                () -> assertEquals("테스트 본문 2", posts.getContent()));
     }
 
     @Test
     public void 조회수_증가() {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
 

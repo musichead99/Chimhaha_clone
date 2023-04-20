@@ -2,6 +2,8 @@ package net.chimhaha.clone.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -43,23 +45,38 @@ public class PostsControllerTest {
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String subject = "침착맨";
     Boolean flag = true;
-    Boards board = Boards.builder()
-            .name("침착맨")
-            .description("침착맨에 대해 이야기하는 게시판입니다")
-            .likeLimit(10)
-            .build();
 
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void  게시글_등록() throws Exception {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
-                .subject(subject)
+                .menuId(1L)
+                .boardId(1L)
+                .categoryId(1L)
                 .popularFlag(flag)
                 .build();
 
@@ -77,6 +94,25 @@ public class PostsControllerTest {
     @Test
     public void 페이징_게시글_전체_조회() throws Exception {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         List<PostsFindResponseDto> dtoList = new LinkedList<>();
         
         int amount = 5;
@@ -85,8 +121,9 @@ public class PostsControllerTest {
             Posts post = Posts.builder()
                     .title(title)
                     .content(content)
+                    .menu(menu)
                     .board(board)
-                    .subject(subject)
+                    .category(category)
                     .popularFlag(flag)
                     .build();
 
@@ -115,69 +152,146 @@ public class PostsControllerTest {
     @Test
     public void 카테고리별_게시글_조회() throws Exception {
         // given
-        List<PostsFindResponseDto> postsList = new LinkedList<>();
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
+        Menu menu = Menu.builder()
+                .name("침착맨")
                 .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
 
-        for(int i = 0; i < 5; i++) {
-            postsList.add(PostsFindResponseDto.from(post));
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        List<PostsFindResponseDto> dtoList = new LinkedList<>();
+
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            dtoList.add(PostsFindResponseDto.from(post));
         }
 
-        given(postsService.findBySubject(any())).willReturn(postsList);
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        given(postsService.findByCategory(any(Long.class), any(Pageable.class))).willReturn(pagedDtoList);
 
         //when
         //then
-        mvc.perform(get("/posts?subject=침착맨"))
+        mvc.perform(get("/posts")
+                        .param("category", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(postsList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
     }
 
     @Test
     public void 페이징_게시판별_게시글_조회() throws Exception {
         // given
-        List<PostsFindResponseDto> postsList = new LinkedList<>();
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
+        Menu menu = Menu.builder()
+                .name("침착맨")
                 .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
 
-        postsList.add(PostsFindResponseDto.from(post));
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        List<PostsFindResponseDto> dtoList = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            dtoList.add(PostsFindResponseDto.from(post));
+        }
 
         int page = 0;
         int size = 20;
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
-        Page<PostsFindResponseDto> dtoList = new PageImpl<>(postsList, pageable, postsList.size());
+        Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
         given(postsService.findByBoard(any(Long.class), any(Pageable.class)))
-                .willReturn(dtoList);
+                .willReturn(pagedDtoList);
+
         // when
         // then
         mvc.perform(get("/posts")
                         .param("board", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(dtoList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
 
     }
 
     @Test
     public void 게시글_상세_조회() throws Exception {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts post = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
 
@@ -195,22 +309,41 @@ public class PostsControllerTest {
     @Test
     public void 게시글_수정() throws Exception {
         //given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
         Long postId = 1l;
         ReflectionTestUtils.setField(posts, "id", postId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
-        String updatedContent = "태스트 본문 2";
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
-                .content(updatedContent)
-                .subject(subject)
+                .content("테스트 본문 2")
+                .categoryId(2L)
                 .popularFlag(flag)
                 .build();
 
@@ -229,11 +362,31 @@ public class PostsControllerTest {
     @Test
     public void 게시글_삭제() throws Exception {
         // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .menu(menu)
                 .board(board)
-                .subject(subject)
+                .category(category)
                 .popularFlag(flag)
                 .build();
         Long postId = 1l;
