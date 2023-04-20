@@ -10,16 +10,18 @@ import lombok.NoArgsConstructor;
 public class PostsSaveRequestDto {
     private String title;
     private String content;
+    private Long menuId;
     private Long boardId;
-    private String subject;
+    private Long categoryId;
     private Boolean popularFlag;
 
     @Builder
-    public PostsSaveRequestDto(String title, String content, Long boardId, String subject, Boolean popularFlag) {
+    public PostsSaveRequestDto(String title, String content, Long menuId, Long boardId, Long categoryId, Boolean popularFlag) {
         this.title = title;
         this.content = content;
+        this.menuId = menuId;
         this.boardId = boardId;
-        this.subject = subject;
+        this.categoryId = categoryId;
         this.popularFlag = popularFlag;
     }
 

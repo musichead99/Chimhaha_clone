@@ -34,9 +34,9 @@ public class PostsController {
         return postsService.find(pageable);
     }
 
-    @GetMapping(path = "/posts", params = "subject")
-    public List<PostsFindResponseDto> findBySubject(@RequestParam("subject")String subject) {
-        return postsService.findBySubject(subject);
+    @GetMapping(path = "/posts", params = "category")
+    public Page<PostsFindResponseDto> findByCategory(@RequestParam("category")Long categoryId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+        return postsService.findByCategory(categoryId, pageable);
     }
 
     @GetMapping(path = "/posts", params = "board")

@@ -3,6 +3,10 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
@@ -23,16 +27,19 @@ public class PostsService {
 
     private final PostsRepository postsRepository;
     private final BoardsRepository boardsRepository;
+    private final CategoryRepository categoryRepository;
+    private final MenuRepository menuRepository;
 
     @Transactional
     public Long save(PostsSaveRequestDto dto) {
 
         Boards board = boardsRepository.getReferenceById(dto.getBoardId());
+        Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+        Menu menu = menuRepository.getReferenceById(dto.getMenuId());
 
         Posts posts = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .subject(dto.getSubject())
                 .popularFlag(dto.getPopularFlag())
                 .board(board)
                 .build();
@@ -48,12 +55,12 @@ public class PostsService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostsFindResponseDto> findBySubject(String subject) {
-        List<Posts> posts = postsRepository.findBySubject(subject);
+    public Page<PostsFindResponseDto> findByCategory(Long categoryId, Pageable pageable) {
+        Category category = categoryRepository.getReferenceById(categoryId);
 
-        return posts.stream()
-                .map(PostsFindResponseDto::from)
-                .collect(Collectors.toList());
+        Page<Posts> posts = postsRepository.findByCategory(category, pageable);
+
+        return posts.map(PostsFindResponseDto::from);
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +92,9 @@ public class PostsService {
         Posts posts = postsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + "해당 게시글이 존재하지 않습니다."));
 
-        posts.update(dto);
+        Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+
+        posts.update(dto.getTitle(), dto.getContent(), category, dto.getPopularFlag());
 
         return posts.getId();
     }
