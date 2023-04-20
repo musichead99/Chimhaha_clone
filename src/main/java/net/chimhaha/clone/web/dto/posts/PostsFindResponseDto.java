@@ -13,8 +13,12 @@ import java.time.LocalDateTime;
 public class PostsFindResponseDto {
     private Long id;
     private String title;
-    private String board;
-    private String subject;
+    private Long menuId;
+    private String menuName;
+    private Long boardId;
+    private String boardName;
+    private Long categoryId;
+    private String categoryName;
     private LocalDateTime createdDate;
     private Integer views;
 
@@ -22,8 +26,12 @@ public class PostsFindResponseDto {
         return new PostsFindResponseDto(
                 post.getId(),
                 post.getTitle(),
+                post.getMenu().getId(),
+                post.getMenu().getName(),
+                post.getBoard().getId(),
                 post.getBoard().getName(),
-                post.getSubject(),
+                post.getCategory().getId(),
+                post.getCategory().getName(),
                 post.getCreatedDate(),
                 post.getViews()
         );

@@ -14,7 +14,8 @@ public class PostsFindByIdResponseDto {
     private Long id;
     private String title;
     private String content;
-    private String subject;
+    private Long categoryId;
+    private String categoryName;
     private LocalDateTime createdDate;
     private Integer views;
 
@@ -22,7 +23,8 @@ public class PostsFindByIdResponseDto {
         return new PostsFindByIdResponseDto(post.getId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getSubject(),
+                post.getCategory().getId(),
+                post.getCategory().getName(),
                 post.getCreatedDate(),
                 post.getViews());
     }

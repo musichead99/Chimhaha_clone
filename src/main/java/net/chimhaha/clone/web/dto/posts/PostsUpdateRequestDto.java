@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 public class PostsUpdateRequestDto {
     String title;
     String content;
-    String subject;
+    Long categoryId;
     Boolean popularFlag;
 
     @Builder
-    public PostsUpdateRequestDto(String title, String content, String subject, Boolean popularFlag) {
+    public PostsUpdateRequestDto(String title, String content, Long categoryId, Boolean popularFlag) {
         this.title = title;
         this.content = content;
-        this.subject = subject;
+        this.categoryId = categoryId;
         this.popularFlag = popularFlag;
     }
 }

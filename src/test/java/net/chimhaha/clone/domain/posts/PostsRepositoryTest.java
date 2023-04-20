@@ -2,7 +2,10 @@ package net.chimhaha.clone.domain.posts;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,46 +27,50 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PostsRepositoryTest {
 
     @Autowired
-    PostsRepository postsRepository;
+    MenuRepository menuRepository;
 
     @Autowired
     BoardsRepository boardsRepository;
 
-    String title = "테스트 게시글";
-    String content = "테스트 본문";
-    String subject = "침착맨";
-    Boolean flag = true;
+    @Autowired
+    CategoryRepository categoryRepository;
 
-    /* @AfterEach를 단 메소드는 매 단위 테스트가 끝날 때마다 호출 */
-    @AfterEach
-    public void cleanup() {
-        postsRepository.deleteAll();
-    }
+    @Autowired
+    PostsRepository postsRepository;
 
     /* 단위 테스트 메소드 */
     @Test
     public void 게시글저장_불러오기() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .menu(menu)
-                .likeLimit(10)
-                .build();
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
 
-        boardsRepository.save(board);
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
 
         postsRepository.save(Posts.builder()
-                .title(title)
-                .content(content)
+                .title("테스트 게시글")
+                .content("테스트 본문")
+                .menu(menu)
                 .board(board)
-                .subject(subject)
-                .popularFlag(flag)
+                .category(category)
+                .popularFlag(true)
                 .build());
 
         // when
@@ -72,41 +78,50 @@ public class PostsRepositoryTest {
         Posts post = postsList.get(0);
 
         // then
-        assertAll(() -> assertEquals(title, post.getTitle()),
-                () -> assertEquals(content, post.getContent()),
-                () -> assertEquals(subject, post.getSubject()),
-                () -> assertEquals(0,post.getViews()),
-                () -> assertEquals(flag, post.getPopularFlag())
+        assertAll(() -> assertEquals("테스트 게시글", post.getTitle()),
+                () -> assertEquals("테스트 본문", post.getContent()),
+                () -> assertEquals("침착맨", post.getMenu().getName()),
+                () -> assertEquals("침착맨", post.getBoard().getName()),
+                () -> assertEquals("침착맨", post.getCategory().getName()),
+                () -> assertEquals(0, post.getViews()),
+                () -> assertEquals(true, post.getPopularFlag())
         );
     }
 
     @Test
     public void 페이징_게시글_전체_조회() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .menu(menu)
-                .likeLimit(10)
-                .build();
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
 
-        boardsRepository.save(board);
-
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build();
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
 
         for(int i = 0; i < 5; i++) {
-            postsRepository.save(post);
+            postsRepository.save(Posts.builder()
+                    .title("테스트 게시글")
+                    .content("테스트 본문")
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(true)
+                    .build());
         }
 
         int page = 0;
@@ -126,107 +141,188 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_수정() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        Category updatedCategory = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨 짤")
+                        .build()
+        );
+
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
                 .menu(menu)
-                .likeLimit(10)
-                .build();
-
-        boardsRepository.save(board);
-
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
                 .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build();
-
-        PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
-                .title("테스트 게시글 2")
-                .content("테스트 본문 2")
-                .subject("쇼츠 요청")
-                .popularFlag(flag)
-                .build();
+                .category(category)
+                .popularFlag(true)
+                .build());
 
         // when
         Posts savedPost = postsRepository.save(post);
-        savedPost.update(dto);
+        savedPost.update("테스트 게시글 2", "테스트 본문 2", updatedCategory, false);
         Posts updatedPost = postsRepository.save(savedPost);
 
         // then
         assertAll(
                 () -> assertEquals(savedPost.getId(), updatedPost.getId()),
-                () -> assertEquals(dto.getTitle(), updatedPost.getTitle()),
-                () -> assertEquals(dto.getContent(), updatedPost.getContent()),
-                () -> assertEquals(dto.getSubject(), updatedPost.getSubject())
+                () -> assertEquals("테스트 게시글 2", updatedPost.getTitle()),
+                () -> assertEquals("테스트 본문 2", updatedPost.getContent()),
+                () -> assertEquals("침착맨 짤", updatedPost.getCategory().getName())
         );
     }
 
     @Test
     public void 게시글_삭제() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
                 .menu(menu)
-                .likeLimit(10)
-                .build();
-
-        boardsRepository.save(board);
-
-        Posts posts = postsRepository.save(Posts.builder()
-                .title(title)
-                .content(content)
                 .board(board)
-                .subject(subject)
-                .popularFlag(flag)
+                .category(category)
+                .popularFlag(true)
                 .build());
 
         // when
-        postsRepository.deleteById(posts.getId());
-        Optional<Posts> optionalPosts = postsRepository.findById(posts.getId());
+        postsRepository.deleteById(post.getId());
+        Optional<Posts> optionalPosts = postsRepository.findById(post.getId());
 
         // then
         assertFalse(optionalPosts.isPresent());
     }
 
     @Test
-    public void 게시판별_게시글_조회() {
+    public void 페이징_메뉴별_게시글_조회() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .menu(menu)
-                .likeLimit(10)
-                .build();
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
 
-        boardsRepository.save(board);
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
 
         int amount = 5;
         for(int i = 0; i < amount; i++) {
             postsRepository.save(Posts.builder()
-                    .title(title)
-                    .content(content)
+                    .title("테스트 게시글")
+                    .content("테스트 본문")
+                    .menu(menu)
                     .board(board)
-                    .subject(subject)
-                    .popularFlag(flag)
+                    .category(category)
+                    .popularFlag(true)
+                    .build());
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        // when
+        Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, posts.getNumber()),
+                () -> assertEquals(size, posts.getSize()),
+                () -> assertEquals(amount, posts.getNumberOfElements()),
+                () -> assertEquals(menu.getName(), posts.getContent().get(0).getMenu().getName())
+        );
+
+    }
+
+    @Test
+    public void 페이징_게시판별_게시글_조회() {
+        // given
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
+
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+            postsRepository.save(Posts.builder()
+                    .title("테스트 게시글")
+                    .content("테스트 본문")
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(true)
                     .build());
         }
 
@@ -247,34 +343,55 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 카테고리별_게시글_조회() {
+    public void 페이징_카테고리별_게시글_조회() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
 
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .menu(menu)
-                .likeLimit(10)
-                .build();
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
 
-        boardsRepository.save(board);
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
 
-        Posts post = postsRepository.save(Posts.builder()
-                .title(title)
-                .content(content)
-                .board(board)
-                .subject(subject)
-                .popularFlag(flag)
-                .build());
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+            postsRepository.save(Posts.builder()
+                    .title("테스트 게시글")
+                    .content("테스트 본문")
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(true)
+                    .build());
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
 
         // when
-        Posts postBySubject = postsRepository.findBySubject(subject).get(0);
+        Page<Posts> posts = postsRepository.findByCategory(category, pageable);
 
         // then
-        assertEquals(postBySubject.getSubject(), subject);
+        assertAll(
+                () -> assertEquals(page, posts.getNumber()),
+                () -> assertEquals(size, posts.getSize()),
+                () -> assertEquals(5, posts.getNumberOfElements()),
+                () -> assertEquals(board.getName(), posts.getContent().get(0).getBoard().getName())
+        );
     }
 }

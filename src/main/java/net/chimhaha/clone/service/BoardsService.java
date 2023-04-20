@@ -3,6 +3,8 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
@@ -17,10 +19,14 @@ import java.util.stream.Collectors;
 public class BoardsService {
 
     private final BoardsRepository boardsRepository;
+    private final MenuRepository menuRepository;
 
     @Transactional
     public Long save(BoardsSaveRequestDto dto) {
+        Menu menu = menuRepository.getReferenceById(dto.getMenuId());
+
         Boards board = Boards.builder()
+                .menu(menu)
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .likeLimit(dto.getLikeLimit())
