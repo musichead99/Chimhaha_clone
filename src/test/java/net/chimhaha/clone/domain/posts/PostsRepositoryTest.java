@@ -236,7 +236,61 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 게시판별_게시글_조회() {
+    public void 페이징_메뉴별_게시글_조회() {
+        // given
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
+
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+            postsRepository.save(Posts.builder()
+                    .title("테스트 게시글")
+                    .content("테스트 본문")
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(true)
+                    .build());
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        // when
+        Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, posts.getNumber()),
+                () -> assertEquals(size, posts.getSize()),
+                () -> assertEquals(amount, posts.getNumberOfElements()),
+                () -> assertEquals(menu.getName(), posts.getContent().get(0).getMenu().getName())
+        );
+
+    }
+
+    @Test
+    public void 페이징_게시판별_게시글_조회() {
         // given
         Menu menu = menuRepository.save(
                 Menu.builder()
@@ -289,7 +343,7 @@ public class PostsRepositoryTest {
     }
 
     @Test
-    public void 카테고리별_게시글_조회() {
+    public void 페이징_카테고리별_게시글_조회() {
         // given
         Menu menu = menuRepository.save(
                 Menu.builder()

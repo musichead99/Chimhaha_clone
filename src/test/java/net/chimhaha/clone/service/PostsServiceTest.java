@@ -180,7 +180,7 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 카테고리별_게시글_조회() {
+    public void 페이징_카테고리별_게시글_조회() {
         // given
         Menu menu = Menu.builder()
                 .name("침착맨")
@@ -298,7 +298,68 @@ public class PostsServiceTest {
                 () -> assertEquals(page, dtoList.getNumber()),
                 () -> assertEquals(size, dtoList.getSize()),
                 () -> assertEquals(amount, dtoList.getNumberOfElements()),
-                () -> assertEquals(board.getName(),dtoList.getContent().get(0).getBoard())
+                () -> assertEquals(board.getName(),dtoList.getContent().get(0).getBoardName())
+        );
+    }
+
+    @Test
+    public void 페이징_게시글_메뉴별_조회() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        List<Posts> posts = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            posts.add(post);
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
+
+        given(menuRepository.getReferenceById(any(Long.class)))
+                .willReturn(menu);
+        given(postsRepository.findByMenu(any(Menu.class), any(Pageable.class)))
+                .willReturn(pagedPosts);
+
+        // when
+        Page<PostsFindResponseDto> dtoList = postsService.findByMenu(1L, pageable);
+
+        // then
+        assertAll(
+                () -> assertEquals(page, dtoList.getNumber()),
+                () -> assertEquals(size, dtoList.getSize()),
+                () -> assertEquals(amount, dtoList.getNumberOfElements()),
+                () -> assertEquals(menu.getName(),dtoList.getContent().get(0).getMenuName())
         );
     }
 

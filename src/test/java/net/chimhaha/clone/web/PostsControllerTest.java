@@ -265,6 +265,63 @@ public class PostsControllerTest {
     }
 
     @Test
+    public void 페이징_게시글_메뉴별_조회() throws Exception {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        List<PostsFindResponseDto> dtoList = new LinkedList<>();
+        int amount = 5;
+        for(int i = 0; i < amount; i++) {
+
+            Posts post = Posts.builder()
+                    .title(title)
+                    .content(content)
+                    .menu(menu)
+                    .board(board)
+                    .category(category)
+                    .popularFlag(flag)
+                    .build();
+
+            ReflectionTestUtils.setField(post,"id", i + 1L);
+            dtoList.add(PostsFindResponseDto.from(post));
+        }
+
+        int page = 0;
+        int size = 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+
+        Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
+
+        given(postsService.findByMenu(any(Long.class), any(Pageable.class)))
+                .willReturn(pagedDtoList);
+
+        // when
+        // then
+        mvc.perform(get("/posts")
+                .param("menu", "1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
+    }
+
+    @Test
     public void 게시글_상세_조회() throws Exception {
         //given
         Menu menu = Menu.builder()
