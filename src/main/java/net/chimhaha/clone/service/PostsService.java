@@ -42,6 +42,8 @@ public class PostsService {
                 .content(dto.getContent())
                 .popularFlag(dto.getPopularFlag())
                 .board(board)
+                .category(category)
+                .menu(menu)
                 .build();
 
         return postsRepository.save(posts).getId();

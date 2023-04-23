@@ -7,11 +7,14 @@ import net.chimhaha.clone.converter.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /* setter 메소드가 없다 : 해당 클래스의 인스턴스 값들이 언제 어디서 변해야 하는지 코드상으로 명확히 구분할 수 없기 때문
 * 해당 필드의 값 변경이 필요하다면 반드시 그 목적과 의도를 알 수 있는 메소드를 추가해야 함
@@ -51,6 +54,9 @@ public class Posts extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Category category;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comments> comments = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
