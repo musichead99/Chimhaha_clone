@@ -27,9 +27,12 @@ public class CommentsService {
 
     @Transactional
     public Long save(CommentsSaveRequestDto dto) {
+
+        /* 댓글을 작성할 게시글 조회 */
         Posts post = postsRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
+        /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
         Comments parent = null;
         if(dto.getParentId() != null) {
             parent = commentsRepository.findById(dto.getParentId())
@@ -40,6 +43,7 @@ public class CommentsService {
             }
         }
 
+        /* 댓글 엔티티 생성 */
         Comments comment = Comments.builder()
                 .content(dto.getContent())
                 .parent(parent)
@@ -51,25 +55,34 @@ public class CommentsService {
 
     @Transactional(readOnly = true)
     public Page<CommentsFindByPostResponseDto> findByPost(Long postId, Pageable pageable) {
+
+        /* 해당 게시글에 달린 댓글을 조회하기 위해 게시글 조회 */
         Posts post = postsRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
 
+        /* 게시글에 달린 모든 댓글을 페이징해 조회 */
         Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
 
-        List<CommentsFindByPostResponseDto> dtoList = new ArrayList<>();
-        Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>();
+        List<CommentsFindByPostResponseDto> dtoList = new ArrayList<>(); // 이후 PageImpl로 변환하기 위한 댓글 dto list
+        Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>(); // 댓글들을 계층 구조로 만들기 위한 맵
+
+        /* 계층구조 변환 과정 */
         comments.stream()
                 .forEach(c -> {
                     CommentsFindByPostResponseDto dto = CommentsFindByPostResponseDto.from(c);
                     map.put(dto.getId(), dto);
 
+                    /* 현재 댓글이 대댓글이라면 */
                     if(dto.getParentId() != null) {
-                        map.get(dto.getParentId()).getChildren().add(dto);
-                    } else {
-                        dtoList.add(dto);
+                        map.get(dto.getParentId()).getChildren().add(dto); // 부모 댓글에 children으로 추가
+                    }
+                    /* 대댓글이 아니라면 */
+                    else {
+                        dtoList.add(dto); // 그대로 list에 추가
                     }
                 });
 
+        /* 계층 구조로 변환이 완료된 댓글 리스트 PageImpl객체로 변환 */
         return new PageImpl<CommentsFindByPostResponseDto>(dtoList, pageable, dtoList.size());
     }
 
