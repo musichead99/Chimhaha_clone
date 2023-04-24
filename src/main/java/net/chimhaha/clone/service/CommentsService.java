@@ -15,10 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -61,7 +58,6 @@ public class CommentsService {
 
         List<CommentsFindByPostResponseDto> dtoList = new ArrayList<>();
         Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>();
-
         comments.stream()
                 .forEach(c -> {
                     CommentsFindByPostResponseDto dto = CommentsFindByPostResponseDto.from(c);
@@ -95,7 +91,20 @@ public class CommentsService {
         if(comment.getChildren().size() != 0) {
             comment.changeDeleteStatus();
         } else {
-            commentsRepository.delete(comment.getDeletableComment());
+            commentsRepository.delete(getDeletableParentComment(comment));
         }
+    }
+
+    public Comments getDeletableParentComment(Comments comment) {
+
+        if(comment.getParent() != null) {
+            Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId()).get();
+
+            if(parent.getChildren().size() == 1 && parent.getIsDeleted()) {
+                    return getDeletableParentComment(parent);
+            }
+        }
+
+        return comment;
     }
 }
