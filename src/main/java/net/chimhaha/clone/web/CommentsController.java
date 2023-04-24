@@ -19,8 +19,8 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @PostMapping(value = "/comments")
-    public Long save(@RequestBody CommentsSaveRequestDto dto) {
-        return commentsService.save(dto);
+    public ResponseEntity<Long> save(@RequestBody CommentsSaveRequestDto dto) {
+        return new ResponseEntity<>(commentsService.save(dto), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/comments", params = "post")
