@@ -6,12 +6,13 @@ import net.chimhaha.clone.service.MenuService;
 import net.chimhaha.clone.web.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.web.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.web.dto.menu.MenuUpdateRequestDto;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.LinkedList;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = MenuController.class)
 public class MenuControllerTest {
 
