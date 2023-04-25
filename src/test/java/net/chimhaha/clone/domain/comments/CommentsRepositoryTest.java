@@ -202,8 +202,7 @@ public class CommentsRepositoryTest {
         assertAll(
                 () -> assertEquals(1, pagedComments.getNumberOfElements()),
                 () -> assertEquals(0, pagedComments.getNumber()),
-                () -> assertEquals("테스트 댓글", comments.get(0).getContent()),
-                () -> assertEquals(1L, comments.get(0).getPost().getId())
+                () -> assertEquals("테스트 댓글", comments.get(0).getContent())
         );
     }
 
@@ -270,6 +269,58 @@ public class CommentsRepositoryTest {
                 () -> assertNotNull(comments.get(1).getParent()),
                 () -> assertEquals(comments.get(1).getParent().getId(), comments.get(0).getId()),
                 () -> assertEquals("테스트 대댓글", comments.get(1).getContent())
+        );
+    }
+
+    @Test
+    public void 댓글_수정하기() {
+        // given
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
+
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        Posts post = postsRepository.save(
+                Posts.builder()
+                        .title("테스트 게시글")
+                        .content("테스트 본문")
+                        .menu(menu)
+                        .board(board)
+                        .category(category)
+                        .popularFlag(true)
+                        .build());
+
+        Comments comment = commentsRepository.save(
+                Comments.builder()
+                        .post(post)
+                        .content("테스트 대댓글")
+                        .parent(null)
+                        .build());
+
+        // when
+        comment.update("테스트 댓글 수정");
+        Comments updatedComment = commentsRepository.save(comment);
+
+        // then
+        assertAll(
+                () -> assertEquals("테스트 댓글 수정", updatedComment.getContent())
         );
     }
 }

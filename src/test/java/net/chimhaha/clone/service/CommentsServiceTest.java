@@ -9,6 +9,7 @@ import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.web.dto.comments.CommentsSaveRequestDto;
+import net.chimhaha.clone.web.dto.comments.CommentsUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -249,6 +250,62 @@ public class CommentsServiceTest {
                 () -> assertEquals(1, dtoList.getNumberOfElements()),
                 () -> assertNotNull(dtoList.getContent().get(0).getChildren()),
                 () -> assertEquals(2, dtoList.getContent().get(0).getChildren().size())
+        );
+    }
+
+    @Test
+    public void 댓글_수정하기() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        Posts post = Posts.builder()
+                .title("테스트 글")
+                .content("테스트 내용")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build();
+        ReflectionTestUtils.setField(post,"id", 1L);
+
+        Comments comment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .build();
+        ReflectionTestUtils.setField(comment,"id", 1L);
+
+        CommentsUpdateRequestDto dto = CommentsUpdateRequestDto.builder()
+                .content("테스트 댓글 수정")
+                .build();
+
+        given(commentsRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(comment));
+
+        // when
+        Long updatedCommentId = commentsService.update(1L, dto);
+
+        // then
+        assertAll(
+                () -> assertEquals(1, updatedCommentId),
+                () -> verify(commentsRepository, times(1)).findById(any(Long.class))
         );
     }
 }

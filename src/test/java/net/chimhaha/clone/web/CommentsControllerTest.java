@@ -126,4 +126,24 @@ public class CommentsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
     }
+
+    @Test
+    public void 댓글_수정하기() throws Exception {
+        // given
+        CommentsUpdateRequestDto dto = CommentsUpdateRequestDto.builder()
+                .content("테스트 댓글 수정")
+                .build();
+
+        given(commentsService.update(any(Long.class), any(CommentsUpdateRequestDto.class)))
+                .willReturn(1L);
+
+        // when
+        // then
+        mvc.perform(put("/comments/{id}", "1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("1"));
+    }
 }
