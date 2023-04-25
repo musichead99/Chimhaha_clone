@@ -108,7 +108,7 @@ public class CommentsService {
         }
     }
 
-    public Comments getDeletableParentComment(Comments comment) {
+    private Comments getDeletableParentComment(Comments comment) {
 
         if(comment.getParent() != null) {
             Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId()).get();

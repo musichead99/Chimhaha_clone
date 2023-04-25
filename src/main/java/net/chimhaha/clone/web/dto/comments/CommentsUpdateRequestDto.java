@@ -2,7 +2,9 @@ package net.chimhaha.clone.web.dto.comments;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class CommentsUpdateRequestDto {
 
