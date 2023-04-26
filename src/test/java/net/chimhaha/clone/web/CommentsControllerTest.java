@@ -146,4 +146,16 @@ public class CommentsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
     }
+
+    @Test
+    public void 댓글_삭제하기() throws Exception {
+        // given
+        willDoNothing().given(commentsService).delete(any(Long.class));
+
+        // when
+        // then
+        mvc.perform(delete("/comments/{id}", "1"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
 }

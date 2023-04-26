@@ -14,12 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,6 +30,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @DataJpaTest
 public class CommentsRepositoryTest {
+
+    @Autowired
+    private TestEntityManager testEntityManager;
 
     @Autowired
     private MenuRepository menuRepository;
@@ -207,6 +212,74 @@ public class CommentsRepositoryTest {
     }
 
     @Test
+    public void 부모댓글_댓글_자식댓글_모두_조회하기() {
+        // given
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
+
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build());
+
+        Comments parent = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 부모댓글")
+                .parent(null)
+                .build());
+
+        Comments comment = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(parent)
+                .build());
+
+        Comments child = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 자식댓글")
+                .parent(comment)
+                .build());
+
+        testEntityManager.clear(); // 영속성 컨텍스트에 캐시된 엔티티들을 제거한다.
+
+        // when
+        Comments readComment = commentsRepository.findByIdWithParents(comment.getId()).get();
+
+        // then
+        assertAll(
+                () -> assertNotNull(readComment.getParent()),
+                () -> assertEquals(1, readComment.getChildren().size()),
+                () -> assertEquals("테스트 댓글", readComment.getContent()),
+                () -> assertEquals("테스트 부모댓글", readComment.getParent().getContent()),
+                () -> assertEquals("테스트 자식댓글", readComment.getChildren().get(0).getContent())
+        );
+
+    }
+
+    @Test
     public void 대댓글_조회하기() {
         // given
         Menu menu = menuRepository.save(
@@ -322,5 +395,54 @@ public class CommentsRepositoryTest {
         assertAll(
                 () -> assertEquals("테스트 댓글 수정", updatedComment.getContent())
         );
+    }
+
+    @Test
+    public void 댓글_삭제하기() {
+        // given
+        Menu menu = menuRepository.save(
+                Menu.builder()
+                        .name("침착맨")
+                        .build()
+        );
+
+        Boards board = boardsRepository.save(
+                Boards.builder()
+                        .name("침착맨")
+                        .description("침착맨에 대해 이야기하는 게시판입니다")
+                        .menu(menu)
+                        .likeLimit(20)
+                        .build()
+        );
+
+        Category category = categoryRepository.save(
+                Category.builder()
+                        .board(board)
+                        .name("침착맨")
+                        .build()
+        );
+
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build());
+
+        Comments comment = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 부모댓글")
+                .parent(null)
+                .build());
+        Long commentId = comment.getId();
+
+        // when
+        commentsRepository.delete(comment);
+        Optional<Comments> optionalComment = commentsRepository.findById(commentId);
+
+        // then
+        assertFalse(optionalComment.isPresent());
     }
 }

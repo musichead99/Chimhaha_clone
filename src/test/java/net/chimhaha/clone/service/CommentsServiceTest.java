@@ -30,8 +30,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
@@ -307,5 +307,271 @@ public class CommentsServiceTest {
                 () -> assertEquals(1, updatedCommentId),
                 () -> verify(commentsRepository, times(1)).findById(any(Long.class))
         );
+    }
+
+    @Test
+    public void 대댓글이_달리지_않은_댓글_삭제하기() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        Posts post = Posts.builder()
+                .title("테스트 글")
+                .content("테스트 내용")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build();
+        ReflectionTestUtils.setField(post,"id", 1L);
+
+        Comments comment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .build();
+        ReflectionTestUtils.setField(comment,"id", 1L);
+
+        given(commentsRepository.findByIdWithParents(any(Long.class)))
+                .willReturn(Optional.of(comment));
+        willDoNothing().given(commentsRepository).delete(any(Comments.class));
+
+        // when
+        commentsService.delete(1L);
+
+        // then
+        assertAll(
+                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
+        );
+
+    }
+
+    /*
+     *  테스트 댓글
+     *   ㄴ 테스트 대댓글 1
+     * */
+    @Test
+    public void 대댓글이_달린_부모댓글_삭제하기() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        Posts post = Posts.builder()
+                .title("테스트 글")
+                .content("테스트 내용")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build();
+        ReflectionTestUtils.setField(post,"id", 1L);
+
+        Comments parentComment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .build();
+        ReflectionTestUtils.setField(parentComment,"id", 1L);
+        ReflectionTestUtils.setField(parentComment,"isDeleted", false);
+
+        Comments comment = Comments.builder()
+                .post(post)
+                .content("테스트 대댓글 1")
+                .parent(parentComment)
+                .build();
+        ReflectionTestUtils.setField(comment,"id", 2L);
+        ReflectionTestUtils.setField(comment,"isDeleted", false);
+
+        parentComment.getChildren().add(comment);
+
+
+        given(commentsRepository.findByIdWithParents(1L))
+                .willReturn(Optional.of(parentComment));
+
+        // when
+        commentsService.delete(1L);
+
+        // then
+        assertAll(
+                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, never()).delete(any(Comments.class))
+        );
+
+    }
+
+    /*
+     *  테스트 댓글
+     *   ㄴ 테스트 대댓글 1
+     * */
+    @Test
+    public void 부모댓글이_삭제되지_않은_대댓글_삭제하기() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        Posts post = Posts.builder()
+                .title("테스트 글")
+                .content("테스트 내용")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build();
+        ReflectionTestUtils.setField(post,"id", 1L);
+
+        Comments parentComment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .build();
+        ReflectionTestUtils.setField(parentComment,"id", 1L);
+        ReflectionTestUtils.setField(parentComment,"isDeleted", false);
+
+        Comments comment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(parentComment)
+                .build();
+        ReflectionTestUtils.setField(comment,"id", 2L);
+        ReflectionTestUtils.setField(comment,"isDeleted", false);
+
+        parentComment.getChildren().add(comment);
+
+
+        given(commentsRepository.findByIdWithParents(1L))
+                .willReturn(Optional.of(parentComment));
+        given(commentsRepository.findByIdWithParents(2L))
+                .willReturn(Optional.of(comment));
+        willDoNothing().given(commentsRepository).delete(any(Comments.class));
+
+        // when
+        commentsService.delete(2L);
+
+        // then
+        assertAll(
+                () -> verify(commentsRepository, times(2)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
+        );
+
+    }
+
+    /*
+     *  테스트 댓글
+     *   ㄴ 테스트 대댓글 1
+     * */
+    @Test
+    public void 부모댓글이_삭제된_대댓글_삭제하기() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        Posts post = Posts.builder()
+                .title("테스트 글")
+                .content("테스트 내용")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .build();
+        ReflectionTestUtils.setField(post,"id", 1L);
+
+        Comments parentComment = Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .build();
+        ReflectionTestUtils.setField(parentComment,"id", 1L);
+        ReflectionTestUtils.setField(parentComment,"isDeleted", true);
+
+        Comments comment = Comments.builder()
+                .post(post)
+                .content("테스트 대댓글 1")
+                .parent(parentComment)
+                .build();
+        ReflectionTestUtils.setField(comment,"id", 2L);
+        ReflectionTestUtils.setField(comment,"isDeleted", false);
+
+        parentComment.getChildren().add(comment);
+
+        given(commentsRepository.findByIdWithParents(1L))
+                .willReturn(Optional.of(parentComment));
+        given(commentsRepository.findByIdWithParents(2L))
+                .willReturn(Optional.of(comment));
+        willDoNothing().given(commentsRepository).delete(any(Comments.class));
+
+        // when
+        commentsService.delete(2L);
+
+        // then
+        assertAll(
+                () -> verify(commentsRepository, times(2)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
+        );
+
     }
 }
