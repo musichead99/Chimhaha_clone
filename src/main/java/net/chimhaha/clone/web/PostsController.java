@@ -1,30 +1,59 @@
 package net.chimhaha.clone.web;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.service.ImagesService;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.utils.FileUploadService;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 public class PostsController {
     private final PostsService postsService;
+    private final FileUploadService fileUploadService;
+    private final ImagesService imagesService;
 
-    /* http status코드를 설정하기 위해 responseEntity 사용 */
-    @PostMapping("/posts")
-    public ResponseEntity<Long> save(@RequestBody PostsSaveRequestDto dto) {
-        return new ResponseEntity<>(postsService.save(dto), HttpStatus.CREATED);
+    /* 이미지를 첨부하지 않은 게시글 업로드 */
+    @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PostsSaveResponseDto> save(@RequestBody PostsSaveRequestDto dto) {
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
+                .postId(postsService.save(dto))
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    /* 이미지를 첨부한 게시글 업로드 */
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostsSaveResponseDto> save(@RequestPart(value = "postsSaveRequestDto") PostsSaveRequestDto dto, @RequestPart(value = "images") List<MultipartFile> images) {
+
+        List<File> uploadedImages = new ArrayList<>(fileUploadService.upload(images)); // 실제 파일 저장
+
+        Long postId = postsService.save(dto); // 게시글 DB에 등록
+
+        List<Long> uploadedImagesId =  imagesService.save(postId, uploadedImages, images); // DB에 파일 정보 등록
+
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
+                .postId(postId)
+                .requestCount(images.size())
+                .responseCount(uploadedImages.size())
+                .imageId(uploadedImagesId)
+                .build();
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요

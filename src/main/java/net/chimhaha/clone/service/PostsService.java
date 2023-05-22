@@ -9,17 +9,11 @@ import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -37,7 +31,7 @@ public class PostsService {
         Category category = categoryRepository.getReferenceById(dto.getCategoryId());
         Menu menu = menuRepository.getReferenceById(dto.getMenuId());
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .popularFlag(dto.getPopularFlag())
@@ -46,7 +40,7 @@ public class PostsService {
                 .menu(menu)
                 .build();
 
-        return postsRepository.save(posts).getId();
+        return postsRepository.save(post).getId();
     }
 
     @Transactional(readOnly = true)
