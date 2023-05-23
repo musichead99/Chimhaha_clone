@@ -29,15 +29,14 @@ public class ImagesService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 업습니다."));
 
 
-        for (int i = 0; i < files.size(); i++) {
-            Images image = Images.builder()
+        for(int i = 0; i < files.size(); i++) {
+            Images image = imagesRepository.save(Images.builder()
                     .post(post)
                     .realFileName(originals.get(i).getOriginalFilename())
                     .storedFileName(files.get(i).getName())
-                    .storedFileSize(originals.get(i).getSize())
+                    .storedFileSize((int) originals.get(i).getSize())
                     .storedFilePath(files.get(i).getAbsolutePath())
-                    .build();
-            imagesRepository.save(image);
+                    .build());
             uploadedImagesId.add(image.getId());
         }
 

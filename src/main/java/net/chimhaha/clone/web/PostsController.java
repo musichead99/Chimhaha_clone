@@ -49,7 +49,7 @@ public class PostsController {
         PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
                 .postId(postId)
                 .requestCount(images.size())
-                .responseCount(uploadedImages.size())
+                .uploadedCount(uploadedImages.size())
                 .imageId(uploadedImagesId)
                 .build();
 

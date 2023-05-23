@@ -19,5 +19,5 @@ public class PostsSaveResponseDto {
     @Builder.Default
     int requestCount = 0;
     @Builder.Default
-    int responseCount = 0;
+    int uploadedCount = 0;
 }
