@@ -27,14 +27,14 @@ public class Images extends BaseTimeEntity {
     private String storedFilePath;
 
     @Column(nullable = false)
-    private Long storedFileSize;
+    private int storedFileSize;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Posts post; // null이면 썸네일, null이 아니면 게시글 첨부 이미지
 
     @Builder
-    public Images(String realFileName, String storedFileName, String storedFilePath, Long storedFileSize, Posts post) {
+    public Images(String realFileName, String storedFileName, String storedFilePath, int storedFileSize, Posts post) {
         this.realFileName = realFileName;
         this.storedFileName = storedFileName;
         this.storedFilePath = storedFilePath;
