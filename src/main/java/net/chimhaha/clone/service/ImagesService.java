@@ -42,4 +42,12 @@ public class ImagesService {
 
         return uploadedImagesId;
     }
+
+    @Transactional(readOnly = true)
+    public String findImagePathById(Long id) {
+        Images image = imagesRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+
+        return image.getStoredFilePath();
+    }
 }

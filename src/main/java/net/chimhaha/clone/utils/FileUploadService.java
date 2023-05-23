@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.images.Images;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,5 +42,23 @@ public class FileUploadService {
         } catch (IOException e) {
             throw new FileUploadException("해당 파일을 업로드할 수 없습니다. : " + realFileName);
         }
+    }
+
+    public ImageFileDto getImageFile(String path) {
+        File file = new File(path);
+        byte[] bytes;
+        MediaType mediaType;
+
+        try {
+            bytes = Files.readAllBytes(file.toPath());
+            mediaType = MediaType.parseMediaType(Files.probeContentType(file.toPath()));
+        } catch (Exception e) {
+            throw new FileDownloadException("해당 파일을 다운로드 할 수 없습니다.");
+        }
+
+        return ImageFileDto.builder()
+                .bytes(bytes)
+                .mediaType(mediaType)
+                .build();
     }
 }
