@@ -5,11 +5,10 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.service.ImagesService;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.utils.FileUploadService;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -42,6 +41,10 @@ public class PostsControllerTest {
 
     @MockBean
     private PostsService postsService;
+    @MockBean
+    private FileUploadService fileUploadService;
+    @MockBean
+    private ImagesService imagesService;
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
@@ -71,7 +74,7 @@ public class PostsControllerTest {
                 .build();
         ReflectionTestUtils.setField(category, "id", 1L);
 
-        PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
+        PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
                 .menuId(1L)
@@ -80,15 +83,19 @@ public class PostsControllerTest {
                 .popularFlag(flag)
                 .build();
 
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
+                .postId(1L)
+                .build();
+
         given(postsService.save(any())).willReturn(1L); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
 
         //when
         //then
         mvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated()) // 상태 코드 201(created)반환
-                .andExpect(content().string("1")); // 결과값으로 생성한 게시글의 id반환
+                .andExpect(content().json(objectMapper.writeValueAsString(responseDto))); // 결과값으로 생성한 게시글의 id반환
     }
 
     @Test
