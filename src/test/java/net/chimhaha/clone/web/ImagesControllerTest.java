@@ -33,8 +33,6 @@ public class ImagesControllerTest {
     @MockBean
     private FileUploadService fileUploadService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     public void 이미지_불러오기() throws Exception {
         // given

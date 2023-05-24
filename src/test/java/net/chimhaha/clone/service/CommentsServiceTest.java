@@ -6,7 +6,6 @@ import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
-import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.web.dto.comments.CommentsSaveRequestDto;
 import net.chimhaha.clone.web.dto.comments.CommentsUpdateRequestDto;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.*;
 public class CommentsServiceTest {
 
     @Mock
-    private PostsRepository postsRepository;
+    private PostsService postsService;
 
     @Mock
     private CommentsRepository commentsRepository;
@@ -91,8 +90,8 @@ public class CommentsServiceTest {
                 .parentId(null)
                 .build();
 
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(post));
+        given(postsService.findPostsById(any(Long.class)))
+                .willReturn(post);
         given(commentsRepository.save(any(Comments.class)))
                 .willReturn(comment);
 
@@ -102,7 +101,7 @@ public class CommentsServiceTest {
         // then
         assertAll(
                 () -> assertEquals(1L, createdCommentId),
-                () -> verify(postsRepository, times(1)).findById(any(Long.class)),
+                () -> verify(postsService, times(1)).findPostsById(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).save(any(Comments.class))
         );
     }
@@ -152,8 +151,8 @@ public class CommentsServiceTest {
         Pageable pageable = PageRequest.of(0, 20);
         Page<Comments> pagedComments = new PageImpl<>(comments, pageable, comments.size());
 
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(post));
+        given(postsService.findPostsById(any(Long.class)))
+                .willReturn(post);
         given(commentsRepository.findAllByPost(any(Posts.class), any(Pageable.class)))
                 .willReturn(pagedComments);
 
@@ -235,8 +234,8 @@ public class CommentsServiceTest {
         Pageable pageable = PageRequest.of(0, 20);
         Page<Comments> pagedComments = new PageImpl<>(comments, pageable, comments.size());
 
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(post));
+        given(postsService.findPostsById(any(Long.class)))
+                .willReturn(post);
         given(commentsRepository.findAllByPost(any(Posts.class), any(Pageable.class)))
                 .willReturn(pagedComments);
 

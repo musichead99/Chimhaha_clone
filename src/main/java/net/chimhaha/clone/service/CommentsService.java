@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
 import net.chimhaha.clone.domain.posts.Posts;
-import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.web.dto.comments.CommentsSaveRequestDto;
 import net.chimhaha.clone.web.dto.comments.CommentsUpdateRequestDto;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 @Slf4j
@@ -22,23 +22,22 @@ import java.util.*;
 @Service
 public class CommentsService {
 
-    private final PostsRepository postsRepository;
+    private final PostsService postsService;
     private final CommentsRepository commentsRepository;
 
     @Transactional
     public Long save(CommentsSaveRequestDto dto) {
 
         /* 댓글을 작성할 게시글 조회 */
-        Posts post = postsRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+        Posts post = postsService.findPostsById(dto.getPostId());
 
         /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
         Comments parent = null;
         if(dto.getParentId() != null) {
             parent = commentsRepository.findById(dto.getParentId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+                    .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다. id=" + dto.getParentId()));
 
-            if(dto.getPostId() != parent.getPost().getId()) {
+            if(!dto.getPostId().equals(parent.getPost().getId())) {
                 throw new IllegalArgumentException("부모 댓글의 게시글 id와 자식 댓글의 게시글 id가 일치하지 않습니다.");
             }
         }
@@ -57,8 +56,7 @@ public class CommentsService {
     public Page<CommentsFindByPostResponseDto> findByPost(Long postId, Pageable pageable) {
 
         /* 해당 게시글에 달린 댓글을 조회하기 위해 게시글 조회 */
-        Posts post = postsRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+        Posts post = postsService.findPostsById(postId);
 
         /* 게시글에 달린 모든 댓글을 페이징해 조회 */
         Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
@@ -83,7 +81,7 @@ public class CommentsService {
                 });
 
         /* 계층 구조로 변환이 완료된 댓글 리스트 PageImpl객체로 변환 */
-        return new PageImpl<CommentsFindByPostResponseDto>(dtoList, pageable, dtoList.size());
+        return new PageImpl<>(dtoList, pageable, dtoList.size());
     }
 
     @Transactional

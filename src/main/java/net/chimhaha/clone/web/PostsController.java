@@ -28,21 +28,19 @@ public class PostsController {
 
     /* 이미지를 첨부하지 않은 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PostsSaveResponseDto> save(@RequestBody PostsSaveRequestDto dto) {
-        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
-                .postId(postsService.save(dto))
-                .build();
-
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public PostsSaveResponseDto save(@RequestBody PostsSaveRequestDto dto) {
+        return postsService.save(dto);
     }
 
     /* 이미지를 첨부한 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<PostsSaveResponseDto> save(@RequestPart(value = "postsSaveRequestDto") PostsSaveRequestDto dto, @RequestPart(value = "images") List<MultipartFile> images) {
 
         List<File> uploadedImages = new ArrayList<>(fileUploadService.upload(images)); // 실제 파일 저장
 
-        Long postId = postsService.save(dto); // 게시글 DB에 등록
+        Long postId = postsService.save(dto, images); // 게시글 DB에 등록
 
         List<Long> uploadedImagesId =  imagesService.save(postId, uploadedImages, images); // DB에 파일 정보 등록
 
@@ -50,7 +48,7 @@ public class PostsController {
                 .postId(postId)
                 .requestCount(images.size())
                 .uploadedCount(uploadedImages.size())
-                .imageId(uploadedImagesId)
+                .imageIds(uploadedImagesId)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);

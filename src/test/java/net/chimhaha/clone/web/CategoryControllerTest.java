@@ -37,7 +37,7 @@ public class CategoryControllerTest {
     String name = "침착맨";
     String boardName = "침착맨";
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void 카테고리_등록() throws Exception {

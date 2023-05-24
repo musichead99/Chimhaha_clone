@@ -19,7 +19,7 @@ public class CategoryController {
 
     @PostMapping("/category")
     public ResponseEntity<Long> save(@RequestBody CategorySaveRequestDto dto) {
-        return new ResponseEntity<Long>(categoryService.save(dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(categoryService.save(dto), HttpStatus.CREATED);
     }
 
     @GetMapping("/category")

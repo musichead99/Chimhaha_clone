@@ -21,11 +21,7 @@ public class BooleanToYNConverter implements AttributeConverter<Boolean, Charact
     public Boolean convertToEntityAttribute(Character dbData) {
         Boolean b = null;
 
-        if(dbData == 'Y') {
-            b = true;
-        } else {
-            b = false;
-        }
+        b = dbData == 'Y';
         return b;
     }
 }

@@ -9,12 +9,12 @@ import java.util.List;
 
 @Getter
 public class CommentsFindByPostResponseDto {
-    Long id;
-    Long parentId;
-    String content;
-    LocalDateTime createdDate;
-    Boolean isDeleted;
-    List<CommentsFindByPostResponseDto> children = new ArrayList<>();
+    private final Long id;
+    private final Long parentId;
+    private final String content;
+    private final LocalDateTime createdDate;
+    private final Boolean isDeleted;
+    private final List<CommentsFindByPostResponseDto> children = new ArrayList<>();
 
     private CommentsFindByPostResponseDto(Long id, Long parentId, String content, LocalDateTime createdDate, Boolean isDeleted) {
         this.id = id;

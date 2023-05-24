@@ -24,7 +24,7 @@ public class CommentsController {
     }
 
     @GetMapping(value = "/comments", params = "post")
-    public Page<CommentsFindByPostResponseDto> findByPost(@RequestParam("post") Long postId, @PageableDefault(size = 60, page = 0)Pageable pageable) {
+    public Page<CommentsFindByPostResponseDto> findByPost(@RequestParam("post") Long postId, @PageableDefault(size = 60)Pageable pageable) {
         return commentsService.findByPost(postId, pageable);
     }
 

@@ -2,11 +2,8 @@ package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
-import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
-import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.posts.*;
@@ -14,22 +11,47 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class PostsService {
 
     private final PostsRepository postsRepository;
-    private final BoardsRepository boardsRepository;
-    private final CategoryRepository categoryRepository;
-    private final MenuRepository menuRepository;
+    private final BoardsService boardsService;
+    private final CategoryService categoryService;
+    private final MenuService menuService;
 
     @Transactional
-    public Long save(PostsSaveRequestDto dto) {
+    public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
 
-        Boards board = boardsRepository.getReferenceById(dto.getBoardId());
-        Category category = categoryRepository.getReferenceById(dto.getCategoryId());
-        Menu menu = menuRepository.getReferenceById(dto.getMenuId());
+        Boards board = boardsService.findById(dto.getBoardId());
+        Category category = categoryService.findById(dto.getCategoryId());
+        Menu menu = menuService.findById(dto.getMenuId());
+
+        Posts post = Posts.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .popularFlag(dto.getPopularFlag())
+                .board(board)
+                .category(category)
+                .menu(menu)
+                .build();
+
+        return PostsSaveResponseDto.from(postsRepository.save(post));
+    }
+
+    @Transactional
+    public Long save(PostsSaveRequestDto dto, List<MultipartFile> images) {
+
+        Boards board = boardsService.findById(dto.getBoardId());
+        Category category = categoryService.findById(dto.getCategoryId());
+        Menu menu = menuService.findById(dto.getMenuId());
+
+
 
         Posts post = Posts.builder()
                 .title(dto.getTitle())
@@ -52,7 +74,7 @@ public class PostsService {
 
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByCategory(Long categoryId, Pageable pageable) {
-        Category category = categoryRepository.getReferenceById(categoryId);
+        Category category = categoryService.findById(categoryId);
 
         Page<Posts> posts = postsRepository.findByCategory(category, pageable);
 
@@ -61,7 +83,7 @@ public class PostsService {
 
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByBoard(Long boardId, Pageable pageable) {
-        Boards boards = boardsRepository.getReferenceById(boardId);
+        Boards boards = boardsService.findById(boardId);
 
         Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
 
@@ -70,7 +92,7 @@ public class PostsService {
 
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByMenu(Long menuId, Pageable pageable) {
-        Menu menu = menuRepository.getReferenceById(menuId);
+        Menu menu = menuService.findById(menuId);
         
         Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
 
@@ -80,7 +102,7 @@ public class PostsService {
     @Transactional(readOnly = true)
     public PostsFindByIdResponseDto findById(Long id) {
         Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
 
         return PostsFindByIdResponseDto.from(post);
     }
@@ -88,16 +110,16 @@ public class PostsService {
     @Transactional
     public void increaseViewCount(Long id) {
         Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " 해당 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
         post.increaseViewCount();
     }
 
     @Transactional
     public Long update(Long id, PostsUpdateRequestDto dto) {
         Posts posts = postsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + "해당 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
 
-        Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+        Category category = categoryService.findById(dto.getCategoryId());
 
         posts.update(dto.getTitle(), dto.getContent(), category, dto.getPopularFlag());
 
@@ -109,4 +131,12 @@ public class PostsService {
         postsRepository.deleteById(id);
     }
 
+
+    /* 서비스 계층 내에서만 사용할 메소드들 */
+
+    @Transactional(readOnly = true)
+     Posts findPostsById(Long id) {
+        return postsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+    }
 }

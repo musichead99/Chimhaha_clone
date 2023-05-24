@@ -6,7 +6,6 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
-import net.chimhaha.clone.domain.posts.PostsRepository;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ public class ImagesServiceTest {
     private ImagesRepository imagesRepository;
 
     @Mock
-    private PostsRepository postsRepository;
+    private PostsService postsService;
 
     @InjectMocks
     private ImagesService imagesService;
@@ -103,8 +102,8 @@ public class ImagesServiceTest {
         uploadedFiles.add(mockFile);
 
         /* repository 빈들 mocking */
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(post));
+        given(postsService.findPostsById(any(Long.class)))
+                .willReturn(post);
         given(imagesRepository.save(any(Images.class)))
                 .willReturn(image);
 
@@ -115,7 +114,7 @@ public class ImagesServiceTest {
         assertAll(
                 () -> assertEquals(1, uploadedFilesId.size()),
                 () -> assertEquals(2, uploadedFilesId.get(0)),
-                () -> verify(postsRepository, times(1)).findById(any(Long.class)),
+                () -> verify(postsService, times(1)).findPostsById(any(Long.class)),
                 () -> verify(imagesRepository, times(1)).save(any(Images.class))
         );
     }

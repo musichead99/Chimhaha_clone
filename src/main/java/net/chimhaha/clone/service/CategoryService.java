@@ -2,7 +2,6 @@ package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
-import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
@@ -11,6 +10,7 @@ import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final BoardsRepository boardsRepository;
+    private final BoardsService boardsService;
 
     @Transactional
     public Long save(CategorySaveRequestDto dto) {
 
-        Boards board = boardsRepository.getReferenceById(dto.getBoardId());
+        Boards board = boardsService.findById(dto.getBoardId());
 
         Category category = categoryRepository.save(Category.builder()
                 .name(dto.getName())
@@ -46,9 +46,9 @@ public class CategoryService {
     @Transactional
     public Long update(Long id, CategoryUpdateRequestDto dto) {
 
-        Boards board = boardsRepository.getReferenceById(dto.getBoardId());
+        Boards board = boardsService.findById(dto.getBoardId());
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " 카테고리가 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. id=" + id));
 
         category.update(dto.getName(), board);
 
@@ -58,5 +58,11 @@ public class CategoryService {
     @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    /* 서비스 계층 내에서만 사용할 메소드들 */
+    Category findById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. id=" + id));
     }
 }

@@ -21,7 +21,7 @@ public class Menu {
     private String name;
 
     @OneToMany(mappedBy = "menu")
-    private List<Boards> boards = new LinkedList<>();
+    private final List<Boards> boards = new LinkedList<>();
 
     @Builder
     public Menu(String name) {

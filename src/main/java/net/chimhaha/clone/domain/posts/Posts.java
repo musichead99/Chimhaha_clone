@@ -8,8 +8,8 @@ import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.comments.Comments;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
@@ -56,7 +56,10 @@ public class Posts extends BaseTimeEntity {
     private Category category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comments> comments = new ArrayList<>();
+    private final List<Comments> comments = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
+    private final List<Images> images = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
