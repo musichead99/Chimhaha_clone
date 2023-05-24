@@ -18,8 +18,9 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category")
-    public ResponseEntity<Long> save(@RequestBody CategorySaveRequestDto dto) {
-        return new ResponseEntity<>(categoryService.save(dto), HttpStatus.CREATED);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Long save(@RequestBody CategorySaveRequestDto dto) {
+        return categoryService.save(dto);
     }
 
     @GetMapping("/category")
@@ -33,9 +34,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/category/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
         categoryService.delete(id);
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

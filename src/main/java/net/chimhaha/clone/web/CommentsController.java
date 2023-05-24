@@ -19,8 +19,9 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @PostMapping(value = "/comments")
-    public ResponseEntity<Long> save(@RequestBody CommentsSaveRequestDto dto) {
-        return new ResponseEntity<>(commentsService.save(dto), HttpStatus.CREATED);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Long save(@RequestBody CommentsSaveRequestDto dto) {
+        return commentsService.save(dto);
     }
 
     @GetMapping(value = "/comments", params = "post")
@@ -34,8 +35,8 @@ public class CommentsController {
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
         commentsService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

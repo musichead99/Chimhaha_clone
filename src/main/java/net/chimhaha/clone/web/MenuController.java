@@ -18,8 +18,9 @@ public class MenuController {
     private final MenuService menuService;
 
     @PostMapping("/menu")
-    public ResponseEntity<Long> save(@RequestBody MenuSaveRequestDto dto) {
-        return new ResponseEntity<>(menuService.save(dto), HttpStatus.CREATED);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Long save(@RequestBody MenuSaveRequestDto dto) {
+        return menuService.save(dto);
     }
 
     @GetMapping("/menu")
@@ -33,8 +34,8 @@ public class MenuController {
     }
 
     @DeleteMapping("menu/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
         menuService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

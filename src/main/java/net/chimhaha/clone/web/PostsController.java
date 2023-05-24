@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,7 +35,7 @@ public class PostsController {
     /* 이미지를 첨부한 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<PostsSaveResponseDto> save(@RequestPart(value = "postsSaveRequestDto") PostsSaveRequestDto dto, @RequestPart(value = "images") List<MultipartFile> images) {
+    public PostsSaveResponseDto save(@RequestPart(value = "postsSaveRequestDto") PostsSaveRequestDto dto, @RequestPart(value = "images") List<MultipartFile> images) {
 
         List<File> uploadedImages = new ArrayList<>(fileUploadService.upload(images)); // 실제 파일 저장
 
@@ -51,7 +50,7 @@ public class PostsController {
                 .imageIds(uploadedImagesId)
                 .build();
 
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        return responseDto;
     }
 
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요
@@ -88,8 +87,8 @@ public class PostsController {
     }
 
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
         postsService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
