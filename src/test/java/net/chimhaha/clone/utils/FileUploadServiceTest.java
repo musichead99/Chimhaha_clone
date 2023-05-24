@@ -12,9 +12,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +26,7 @@ public class FileUploadServiceTest {
     private final String DEFAULT_STORE_PATH = "C:\\Users\\CMG16\\Desktop\\coding\\images";
 
     @Test
-    public void 파일_로컬_저장소에_저장하기() throws IOException {
+    public void 이미지_로컬_저장소에_저장하기() throws IOException {
         // given
         String filename = "testGif";
         String contentType = "gif";
@@ -46,6 +46,23 @@ public class FileUploadServiceTest {
         // then
         assertAll(
                 () -> assertEquals("testGif.gif", uploadedFile.getName().split("_")[1])
+        );
+    }
+
+    @Test
+    public void 로컬_저장소에서_이미지_불러오기() {
+        // given
+        String filepath = "src\\test\\resources\\images\\testGif.gif";
+
+        File file = new File(filepath);
+
+        // when
+        ImageFileDto dto = fileUploadService.getImageFile(filepath);
+
+        // then
+        assertAll(
+                () -> assertEquals("image/gif", dto.getMediaType().toString()),
+                () -> assertArrayEquals(Files.readAllBytes(file.toPath()), dto.getBytes())
         );
     }
 }

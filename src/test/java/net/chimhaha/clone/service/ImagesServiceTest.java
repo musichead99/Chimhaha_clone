@@ -43,7 +43,7 @@ public class ImagesServiceTest {
     private ImagesService imagesService;
 
     @Test
-    public void 파일_정보_DB에_등록하기() {
+    public void 이미지_정보_DB에_등록하기() {
         // given
         Menu menu = Menu.builder()
                 .name("침착맨")
@@ -118,7 +118,30 @@ public class ImagesServiceTest {
                 () -> verify(postsRepository, times(1)).findById(any(Long.class)),
                 () -> verify(imagesRepository, times(1)).save(any(Images.class))
         );
+    }
 
+    @Test
+    public void 로컬에_저장된_이미지_경로_조회하기() {
+        // given
+        Posts post = mock(Posts.class);
+
+        Images image = Images.builder()
+                .post(post)
+                .realFileName("테스트 이미지")
+                .storedFileName("stored_테스트 이미지")
+                .storedFilePath("C:\\test")
+                .storedFileSize(3127)
+                .build();
+        ReflectionTestUtils.setField(image, "id", 1L);
+
+        given(imagesRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(image));
+
+        // when
+        String path = imagesService.findImagePathById(1L);
+
+        // then
+        assertEquals("C:\\test", path);
 
     }
 }
