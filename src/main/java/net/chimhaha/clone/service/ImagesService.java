@@ -25,18 +25,19 @@ public class ImagesService {
     public List<Long> save(Posts post, List<MultipartFile> originals) {
         List<Long> uploadedImagesId = new ArrayList<>();
 
-        for(MultipartFile original : originals) {
-            File uploadedFile = fileUploadService.upload(original);
+        originals.stream()
+                .map(fileUploadService::upload)
+                .forEach(file -> {
+                    Images image = imagesRepository.save(Images.builder()
+                            .post(post)
+                            .realFileName(file.getName().substring(36))
+                            .storedFileName(file.getName())
+                            .storedFileSize((int)file.length())
+                            .storedFilePath(file.getAbsolutePath())
+                            .build());
 
-            Images image = imagesRepository.save(Images.builder()
-                    .post(post)
-                    .realFileName(original.getOriginalFilename())
-                    .storedFileName(uploadedFile.getName())
-                    .storedFileSize((int) original.getSize())
-                    .storedFilePath(uploadedFile.getAbsolutePath())
-                    .build());
-            uploadedImagesId.add(image.getId());
-        }
+                    uploadedImagesId.add(image.getId());
+                });
 
         return uploadedImagesId;
     }

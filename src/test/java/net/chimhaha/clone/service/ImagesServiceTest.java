@@ -96,7 +96,7 @@ public class ImagesServiceTest {
 
         /* fileUploadService가 파일 저장 후 반환할 file객체 mocking */
         File mockFile = mock(File.class); // 직접 mock메소드 사용해서 mocking
-        given(mockFile.getName()).willReturn("stored_테스트 이미지");
+        given(mockFile.getName()).willReturn("ab6bf24f-1401-42d1-b71c-5353b17300f0_stored_테스트 이미지");
 
         /* repository 빈들 mocking */
         given(imagesRepository.save(any(Images.class)))
