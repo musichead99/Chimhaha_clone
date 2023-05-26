@@ -5,11 +5,8 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
-import net.chimhaha.clone.service.ImagesService;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.posts.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -34,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,10 +47,6 @@ public class PostsControllerTest {
 
     @MockBean
     private PostsService postsService;
-    @MockBean
-    private FileUploadService fileUploadService;
-    @MockBean
-    private ImagesService imagesService;
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
@@ -63,25 +57,6 @@ public class PostsControllerTest {
     @Test
     public void  첨부파일_없는_게시글_등록() throws Exception {
         //given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
         PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
@@ -91,46 +66,29 @@ public class PostsControllerTest {
                 .popularFlag(flag)
                 .build();
 
-        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
-                .postId(1L)
-                .build();
+        /* post entity mocking */
+        Posts post = mock(Posts.class);
+        given(post.getId()).willReturn(1L);
 
-        given(postsService.save(any())).willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
+        /* response dto 생성 */
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
+
+        given(postsService.save(any(PostsSaveRequestDto.class))).willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
 
         //when
         //then
         mvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
                 .andExpect(status().isCreated()) // 상태 코드 201(created)반환
                 .andExpect(content().json(objectMapper.writeValueAsString(responseDto))); // 결과값으로 생성한 게시글의 id반환
     }
 
     @Test
-    @Disabled // 수정해야함
     public void 첨부파일_있는_게시글_등록() throws Exception {
         // given
-
         /* 게시글 등록 요청 dto 작성 */
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
         PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
@@ -161,26 +119,20 @@ public class PostsControllerTest {
 
         images.add(mockMultipartFile);
 
-        /* fileUploadService가 반환할 file 객체 List 작성 */
-        List<File> uploadedImages = new ArrayList<>();
-        uploadedImages.add(mockFile);
-
-        /* imagesService가 반환할 업로드된 파일의 id List 작성 */
+        /* 업로드된 파일의 id List 작성 */
         List<Long> uploadedImagesId = new ArrayList<>();
         uploadedImagesId.add(1L);
 
-//        /* stub들 mocking */
-//        given(postsService.save(any(PostsSaveRequestDto.class))).willReturn(1L);
-        given(fileUploadService.upload(anyList())).willReturn(uploadedImages);
-        given(imagesService.save(any(Long.class), anyList(), anyList())).willReturn(uploadedImagesId);
+        /* post entity mocking */
+        Posts post = mock(Posts.class);
+        given(post.getId()).willReturn(1L);
 
         /* 게시글 등록 응답 dto 작성 */
-        PostsSaveResponseDto responseDto = PostsSaveResponseDto.builder()
-                .postId(1L)
-                .imageIds(uploadedImagesId)
-                .requestCount(images.size())
-                .uploadedCount(uploadedImages.size())
-                .build();
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
+        responseDto.setImageValues(uploadedImagesId);
+
+        /* stub mocking */
+        given(postsService.save(any(PostsSaveRequestDto.class), anyList())).willReturn(responseDto);
 
         // when
         // then

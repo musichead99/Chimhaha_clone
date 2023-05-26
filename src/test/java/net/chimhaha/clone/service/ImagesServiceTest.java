@@ -6,6 +6,7 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.utils.FileUploadService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class ImagesServiceTest {
     private ImagesRepository imagesRepository;
 
     @Mock
-    private PostsService postsService;
+    private FileUploadService fileUploadService;
 
     @InjectMocks
     private ImagesService imagesService;
@@ -88,34 +89,30 @@ public class ImagesServiceTest {
         MockMultipartFile mockMultipartFile = new MockMultipartFile(
                 "images",
                 "테스트 이미지",
-                "gif", new byte[100]
+                "gif",
+                new byte[100]
         );
-
         originalFiles.add(mockMultipartFile);
 
-        /* 파라미터로 전달할 mock file list 작성 */
-        List<File> uploadedFiles = new ArrayList<>();
-
+        /* fileUploadService가 파일 저장 후 반환할 file객체 mocking */
         File mockFile = mock(File.class); // 직접 mock메소드 사용해서 mocking
         given(mockFile.getName()).willReturn("stored_테스트 이미지");
 
-        uploadedFiles.add(mockFile);
-
         /* repository 빈들 mocking */
-        given(postsService.findPostsById(any(Long.class)))
-                .willReturn(post);
         given(imagesRepository.save(any(Images.class)))
                 .willReturn(image);
+        given(fileUploadService.upload(any(MultipartFile.class)))
+                .willReturn(mockFile);
 
         // when
-        List<Long> uploadedFilesId = imagesService.save(post.getId(), uploadedFiles, originalFiles);
+        List<Long> uploadedFilesId = imagesService.save(post, originalFiles);
 
         // then
         assertAll(
                 () -> assertEquals(1, uploadedFilesId.size()),
                 () -> assertEquals(2, uploadedFilesId.get(0)),
-                () -> verify(postsService, times(1)).findPostsById(any(Long.class)),
-                () -> verify(imagesRepository, times(1)).save(any(Images.class))
+                () -> verify(imagesRepository, times(1)).save(any(Images.class)),
+                () -> verify(fileUploadService, times(1)).upload(any(MultipartFile.class))
         );
     }
 

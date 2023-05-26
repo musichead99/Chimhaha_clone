@@ -1,16 +1,11 @@
 package net.chimhaha.clone.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
-import org.junit.jupiter.api.Disabled;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -23,16 +18,18 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class) // service 레이어 테스트 시 사용하는 어노테이션
@@ -50,18 +47,18 @@ public class PostsServiceTest {
     @Mock
     private CategoryService categoryService;
 
+    @Mock
+    private ImagesService imagesService;
+
     @InjectMocks
     private PostsService postsService;
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String subject = "침착맨";
     Boolean flag = true;
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    @Disabled // 추후 수정
-    public void 게시글_등록() {
+    public void 첨부파일_없는_게시글_등록() {
         //given
         Menu menu = Menu.builder()
                 .name("침착맨")
@@ -91,7 +88,7 @@ public class PostsServiceTest {
                 .popularFlag(flag)
                 .build();
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .menu(menu)
@@ -100,10 +97,10 @@ public class PostsServiceTest {
                 .popularFlag(dto.getPopularFlag())
                 .build();
         /* ReflectionTestUtils는 객체의 private field에 값을 주입할 수 있다. */
-        ReflectionTestUtils.setField(posts, "id", 1L); // 가짜 게시글 id 주입
+        ReflectionTestUtils.setField(post, "id", 1L); // 가짜 게시글 id 주입
 
         given(postsRepository.save(any(Posts.class)))
-                .willReturn(posts);
+                .willReturn(post);
         given(menuService.findById(any(Long.class)))
                 .willReturn(menu);
         given(boardsService.findById(any(Long.class)))
@@ -112,10 +109,90 @@ public class PostsServiceTest {
                 .willReturn(category);
 
         //when
-//        Long createdPostsId = postsService.save(dto);
+        PostsSaveResponseDto responseDto = postsService.save(dto);
 
         //then
-//        assertEquals(1L, createdPostsId);
+        assertAll(
+                () -> assertEquals(1L, responseDto.getPostId()),
+                () -> assertEquals(0, responseDto.getImageIds().size())
+        );
+    }
+
+    @Test
+    public void 첨부파일_있는_게시글_등록() {
+        // given
+        Menu menu = Menu.builder()
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(menu, "id", 1L);
+
+        Boards board = Boards.builder()
+                .menu(menu)
+                .name("침착맨")
+                .description("침착맨에 대해 이야기하는 게시판입니다")
+                .likeLimit(10)
+                .build();
+        ReflectionTestUtils.setField(board, "id", 1L);
+
+        Category category = Category.builder()
+                .board(board)
+                .name("침착맨")
+                .build();
+        ReflectionTestUtils.setField(category, "id", 1L);
+
+        PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
+                .title(title)
+                .content(content)
+                .menuId(1L)
+                .boardId(1L)
+                .categoryId(1L)
+                .popularFlag(flag)
+                .build();
+
+        /* postsService로 넘겨 줄 MultipartFile 리스트 */
+        List<MultipartFile> images = new ArrayList<>();
+
+        /* postsService.findPostById()가 반환할 post엔티티 */
+        Posts post = Posts.builder()
+                .title(title)
+                .content(content)
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(flag)
+                .build();
+        ReflectionTestUtils.setField(post, "id", 1L);
+
+        /* postsService.save()가 반환할 responseDtoDemo */
+        PostsSaveResponseDto responseDtoDemo = PostsSaveResponseDto.from(post);
+
+        /* imagesService.save()가 반환할 저장된 이미지의 id 리스트 */
+        List<Long> uploadedImageIds = new ArrayList<>();
+        uploadedImageIds.add(30L);
+
+        given(postsRepository.save(any(Posts.class)))
+                .willReturn(post);
+        given(menuService.findById(any(Long.class)))
+                .willReturn(menu);
+        given(boardsService.findById(any(Long.class)))
+                .willReturn(board);
+        given(categoryService.findById(any(Long.class)))
+                .willReturn(category);
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(post));
+        given(imagesService.save(any(Posts.class), anyList()))
+                .willReturn(uploadedImageIds);
+
+        // when
+        PostsSaveResponseDto responseDto = postsService.save(dto, images);
+
+        // then
+        assertAll(
+                () -> assertEquals(1L, responseDto.getPostId()),
+                () -> assertEquals(1, responseDto.getImageIds().size()),
+                () -> assertEquals(30L, responseDto.getImageIds().get(0))
+        );
+
     }
 
     @Test
