@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.utils.FileUploadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,21 +19,21 @@ import java.util.List;
 public class ImagesService {
 
     private final ImagesRepository imagesRepository;
-    private final PostsService postsService;
+    private final FileUploadService fileUploadService;
 
     @Transactional
-    public List<Long> save(Long postId, List<File> files, List<MultipartFile> originals) {
+    public List<Long> save(Posts post, List<MultipartFile> originals) {
         List<Long> uploadedImagesId = new ArrayList<>();
 
-        Posts post = postsService.findPostsById(postId);
+        for(MultipartFile original : originals) {
+            File uploadedFile = fileUploadService.upload(original);
 
-        for(int i = 0; i < files.size(); i++) {
             Images image = imagesRepository.save(Images.builder()
                     .post(post)
-                    .realFileName(originals.get(i).getOriginalFilename())
-                    .storedFileName(files.get(i).getName())
-                    .storedFileSize((int) originals.get(i).getSize())
-                    .storedFilePath(files.get(i).getAbsolutePath())
+                    .realFileName(original.getOriginalFilename())
+                    .storedFileName(uploadedFile.getName())
+                    .storedFileSize((int) original.getSize())
+                    .storedFilePath(uploadedFile.getAbsolutePath())
                     .build());
             uploadedImagesId.add(image.getId());
         }

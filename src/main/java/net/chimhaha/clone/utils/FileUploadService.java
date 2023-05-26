@@ -10,8 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -21,13 +19,6 @@ public class FileUploadService {
 
     @Value("${file.store.path}")
     private String path;
-
-    public List<File> upload(List<MultipartFile> imageFiles) {
-        List<File> uploadedFiles = new ArrayList<>();
-        imageFiles.forEach(file -> uploadedFiles.add(upload(file)));
-
-        return uploadedFiles;
-    }
 
     public File upload(MultipartFile imageFile) {
         UUID uuid = UUID.randomUUID();

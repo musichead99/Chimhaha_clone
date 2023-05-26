@@ -24,6 +24,7 @@ public class PostsService {
     private final BoardsService boardsService;
     private final CategoryService categoryService;
     private final MenuService menuService;
+    private final ImagesService imagesService;
 
     @Transactional
     public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
@@ -45,24 +46,15 @@ public class PostsService {
     }
 
     @Transactional
-    public Long save(PostsSaveRequestDto dto, List<MultipartFile> images) {
+    public PostsSaveResponseDto save(PostsSaveRequestDto dto, List<MultipartFile> images) {
 
-        Boards board = boardsService.findById(dto.getBoardId());
-        Category category = categoryService.findById(dto.getCategoryId());
-        Menu menu = menuService.findById(dto.getMenuId());
+        PostsSaveResponseDto responseDto = save(dto); // DB에 게시글 등록
+        Posts post = findPostsById(responseDto.getPostId()); // 영속성 컨텍스트의 1차 캐시에서 DB접근 없이 방금 저장한 post를 조회할 수 있다.
 
+        List<Long> uploadedImagesId =  imagesService.save(post, images); // 파일 저장 및 DB에 파일 정보 등록
+        responseDto.setImageValues(uploadedImagesId);
 
-
-        Posts post = Posts.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .popularFlag(dto.getPopularFlag())
-                .board(board)
-                .category(category)
-                .menu(menu)
-                .build();
-
-        return postsRepository.save(post).getId();
+        return responseDto;
     }
 
     @Transactional(readOnly = true)
