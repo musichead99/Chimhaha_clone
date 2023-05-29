@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class ImagesService {
                 .forEach(file -> {
                     Images image = imagesRepository.save(Images.builder()
                             .post(post)
-                            .realFileName(file.getName().substring(36))
+                            .realFileName(file.getName().substring(37))
                             .storedFileName(file.getName())
                             .storedFileSize((int)file.length())
                             .storedFilePath(file.getAbsolutePath())
@@ -48,5 +47,13 @@ public class ImagesService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
 
         return image.getStoredFilePath();
+    }
+
+
+    /* 서비스 계층 내에서만 사용할 메소드들 */
+
+    @Transactional(readOnly = true)
+    List<Images> findByPost(Posts post) {
+        return imagesRepository.findByPost(post);
     }
 }

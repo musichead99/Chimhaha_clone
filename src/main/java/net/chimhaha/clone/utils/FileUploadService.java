@@ -51,4 +51,13 @@ public class FileUploadService {
                 .mediaType(mediaType)
                 .build();
     }
+
+    public void delete(File file) {
+        if(file.exists()) {
+            file.delete();
+            log.info("file deleted: {}", file.getName());
+        } else {
+            throw new FileUploadException("해당 파일이 존재하지 않습니다. : " + file.getName());
+        }
+    }
 }

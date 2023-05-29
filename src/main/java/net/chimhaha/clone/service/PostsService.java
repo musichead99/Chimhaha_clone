@@ -1,11 +1,14 @@
 package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
+import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.File;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PostsService {
@@ -25,10 +30,10 @@ public class PostsService {
     private final CategoryService categoryService;
     private final MenuService menuService;
     private final ImagesService imagesService;
+    private final FileUploadService fileUploadService;
 
     @Transactional
     public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
-
         Boards board = boardsService.findById(dto.getBoardId());
         Category category = categoryService.findById(dto.getCategoryId());
         Menu menu = menuService.findById(dto.getMenuId());
@@ -47,11 +52,10 @@ public class PostsService {
 
     @Transactional
     public PostsSaveResponseDto save(PostsSaveRequestDto dto, List<MultipartFile> images) {
-
         PostsSaveResponseDto responseDto = save(dto); // DB에 게시글 등록
         Posts post = findPostsById(responseDto.getPostId()); // 영속성 컨텍스트의 1차 캐시에서 DB접근 없이 방금 저장한 post를 조회할 수 있다.
+        List<Long> uploadedImagesId = imagesService.save(post, images); // 파일 저장 및 DB에 파일 정보 등록
 
-        List<Long> uploadedImagesId =  imagesService.save(post, images); // 파일 저장 및 DB에 파일 정보 등록
         responseDto.setImageValues(uploadedImagesId);
 
         return responseDto;
@@ -67,7 +71,6 @@ public class PostsService {
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByCategory(Long categoryId, Pageable pageable) {
         Category category = categoryService.findById(categoryId);
-
         Page<Posts> posts = postsRepository.findByCategory(category, pageable);
 
         return posts.map(PostsFindResponseDto::from);
@@ -76,7 +79,6 @@ public class PostsService {
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByBoard(Long boardId, Pageable pageable) {
         Boards boards = boardsService.findById(boardId);
-
         Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
 
         return posts.map(PostsFindResponseDto::from);
@@ -85,7 +87,6 @@ public class PostsService {
     @Transactional(readOnly = true)
     public Page<PostsFindResponseDto> findByMenu(Long menuId, Pageable pageable) {
         Menu menu = menuService.findById(menuId);
-        
         Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
 
         return posts.map(PostsFindResponseDto::from);
@@ -103,24 +104,33 @@ public class PostsService {
     public void increaseViewCount(Long id) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+
         post.increaseViewCount();
     }
 
     @Transactional
     public Long update(Long id, PostsUpdateRequestDto dto) {
-        Posts posts = postsRepository.findById(id)
+        Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
-
         Category category = categoryService.findById(dto.getCategoryId());
 
-        posts.update(dto.getTitle(), dto.getContent(), category, dto.getPopularFlag());
+        post.update(dto.getTitle(), dto.getContent(), category, dto.getPopularFlag());
 
-        return posts.getId();
+        return post.getId();
     }
 
     @Transactional
     public void delete(Long id) {
-        postsRepository.deleteById(id);
+        Posts post = postsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        List<Images> images = imagesService.findByPost(post);
+
+        postsRepository.delete(post);
+
+        images.stream()
+                .map(Images::getStoredFilePath)
+                .map(File::new)
+                .forEach(fileUploadService::delete);
     }
 
 
