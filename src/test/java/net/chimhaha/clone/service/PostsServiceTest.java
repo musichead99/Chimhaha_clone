@@ -2,9 +2,11 @@ package net.chimhaha.clone.service;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
+import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
@@ -49,6 +53,9 @@ public class PostsServiceTest {
 
     @Mock
     private ImagesService imagesService;
+
+    @Mock
+    private FileUploadService fileUploadService;
 
     @InjectMocks
     private PostsService postsService;
@@ -586,14 +593,34 @@ public class PostsServiceTest {
     @Test
     public void 게시글_삭제() {
         // given
-        Long postsId = 1L;
+        Posts post = mock(Posts.class);
+
+        List<Images> images = new ArrayList<>();
+
+        for(int i = 0; i < 5; i++) {
+            Images image = mock(Images.class);
+
+            given(image.getStoredFilePath()).willReturn("C:\\test\\path\\:)");
+
+            images.add(image);
+        }
+
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(post));
+        given(imagesService.findByPost(any(Posts.class)))
+                .willReturn(images);
+        willDoNothing().given(fileUploadService).delete(any(File.class));
 
         // when
-        postsService.delete(postsId);
+        postsService.delete(1L);
 
         // then
         /* postsService.delete()가 반환값이 없으므로 delete()내부의 postsRepository가 제대로 실행되었는지를 검증한다
         *  verify를 통해서 deletebyId가 예상대로 1번 호출되었는지를 검증한다 */
-        verify(postsRepository, times(1)).deleteById(postsId);
+        assertAll(
+                () -> verify(postsRepository, times(1)).findById(any(Long.class)),
+                () -> verify(imagesService, times(1)).findByPost(any(Posts.class)),
+                () -> verify(fileUploadService, times(5)).delete(any(File.class))
+        );
     }
 }
