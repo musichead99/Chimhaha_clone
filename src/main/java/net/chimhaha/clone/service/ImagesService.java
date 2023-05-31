@@ -5,13 +5,16 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.utils.FileUploadService;
+import net.chimhaha.clone.web.dto.images.ImagesSaveResponseDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,24 +24,24 @@ public class ImagesService {
     private final FileUploadService fileUploadService;
 
     @Transactional
-    public List<Long> save(Posts post, List<MultipartFile> originals) {
-        List<Long> uploadedImagesId = new ArrayList<>();
+    public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
+        return images.stream()
+                .map(this::save)
+                .collect(Collectors.toList());
+    }
 
-        originals.stream()
-                .map(fileUploadService::upload)
-                .forEach(file -> {
-                    Images image = imagesRepository.save(Images.builder()
-                            .post(post)
-                            .realFileName(file.getName().substring(37))
-                            .storedFileName(file.getName())
-                            .storedFileSize((int)file.length())
-                            .storedFilePath(file.getAbsolutePath())
-                            .build());
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public ImagesSaveResponseDto save(MultipartFile image) {
+        File file = fileUploadService.upload(image);
 
-                    uploadedImagesId.add(image.getId());
-                });
+        Images uploadedImage = imagesRepository.save(Images.builder()
+                .realFileName(file.getName().substring(37))
+                .storedFileName(file.getName())
+                .storedFileSize((int)file.length())
+                .storedFilePath(file.getAbsolutePath())
+                .build());
 
-        return uploadedImagesId;
+        return ImagesSaveResponseDto.from(uploadedImage);
     }
 
     @Transactional(readOnly = true)
@@ -49,11 +52,15 @@ public class ImagesService {
         return image.getStoredFilePath();
     }
 
-
     /* 서비스 계층 내에서만 사용할 메소드들 */
 
     @Transactional(readOnly = true)
     List<Images> findByPost(Posts post) {
         return imagesRepository.findByPost(post);
+    }
+
+    @Transactional(readOnly = true)
+    List<Images> findByIdIn(List<Long> imageIdList) {
+        return imagesRepository.findByIdIn(imageIdList);
     }
 }
