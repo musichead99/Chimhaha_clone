@@ -31,7 +31,7 @@ public class Images extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Posts post; // null이면 썸네일, null이 아니면 게시글 첨부 이미지
+    private Posts post;
 
     @Builder
     public Images(String realFileName, String storedFileName, String storedFilePath, int storedFileSize, Posts post) {
@@ -39,6 +39,10 @@ public class Images extends BaseTimeEntity {
         this.storedFileName = storedFileName;
         this.storedFilePath = storedFilePath;
         this.storedFileSize = storedFileSize;
+        this.post = post;
+    }
+
+    public void attachedToPost(Posts post) {
         this.post = post;
     }
 }

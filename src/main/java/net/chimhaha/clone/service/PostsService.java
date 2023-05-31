@@ -14,11 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,6 +37,7 @@ public class PostsService {
         Boards board = boardsService.findById(dto.getBoardId());
         Category category = categoryService.findById(dto.getCategoryId());
         Menu menu = menuService.findById(dto.getMenuId());
+        List<Images> images = imagesService.findByIdIn(dto.getImageIdList());
 
         Posts post = Posts.builder()
                 .title(dto.getTitle())
@@ -47,16 +48,13 @@ public class PostsService {
                 .menu(menu)
                 .build();
 
-        return PostsSaveResponseDto.from(postsRepository.save(post));
-    }
+        post.addAttachedImages(images);
+        images.forEach(image -> image.attachedToPost(post));
 
-    @Transactional
-    public PostsSaveResponseDto save(PostsSaveRequestDto dto, List<MultipartFile> images) {
-        PostsSaveResponseDto responseDto = save(dto); // DB에 게시글 등록
-        Posts post = findPostsById(responseDto.getPostId()); // 영속성 컨텍스트의 1차 캐시에서 DB접근 없이 방금 저장한 post를 조회할 수 있다.
-        List<Long> uploadedImagesId = imagesService.save(post, images); // 파일 저장 및 DB에 파일 정보 등록
-
-        responseDto.setImageValues(uploadedImagesId);
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(postsRepository.save(post));
+        responseDto.setImageValues(images.stream()
+                .map(Images::getId)
+                .collect(Collectors.toList()));
 
         return responseDto;
     }

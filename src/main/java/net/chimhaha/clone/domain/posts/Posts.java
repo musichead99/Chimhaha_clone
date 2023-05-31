@@ -83,6 +83,10 @@ public class Posts extends BaseTimeEntity {
         views++;
     }
 
+    public void addAttachedImages(List<Images> images) {
+        this.images.addAll(images);
+    }
+
     /* @prePersist 어노테이션은 새로 생성된 엔티티가 영속상태가 되기 이전에 실행된다.
     * 이 경우는 디폴트값이 0이어야 하는 조회수에 insert시 null값이 들어가는 문제 때문에 사용했다.  */
     @PrePersist

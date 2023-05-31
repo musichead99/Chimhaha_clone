@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PostsSaveResponseDto {
     private Long postId;
-    private List<Long> imageIds = new ArrayList<>();
+    private List<Long> imageIdList = new ArrayList<>();
 
     private PostsSaveResponseDto(Long postId) {
         this.postId = postId;
@@ -22,6 +22,6 @@ public class PostsSaveResponseDto {
     }
 
     public void setImageValues(List<Long> imageIds) {
-        this.imageIds = imageIds;
+        this.imageIdList = imageIds;
     }
 }

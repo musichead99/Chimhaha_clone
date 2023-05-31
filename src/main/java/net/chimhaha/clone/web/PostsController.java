@@ -10,27 +10,17 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 public class PostsController {
     private final PostsService postsService;
 
-    /* 이미지를 첨부하지 않은 게시글 업로드 */
+    /* 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public PostsSaveResponseDto save(@RequestBody PostsSaveRequestDto dto) {
         return postsService.save(dto);
-    }
-
-    /* 이미지를 첨부한 게시글 업로드 */
-    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public PostsSaveResponseDto save(@RequestPart(value = "postsSaveRequestDto") PostsSaveRequestDto dto, @RequestPart(value = "images") List<MultipartFile> images) {
-        return postsService.save(dto, images);
     }
 
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요

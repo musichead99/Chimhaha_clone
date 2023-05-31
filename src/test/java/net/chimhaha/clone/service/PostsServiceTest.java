@@ -20,13 +20,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +61,7 @@ public class PostsServiceTest {
     Boolean flag = true;
 
     @Test
-    public void 첨부파일_없는_게시글_등록() {
+    public void 게시글_등록() {
         //given
         Menu menu = Menu.builder()
                 .name("침착맨")
@@ -92,6 +88,7 @@ public class PostsServiceTest {
                 .menuId(1L)
                 .boardId(1L)
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L,2L,3L,4L))
                 .popularFlag(flag)
                 .build();
 
@@ -106,6 +103,14 @@ public class PostsServiceTest {
         /* ReflectionTestUtils는 객체의 private field에 값을 주입할 수 있다. */
         ReflectionTestUtils.setField(post, "id", 1L); // 가짜 게시글 id 주입
 
+        List<Images> images = new ArrayList<>();
+        for(int i = 1; i < 5; i++) {
+            Images image = mock(Images.class);
+            given(image.getId()).willReturn((long)i);
+
+            images.add(image);
+        }
+
         given(postsRepository.save(any(Posts.class)))
                 .willReturn(post);
         given(menuService.findById(any(Long.class)))
@@ -114,92 +119,16 @@ public class PostsServiceTest {
                 .willReturn(board);
         given(categoryService.findById(any(Long.class)))
                 .willReturn(category);
+        given(imagesService.findByIdIn(anyList()))
+                .willReturn(images);
 
         //when
         PostsSaveResponseDto responseDto = postsService.save(dto);
 
         //then
         assertAll(
-                () -> assertEquals(1L, responseDto.getPostId()),
-                () -> assertEquals(0, responseDto.getImageIds().size())
+                () -> assertEquals(1L, responseDto.getPostId())
         );
-    }
-
-    @Test
-    public void 첨부파일_있는_게시글_등록() {
-        // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
-        PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
-                .title(title)
-                .content(content)
-                .menuId(1L)
-                .boardId(1L)
-                .categoryId(1L)
-                .popularFlag(flag)
-                .build();
-
-        /* postsService로 넘겨 줄 MultipartFile 리스트 */
-        List<MultipartFile> images = new ArrayList<>();
-
-        /* postsService.findPostById()가 반환할 post엔티티 */
-        Posts post = Posts.builder()
-                .title(title)
-                .content(content)
-                .menu(menu)
-                .board(board)
-                .category(category)
-                .popularFlag(flag)
-                .build();
-        ReflectionTestUtils.setField(post, "id", 1L);
-
-        /* postsService.save()가 반환할 responseDtoDemo */
-        PostsSaveResponseDto responseDtoDemo = PostsSaveResponseDto.from(post);
-
-        /* imagesService.save()가 반환할 저장된 이미지의 id 리스트 */
-        List<Long> uploadedImageIds = new ArrayList<>();
-        uploadedImageIds.add(30L);
-
-        given(postsRepository.save(any(Posts.class)))
-                .willReturn(post);
-        given(menuService.findById(any(Long.class)))
-                .willReturn(menu);
-        given(boardsService.findById(any(Long.class)))
-                .willReturn(board);
-        given(categoryService.findById(any(Long.class)))
-                .willReturn(category);
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(post));
-        given(imagesService.save(any(Posts.class), anyList()))
-                .willReturn(uploadedImageIds);
-
-        // when
-        PostsSaveResponseDto responseDto = postsService.save(dto, images);
-
-        // then
-        assertAll(
-                () -> assertEquals(1L, responseDto.getPostId()),
-                () -> assertEquals(1, responseDto.getImageIds().size()),
-                () -> assertEquals(30L, responseDto.getImageIds().get(0))
-        );
-
     }
 
     @Test

@@ -10,4 +10,6 @@ import java.util.List;
 public interface ImagesRepository extends JpaRepository<Images, Long> {
 
     List<Images> findByPost(Posts post);
+
+    List<Images> findByIdIn(List<Long> id);
 }

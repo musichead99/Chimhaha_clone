@@ -15,20 +15,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -55,7 +49,7 @@ public class PostsControllerTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void  첨부파일_없는_게시글_등록() throws Exception {
+    public void  게시글_등록() throws Exception {
         //given
         PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
@@ -63,6 +57,7 @@ public class PostsControllerTest {
                 .menuId(1L)
                 .boardId(1L)
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L, 2L, 3L, 4L))
                 .popularFlag(flag)
                 .build();
 
@@ -72,6 +67,7 @@ public class PostsControllerTest {
 
         /* response dto 생성 */
         PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
+        responseDto.setImageValues(Arrays.asList(1L, 2L, 3L, 4L));
 
         given(postsService.save(any(PostsSaveRequestDto.class))).willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
 
@@ -83,66 +79,6 @@ public class PostsControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated()) // 상태 코드 201(created)반환
                 .andExpect(content().json(objectMapper.writeValueAsString(responseDto))); // 결과값으로 생성한 게시글의 id반환
-    }
-
-    @Test
-    public void 첨부파일_있는_게시글_등록() throws Exception {
-        // given
-        /* 게시글 등록 요청 dto 작성 */
-        PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
-                .title(title)
-                .content(content)
-                .menuId(1L)
-                .boardId(1L)
-                .categoryId(1L)
-                .popularFlag(flag)
-                .build();
-
-        /* Mockmvc에서 form-data의 테스팅을 위해서는 MockMvcRequestBuilders.multipart를 사용해야 한다.
-        * 하지만 이를 사용하면 전달하고자 하는 dto도 MockMultipartFile로 래핑해서 전송해야 한다. */
-        MockMultipartFile mockRequestDto = new MockMultipartFile(
-                "postsSaveRequestDto",
-                "postsSaveRequestDto",
-                "application/json",
-                objectMapper.writeValueAsString(requestDto).getBytes(StandardCharsets.UTF_8));
-
-        /* mock 첨부파일 작성 */
-        List<MultipartFile> images = new ArrayList<>();
-
-        String filename = "testGif";
-        String contentType = "gif";
-        String filepath = "src\\test\\resources\\images\\";
-        File mockFile = new File(filepath + filename + "." + contentType);
-
-        FileInputStream fis = new FileInputStream(mockFile);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("images", filename + "." + contentType, contentType, fis);
-
-        images.add(mockMultipartFile);
-
-        /* 업로드된 파일의 id List 작성 */
-        List<Long> uploadedImagesId = new ArrayList<>();
-        uploadedImagesId.add(1L);
-
-        /* post entity mocking */
-        Posts post = mock(Posts.class);
-        given(post.getId()).willReturn(1L);
-
-        /* 게시글 등록 응답 dto 작성 */
-        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
-        responseDto.setImageValues(uploadedImagesId);
-
-        /* stub mocking */
-        given(postsService.save(any(PostsSaveRequestDto.class), anyList())).willReturn(responseDto);
-
-        // when
-        // then
-        mvc.perform(multipart("/posts")
-                .file(mockMultipartFile)
-                .file(mockRequestDto))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
-
     }
 
     @Test
