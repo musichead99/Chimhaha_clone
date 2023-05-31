@@ -1,4 +1,4 @@
-package net.chimhaha.clone;
+package net.chimhaha.clone.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
