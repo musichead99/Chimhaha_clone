@@ -454,17 +454,22 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(posts, "id", postsId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
+        List<Images> images = new ArrayList<>();
+
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
                 .content("테스트 본문 2")
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L, 2L, 3L, 4L))
                 .popularFlag(flag)
                 .build();
 
         given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(posts));
+                .willReturn(Optional.of(posts));
         given(categoryService.findById(any(Long.class)))
                 .willReturn(category);
+        given(imagesService.findByIdIn(anyList(), any(Posts.class)))
+                .willReturn(images);
 
         // when
         Long updatedId = postsService.update(postsId, dto);
