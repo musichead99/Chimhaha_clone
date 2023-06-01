@@ -36,4 +36,10 @@ public class ImagesController {
                 .header(HttpHeaders.CONTENT_TYPE, dto.getMediaType().toString())
                 .body(dto.getBytes());
     }
+
+    @DeleteMapping(value = "/images/{id}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
+        imagesService.delete(id);
+    }
 }

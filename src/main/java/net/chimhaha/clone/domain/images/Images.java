@@ -45,4 +45,9 @@ public class Images extends BaseTimeEntity {
     public void attachedToPost(Posts post) {
         this.post = post;
     }
+
+    /* 추후 애플리케이션의 전체적인 삭제 전략을 soft delete로 변경 시 추가적으로 상태를 변경하게끔 할 것 */
+    public void delete() {
+        this.post = null;
+    }
 }
