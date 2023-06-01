@@ -110,9 +110,20 @@ public class PostsService {
     public Long update(Long id, PostsUpdateRequestDto dto) {
         Posts post = postsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        List<Images> images = imagesService.findByIdIn(dto.getImageIdList(), post);
         Category category = categoryService.findById(dto.getCategoryId());
 
-        post.update(dto.getTitle(), dto.getContent(), category, dto.getPopularFlag());
+        post.update(
+                dto.getTitle(),
+                dto.getContent(),
+                category,
+                images,
+                dto.getPopularFlag()
+        );
+
+        images.stream()
+                .filter(image -> image.getPost() == null)
+                .forEach(image -> image.attachedToPost(post));
 
         return post.getId();
     }

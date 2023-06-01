@@ -59,7 +59,7 @@ public class Posts extends BaseTimeEntity {
     private final List<Comments> comments = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
-    private final List<Images> images = new ArrayList<>();
+    private List<Images> images = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
@@ -72,10 +72,11 @@ public class Posts extends BaseTimeEntity {
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, Category category, boolean popularFlag) {
+    public void update(String title, String content, Category category, List<Images> images, boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.category = category;
+        this.images = images;
         this.popularFlag = popularFlag;
     }
 

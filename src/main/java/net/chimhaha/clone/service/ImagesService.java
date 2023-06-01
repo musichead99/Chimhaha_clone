@@ -66,8 +66,27 @@ public class ImagesService {
         return imagesRepository.findByPost(post);
     }
 
+    // 게시글 수정 시 첨부할 수 있는 이미지들만 조회한다. ex) 다른 게시글과 연관관계를 가지지 않거나 parameter로 받은 post와만 연관관계를 가져야 함
+    @Transactional(readOnly = true)
+    List<Images> findByIdIn(List<Long> imageIdList, Posts post) {
+        List<Images> images = imagesRepository.findByIdAndPostIsNullOrPostIn(imageIdList, post);
+
+        if(images.size() != imageIdList.size()) {
+            throw new IllegalArgumentException("이미지를 첨부할 수 없습니다.");
+        }
+
+        return images;
+    }
+
+    // 게시글에 첨부할 수 있는 이미지들만 조회한다. ex) 다른 게시글과 연관관계를 가지지 않아야 함
     @Transactional(readOnly = true)
     List<Images> findByIdIn(List<Long> imageIdList) {
-        return imagesRepository.findByIdIn(imageIdList);
+        List<Images> images = imagesRepository.findByIdAndPostIsNullIn(imageIdList);
+
+        if(images.size() != imageIdList.size()) {
+            throw new IllegalArgumentException("이미지를 첨부할 수 없습니다.");
+        }
+
+        return images;
     }
 }
