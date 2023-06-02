@@ -21,13 +21,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -119,6 +120,33 @@ public class ImagesServiceTest {
     }
 
     @Test
+    public void 이미지_삭제하기() {
+        // given
+        Posts post = mock(Posts.class);
+
+        Images image = Images.builder()
+                .post(post)
+                .realFileName("테스트 이미지")
+                .storedFileName("ab6bf24f-1401-42d1-b71c-5353b17300f0_stored_테스트 이미지")
+                .storedFilePath("C:\\test\\path")
+                .storedFileSize(112453)
+                .build();
+
+        given(imagesRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(image));
+        willDoNothing().given(fileUploadService).delete(any(File.class));
+
+        // when
+        imagesService.delete(1L);
+
+        // then
+        assertAll(
+                () -> verify(imagesRepository,times(1)).findById(any(Long.class))
+        );
+
+    }
+
+    @Test
     public void 로컬에_저장된_이미지_경로_조회하기() {
         // given
         Posts post = mock(Posts.class);
@@ -140,6 +168,112 @@ public class ImagesServiceTest {
 
         // then
         assertEquals("C:\\test", path);
+
+    }
+
+    @Test
+    public void 게시글_등록_시_첨부할_이미지_조회_성공() {
+        // given
+        List<Long> imageIdList = Arrays.asList(1L, 3L, 5L, 7L);
+
+        List<Images> images = new ArrayList<>();
+
+        for(int i = 0; i < 4; i++) {
+            Images image = mock(Images.class);
+            images.add(image);
+        }
+
+
+        given(imagesRepository.findByIdAndPostIsNullIn(anyList()))
+                .willReturn(images);
+
+        // when
+        List<Images> imagesToAttach = imagesService.findByIdIn(imageIdList);
+
+        // then
+        assertAll(
+                () -> assertEquals(4, imagesToAttach.size())
+        );
+
+    }
+
+    @Test
+    public void 게시글_등록_시_첨부할_이미지_조회_실패() {
+        // given
+        List<Long> imageIdList = Arrays.asList(1L, 3L, 5L, 7L);
+
+        List<Images> images = new ArrayList<>();
+
+        for(int i = 0; i < 3; i++) {
+            Images image = mock(Images.class);
+            images.add(image);
+        }
+
+
+        given(imagesRepository.findByIdAndPostIsNullIn(anyList()))
+                .willReturn(images);
+
+        // when
+        // then
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class,() -> {
+                    imagesService.findByIdIn(imageIdList);
+                })
+        );
+
+    }
+
+    @Test
+    public void 게시글_수정_시_첨부할_이미지_조회_성공() {
+        List<Long> imageIdList = Arrays.asList(1L, 3L, 5L, 7L);
+
+        List<Images> images = new ArrayList<>();
+
+        Posts post = mock(Posts.class);
+
+        for(int i = 0; i < 4; i++) {
+            Images image = mock(Images.class);
+            images.add(image);
+        }
+
+
+        given(imagesRepository.findByIdAndPostIsNullOrPostIn(anyList(), any(Posts.class)))
+                .willReturn(images);
+
+        // when
+        List<Images> imagesToAttach = imagesService.findByIdIn(imageIdList, post);
+
+        // then
+        assertAll(
+                () -> assertEquals(4, imagesToAttach.size())
+        );
+    }
+
+    @Test
+    public void 게시글_수정_시_첨부할_이미지_조회_실패() {
+        // given
+        List<Long> imageIdList = Arrays.asList(1L, 3L, 5L, 7L);
+
+        List<Images> images = new ArrayList<>();
+
+        Posts post = mock(Posts.class);
+
+        for(int i = 0; i < 3; i++) {
+            Images image = mock(Images.class);
+            images.add(image);
+        }
+
+
+        given(imagesRepository.findByIdAndPostIsNullOrPostIn(anyList(), any(Posts.class)))
+                .willReturn(images);
+
+        // when
+        // then
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class,() -> {
+                    imagesService.findByIdIn(imageIdList, post);
+                })
+        );
 
     }
 }
