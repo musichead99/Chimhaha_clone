@@ -61,6 +61,11 @@ public class ImagesService {
         imagesRepository.delete(image);
     }
 
+    @Transactional(readOnly = true) // 스케쥴러에서 사용
+    public List<Images> findByPostIsNull() {
+        return imagesRepository.findByPostIsNull();
+    }
+
     /* 서비스 계층 내에서만 사용할 메소드들 */
 
     @Transactional(readOnly = true)

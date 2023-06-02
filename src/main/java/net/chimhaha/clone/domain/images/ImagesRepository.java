@@ -17,4 +17,6 @@ public interface ImagesRepository extends JpaRepository<Images, Long> {
 
     @Query("select i from Images i where (i.post is null or i.post = :post) and i.id in :idList")
     List<Images> findByIdAndPostIsNullOrPostIn(List<Long> idList, Posts post);
+
+    List<Images> findByPostIsNull();
 }
