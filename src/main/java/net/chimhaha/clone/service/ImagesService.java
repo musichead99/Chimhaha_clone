@@ -56,7 +56,9 @@ public class ImagesService {
     public void delete(Long id) {
         Images image = imagesRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
-        image.delete();
+
+        fileUploadService.delete(new File(image.getStoredFilePath()));
+        imagesRepository.delete(image);
     }
 
     /* 서비스 계층 내에서만 사용할 메소드들 */
