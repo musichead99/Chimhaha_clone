@@ -1,7 +1,7 @@
 package net.chimhaha.clone.scheduler;
 
 import net.chimhaha.clone.domain.images.Images;
-import net.chimhaha.clone.domain.images.ImagesRepository;
+import net.chimhaha.clone.service.ImagesService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -24,8 +24,7 @@ import static org.mockito.Mockito.*;
 public class ImagesSchedulerTest {
 
     @Mock
-    ImagesRepository imagesService;
-
+    ImagesService imagesService;
 
     @InjectMocks
     ImagesScheduler imagesScheduler;
@@ -35,14 +34,14 @@ public class ImagesSchedulerTest {
         // given
         List<Images> garbage = new ArrayList<>();
 
-        for(int i = 0; i < 5 ; i++) {
+        for(int i = 0; i < 5; i++) {
             Images image = mock(Images.class);
-            given(image.getStoredFilePath()).willReturn("C:\\test\\path");
+            given(image.getId()).willReturn((long)i);
 
             garbage.add(image);
         }
 
-        willDoNothing().given(imagesService).delete(any(Images.class));
+        willDoNothing().given(imagesService).delete(any(Long.class));
         given(imagesService.findByPostIsNull()).willReturn(garbage);
 
         // when
@@ -50,7 +49,7 @@ public class ImagesSchedulerTest {
 
         // then
         assertAll(
-                () -> verify(imagesService, times(5)).delete(any(Images.class))
+                () -> verify(imagesService, times(5)).delete(any(Long.class))
         );
     }
 }
