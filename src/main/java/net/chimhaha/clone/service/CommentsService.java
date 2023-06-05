@@ -65,8 +65,8 @@ public class CommentsService {
 
         /* 계층구조 변환 과정 */
         comments.stream()
-                .forEach(c -> {
-                    CommentsFindByPostResponseDto dto = CommentsFindByPostResponseDto.from(c);
+                .map(CommentsFindByPostResponseDto::from)
+                .forEach(dto -> {
                     map.put(dto.getId(), dto);
 
                     /* 현재 댓글이 대댓글이라면 */
@@ -94,7 +94,8 @@ public class CommentsService {
 
     @Transactional
     public void delete(Long id) {
-        Comments comment = this.findById(id);
+        Comments comment = commentsRepository.findByIdWithParents(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다. id=" + id));
 
         if(comment.getChildren().size() != 0) {
             comment.changeDeleteStatus();
@@ -117,8 +118,8 @@ public class CommentsService {
     }
 
     @Transactional(readOnly = true)
-    Comments findById(Long id) {
-        return commentsRepository.findByIdWithParents(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다. id=" + id));
+    public Comments findById(Long id) {
+        return commentsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다. id=" + id));
     }
 }

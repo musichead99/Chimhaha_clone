@@ -47,7 +47,6 @@ public class PostsController {
 
     @GetMapping("/posts/{id}")
     public PostsFindByIdResponseDto findById(@PathVariable("id")Long id) {
-        postsService.increaseViewCount(id);
         return postsService.findById(id);
     }
 

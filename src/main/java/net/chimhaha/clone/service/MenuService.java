@@ -53,7 +53,7 @@ public class MenuService {
 
     /* 서비스 계층 내에서만 사용할 메소드들 */
     @Transactional(readOnly = true)
-    Menu findById(Long id) {
+    public Menu findById(Long id) {
         return menuRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 메뉴를 찾을 수 없습니다. id=" + id));
     }

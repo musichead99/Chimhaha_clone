@@ -93,15 +93,9 @@ public class PostsService {
     @Transactional(readOnly = true)
     public PostsFindByIdResponseDto findById(Long id) {
         Posts post = this.findPostsById(id);
+        post.increaseViewCount();
 
         return PostsFindByIdResponseDto.from(post);
-    }
-
-    @Transactional
-    public void increaseViewCount(Long id) {
-        Posts post = this.findPostsById(id);
-
-        post.increaseViewCount();
     }
 
     @Transactional
@@ -142,7 +136,7 @@ public class PostsService {
     /* 서비스 계층 내에서만 사용할 메소드들 */
 
     @Transactional(readOnly = true)
-     Posts findPostsById(Long id) {
+    public Posts findPostsById(Long id) {
         return postsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
     }

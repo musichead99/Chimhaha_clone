@@ -61,7 +61,7 @@ public class BoardsService {
     /* 서비스 계층 내에서만 사용할 메소드들 */
 
     @Transactional(readOnly = true)
-    Boards findById(Long id) {
+    public Boards findById(Long id) {
         return boardsRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 게시판을 찾을 수 없습니다. id=" + id));
     }

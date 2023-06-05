@@ -61,7 +61,7 @@ public class CategoryService {
 
     /* 서비스 계층 내에서만 사용할 메소드들 */
     @Transactional(readOnly = true)
-    Category findById(Long id) {
+    public Category findById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. id=" + id));
     }
