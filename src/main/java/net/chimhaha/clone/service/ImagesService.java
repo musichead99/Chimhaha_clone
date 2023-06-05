@@ -46,16 +46,14 @@ public class ImagesService {
 
     @Transactional(readOnly = true)
     public String findImagePathById(Long id) {
-        Images image = imagesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+        Images image = this.findById(id);
 
         return image.getStoredFilePath();
     }
 
     @Transactional
     public void delete(Long id) {
-        Images image = imagesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+        Images image = this.findById(id);
 
         fileUploadService.delete(new File(image.getStoredFilePath()));
         imagesRepository.delete(image);
@@ -95,5 +93,11 @@ public class ImagesService {
         }
 
         return images;
+    }
+
+    @Transactional(readOnly = true)
+    Images findById(Long id) {
+        return imagesRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다. id=" + id));
     }
 }

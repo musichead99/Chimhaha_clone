@@ -34,8 +34,7 @@ public class CommentsService {
         /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
         Comments parent = null;
         if(dto.getParentId() != null) {
-            parent = commentsRepository.findById(dto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다. id=" + dto.getParentId()));
+            parent = this.findById(dto.getPostId());
 
             if(!dto.getPostId().equals(parent.getPost().getId())) {
                 throw new IllegalArgumentException("부모 댓글의 게시글 id와 자식 댓글의 게시글 id가 일치하지 않습니다.");
@@ -86,8 +85,7 @@ public class CommentsService {
 
     @Transactional
     public Long update(Long id, CommentsUpdateRequestDto dto) {
-        Comments comment = commentsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+        Comments comment = this.findById(id);
 
         comment.update(dto.getContent());
 
@@ -96,8 +94,7 @@ public class CommentsService {
 
     @Transactional
     public void delete(Long id) {
-        Comments comment = commentsRepository.findByIdWithParents(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+        Comments comment = this.findById(id);
 
         if(comment.getChildren().size() != 0) {
             comment.changeDeleteStatus();
@@ -117,5 +114,11 @@ public class CommentsService {
         }
 
         return comment;
+    }
+
+    @Transactional(readOnly = true)
+    Comments findById(Long id) {
+        return commentsRepository.findByIdWithParents(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다. id=" + id));
     }
 }

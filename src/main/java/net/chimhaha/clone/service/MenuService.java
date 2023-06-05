@@ -39,8 +39,7 @@ public class MenuService {
 
     @Transactional
     public Long update(Long id, MenuUpdateRequestDto dto) {
-        Menu menu = menuRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 메뉴를 찾을 수 없습니다. id=" + id));
+        Menu menu = this.findById(id);
 
         menu.update(dto.getName());
 

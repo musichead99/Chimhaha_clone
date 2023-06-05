@@ -46,8 +46,7 @@ public class BoardsService {
 
     @Transactional
     public Long update(Long id, BoardsUpdateRequestDto dto) {
-        Boards board = boardsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시판을 찾을 수 없습니다. id=" + id));
+        Boards board = this.findById(id);
 
         board.update(dto.getName(), dto.getDescription(), dto.getLikeLimit());
         return board.getId();

@@ -92,24 +92,21 @@ public class PostsService {
 
     @Transactional(readOnly = true)
     public PostsFindByIdResponseDto findById(Long id) {
-        Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        Posts post = this.findPostsById(id);
 
         return PostsFindByIdResponseDto.from(post);
     }
 
     @Transactional
     public void increaseViewCount(Long id) {
-        Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        Posts post = this.findPostsById(id);
 
         post.increaseViewCount();
     }
 
     @Transactional
     public Long update(Long id, PostsUpdateRequestDto dto) {
-        Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        Posts post = this.findPostsById(id);
         List<Images> images = imagesService.findByIdIn(dto.getImageIdList(), post);
         Category category = categoryService.findById(dto.getCategoryId());
 
@@ -130,8 +127,7 @@ public class PostsService {
 
     @Transactional
     public void delete(Long id) {
-        Posts post = postsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+        Posts post = this.findPostsById(id);
         List<Images> images = imagesService.findByPost(post);
 
         postsRepository.delete(post);

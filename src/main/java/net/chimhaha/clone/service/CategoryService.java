@@ -47,8 +47,7 @@ public class CategoryService {
     public Long update(Long id, CategoryUpdateRequestDto dto) {
 
         Boards board = boardsService.findById(dto.getBoardId());
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. id=" + id));
+        Category category = this.findById(id);
 
         category.update(dto.getName(), board);
 
@@ -61,6 +60,7 @@ public class CategoryService {
     }
 
     /* 서비스 계층 내에서만 사용할 메소드들 */
+    @Transactional(readOnly = true)
     Category findById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 카테고리를 찾을 수 없습니다. id=" + id));
