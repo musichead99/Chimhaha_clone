@@ -2,29 +2,25 @@ package net.chimhaha.clone.web;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 public class PostsController {
     private final PostsService postsService;
 
-    /* http status코드를 설정하기 위해 responseEntity 사용 */
-    @PostMapping("/posts")
-    public ResponseEntity<Long> save(@RequestBody PostsSaveRequestDto dto) {
-        return new ResponseEntity<>(postsService.save(dto), HttpStatus.CREATED);
+    /* 게시글 업로드 */
+    @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public PostsSaveResponseDto save(@RequestBody PostsSaveRequestDto dto) {
+        return postsService.save(dto);
     }
 
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요
@@ -61,8 +57,8 @@ public class PostsController {
     }
 
     @DeleteMapping("/posts/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
         postsService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

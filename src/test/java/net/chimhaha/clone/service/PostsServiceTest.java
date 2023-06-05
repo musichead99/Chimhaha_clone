@@ -1,18 +1,13 @@
 package net.chimhaha.clone.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
-import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
-import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.utils.FileUploadService;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -26,16 +21,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class) // service 레이어 테스트 시 사용하는 어노테이션
@@ -45,22 +39,26 @@ public class PostsServiceTest {
     private PostsRepository postsRepository;
 
     @Mock
-    private MenuRepository menuRepository;
+    private MenuService menuService;
 
     @Mock
-    private BoardsRepository boardsRepository;
+    private BoardsService boardsService;
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
+
+    @Mock
+    private ImagesService imagesService;
+
+    @Mock
+    private FileUploadService fileUploadService;
 
     @InjectMocks
     private PostsService postsService;
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
-    String subject = "침착맨";
     Boolean flag = true;
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void 게시글_등록() {
@@ -90,10 +88,11 @@ public class PostsServiceTest {
                 .menuId(1L)
                 .boardId(1L)
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L,2L,3L,4L))
                 .popularFlag(flag)
                 .build();
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .menu(menu)
@@ -102,22 +101,34 @@ public class PostsServiceTest {
                 .popularFlag(dto.getPopularFlag())
                 .build();
         /* ReflectionTestUtils는 객체의 private field에 값을 주입할 수 있다. */
-        ReflectionTestUtils.setField(posts, "id", 1L); // 가짜 게시글 id 주입
+        ReflectionTestUtils.setField(post, "id", 1L); // 가짜 게시글 id 주입
+
+        List<Images> images = new ArrayList<>();
+        for(int i = 1; i < 5; i++) {
+            Images image = mock(Images.class);
+            given(image.getId()).willReturn((long)i);
+
+            images.add(image);
+        }
 
         given(postsRepository.save(any(Posts.class)))
-                .willReturn(posts);
-        given(menuRepository.getReferenceById(any(Long.class)))
+                .willReturn(post);
+        given(menuService.findById(any(Long.class)))
                 .willReturn(menu);
-        given(boardsRepository.getReferenceById(any(Long.class)))
+        given(boardsService.findById(any(Long.class)))
                 .willReturn(board);
-        given(categoryRepository.getReferenceById(any(Long.class)))
+        given(categoryService.findById(any(Long.class)))
                 .willReturn(category);
+        given(imagesService.findByIdIn(anyList()))
+                .willReturn(images);
 
         //when
-        Long createdPostsId = postsService.save(dto);
+        PostsSaveResponseDto responseDto = postsService.save(dto);
 
         //then
-        assertEquals(1L, createdPostsId);
+        assertAll(
+                () -> assertEquals(1L, responseDto.getPostId())
+        );
     }
 
     @Test
@@ -226,7 +237,7 @@ public class PostsServiceTest {
         given(postsRepository.findByCategory(any(Category.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
 
-        given(categoryRepository.getReferenceById(any(Long.class)))
+        given(categoryService.findById(any(Long.class)))
                 .willReturn(category);
 
         //when
@@ -285,7 +296,7 @@ public class PostsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
 
-        given(boardsRepository.getReferenceById(any(Long.class)))
+        given(boardsService.findById(any(Long.class)))
                 .willReturn(board);
         given(postsRepository.findByBoard(any(Boards.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
@@ -346,7 +357,7 @@ public class PostsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
 
-        given(menuRepository.getReferenceById(any(Long.class)))
+        given(menuService.findById(any(Long.class)))
                 .willReturn(menu);
         given(postsRepository.findByMenu(any(Menu.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
@@ -443,17 +454,22 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(posts, "id", postsId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
+        List<Images> images = new ArrayList<>();
+
         PostsUpdateRequestDto dto = PostsUpdateRequestDto.builder()
                 .title(title)
                 .content("테스트 본문 2")
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L, 2L, 3L, 4L))
                 .popularFlag(flag)
                 .build();
 
         given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(posts));
-        given(categoryRepository.getReferenceById(any(Long.class)))
+                .willReturn(Optional.of(posts));
+        given(categoryService.findById(any(Long.class)))
                 .willReturn(category);
+        given(imagesService.findByIdIn(anyList(), any(Posts.class)))
+                .willReturn(images);
 
         // when
         Long updatedId = postsService.update(postsId, dto);
@@ -502,7 +518,7 @@ public class PostsServiceTest {
                 .willReturn(Optional.ofNullable(posts));
 
         //when
-        postsService.increaseViewCount(1l);
+        postsService.increaseViewCount(1L);
 
         //then
         assertEquals(defaultViews + 1, posts.getViews());
@@ -511,14 +527,34 @@ public class PostsServiceTest {
     @Test
     public void 게시글_삭제() {
         // given
-        Long postsId = 1L;
+        Posts post = mock(Posts.class);
+
+        List<Images> images = new ArrayList<>();
+
+        for(int i = 0; i < 5; i++) {
+            Images image = mock(Images.class);
+
+            given(image.getStoredFilePath()).willReturn("C:\\test\\path\\:)");
+
+            images.add(image);
+        }
+
+        given(postsRepository.findById(any(Long.class)))
+                .willReturn(Optional.of(post));
+        given(imagesService.findByPost(any(Posts.class)))
+                .willReturn(images);
+        willDoNothing().given(fileUploadService).delete(any(File.class));
 
         // when
-        postsService.delete(postsId);
+        postsService.delete(1L);
 
         // then
         /* postsService.delete()가 반환값이 없으므로 delete()내부의 postsRepository가 제대로 실행되었는지를 검증한다
         *  verify를 통해서 deletebyId가 예상대로 1번 호출되었는지를 검증한다 */
-        verify(postsRepository, times(1)).deleteById(postsId);
+        assertAll(
+                () -> verify(postsRepository, times(1)).findById(any(Long.class)),
+                () -> verify(imagesService, times(1)).findByPost(any(Posts.class)),
+                () -> verify(fileUploadService, times(5)).delete(any(File.class))
+        );
     }
 }

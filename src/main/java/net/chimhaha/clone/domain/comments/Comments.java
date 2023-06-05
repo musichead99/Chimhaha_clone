@@ -32,7 +32,7 @@ public class Comments extends BaseTimeEntity {
     private Comments parent;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
-    private List<Comments> children = new ArrayList<>();
+    private final List<Comments> children = new ArrayList<>();
 
     @Convert(converter = BooleanToYNConverter.class)
     private Boolean isDeleted;
@@ -54,6 +54,6 @@ public class Comments extends BaseTimeEntity {
 
     @PrePersist
     public void prePersist() {
-        isDeleted = isDeleted == null ? false: isDeleted;
+        isDeleted = isDeleted != null && isDeleted;
     }
 }

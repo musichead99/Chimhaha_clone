@@ -4,6 +4,7 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
 import org.junit.jupiter.api.*;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -180,9 +182,11 @@ public class PostsRepositoryTest {
                 .popularFlag(true)
                 .build());
 
+        List<Images> images = new ArrayList<>();
+
         // when
         Posts savedPost = postsRepository.save(post);
-        savedPost.update("테스트 게시글 2", "테스트 본문 2", updatedCategory, false);
+        savedPost.update("테스트 게시글 2", "테스트 본문 2", updatedCategory, images, false);
         Posts updatedPost = postsRepository.save(savedPost);
 
         // then

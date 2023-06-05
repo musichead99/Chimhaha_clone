@@ -3,9 +3,12 @@ package net.chimhaha.clone.web.dto.posts;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.posts.Posts;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -16,6 +19,7 @@ public class PostsFindByIdResponseDto {
     private String content;
     private Long categoryId;
     private String categoryName;
+    private List<Long> imageIdList;
     private LocalDateTime createdDate;
     private Integer views;
 
@@ -25,6 +29,7 @@ public class PostsFindByIdResponseDto {
                 post.getContent(),
                 post.getCategory().getId(),
                 post.getCategory().getName(),
+                post.getImages().stream().map(Images::getId).collect(Collectors.toList()),
                 post.getCreatedDate(),
                 post.getViews());
     }

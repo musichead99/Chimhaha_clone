@@ -3,8 +3,6 @@ package net.chimhaha.clone.service;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.domain.menu.MenuRepository;
-import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
@@ -36,10 +34,7 @@ public class BoardsServiceTest {
     private BoardsRepository boardsRepository;
 
     @Mock
-    private MenuRepository menuRepository;
-
-    @Mock
-    private PostsRepository postsRepository;
+    private MenuService menuService;
 
     @InjectMocks // 위의 mock객체들을 주입
     private BoardsService boardsService;
@@ -73,7 +68,7 @@ public class BoardsServiceTest {
 
         given(boardsRepository.save(any(Boards.class)))
                 .willReturn(board);
-        given(menuRepository.getReferenceById(any(Long.class)))
+        given(menuService.findById(any(Long.class)))
                 .willReturn(menu);
 
         // when

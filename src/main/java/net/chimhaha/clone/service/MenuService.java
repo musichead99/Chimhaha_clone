@@ -9,6 +9,7 @@ import net.chimhaha.clone.web.dto.menu.MenuUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class MenuService {
     @Transactional
     public Long update(Long id, MenuUpdateRequestDto dto) {
         Menu menu = menuRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " 해당 메뉴를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 메뉴를 찾을 수 없습니다. id=" + id));
 
         menu.update(dto.getName());
 
@@ -49,5 +50,12 @@ public class MenuService {
     @Transactional
     public void delete(Long id) {
         menuRepository.deleteById(id);
+    }
+
+    /* 서비스 계층 내에서만 사용할 메소드들 */
+    @Transactional(readOnly = true)
+    Menu findById(Long id) {
+        return menuRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 메뉴를 찾을 수 없습니다. id=" + id));
     }
 }

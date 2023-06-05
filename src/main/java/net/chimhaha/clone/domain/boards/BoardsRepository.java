@@ -7,6 +7,4 @@ import java.util.Optional;
 
 @Repository
 public interface BoardsRepository extends JpaRepository<Boards, Long> {
-
-    Optional<Boards> getReferenceByName(String name);
 }

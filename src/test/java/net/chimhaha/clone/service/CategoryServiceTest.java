@@ -35,7 +35,7 @@ public class CategoryServiceTest {
     private CategoryRepository categoryRepository;
 
     @Mock
-    private BoardsRepository boardsRepository;
+    private BoardsService boardsService;
 
     @InjectMocks
     private CategoryService categoryService;
@@ -67,7 +67,7 @@ public class CategoryServiceTest {
 
         given(categoryRepository.save(any(Category.class)))
                 .willReturn(category);
-        given(boardsRepository.getReferenceById(any(Long.class)))
+        given(boardsService.findById(any(Long.class)))
                 .willReturn(board);
 
         // when
@@ -77,7 +77,7 @@ public class CategoryServiceTest {
         assertAll(
                 () -> assertEquals(categoryId, createdCategoryId),
                 () -> verify(categoryRepository, times(1)).save(any(Category.class)),
-                () -> verify(boardsRepository, times(1)).getReferenceById(any(Long.class))
+                () -> verify(boardsService, times(1)).findById(any(Long.class))
         );
     }
 
@@ -140,7 +140,7 @@ public class CategoryServiceTest {
                 .boardId(boardId)
                 .build();
 
-        given(boardsRepository.getReferenceById(any(Long.class)))
+        given(boardsService.findById(any(Long.class)))
                 .willReturn(board);
         given(categoryRepository.findById(any(Long.class)))
                 .willReturn(Optional.ofNullable(category));
@@ -151,7 +151,7 @@ public class CategoryServiceTest {
         // then
         assertAll(
                 () -> assertEquals(categoryId, updatedCategoryId),
-                () -> verify(boardsRepository, times(1)).getReferenceById(any(Long.class)),
+                () -> verify(boardsService, times(1)).findById(any(Long.class)),
                 () -> verify(categoryRepository, times(1)).findById(any(Long.class))
         );
 

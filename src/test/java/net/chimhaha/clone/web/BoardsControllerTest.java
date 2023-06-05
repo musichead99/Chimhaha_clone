@@ -40,7 +40,7 @@ public class BoardsControllerTest {
     @MockBean
     private BoardsService boardsService;
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static String name = "침착맨";
     static String description = "침착맨에 대해 이야기하는 게시판입니다";

@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class BoardsUpdateRequestDto {
-    String name;
-    String description;
-    Integer likeLimit;
+    private final String name;
+    private final String description;
+    private final Integer likeLimit;
 
     @Builder
     public BoardsUpdateRequestDto(String name, String description, Integer likeLimit) {

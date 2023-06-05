@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 
 import javax.persistence.*;
 
@@ -37,9 +36,9 @@ public class Boards {
         this.likeLimit = likeLimit;
     }
 
-    public void update(BoardsUpdateRequestDto dto) {
-        this.name = dto.getName();
-        this.description = dto.getDescription();
-        this.likeLimit = dto.getLikeLimit();
+    public void update(String name, String description, Integer likeLimit) {
+        this.name = name;
+        this.description = description;
+        this.likeLimit = likeLimit;
     }
 }

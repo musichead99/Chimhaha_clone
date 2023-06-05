@@ -60,29 +60,6 @@ public class BoardsRepositoryTest {
     }
 
     @Test
-    public void 게시판_이름으로_레퍼런스_조회() {
-        // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu,"id", 1L);
-
-        Boards board = Boards.builder()
-                .name(name)
-                .description(description)
-                .menu(menu)
-                .likeLimit(likeLimit)
-                .build();
-
-        boardsRepository.save(board);
-        // when
-        Boards categorychim =  boardsRepository.getReferenceByName(name).get();
-
-        // then
-        assertEquals(board.getDescription(), categorychim.getDescription());
-    }
-
-    @Test
     public void 게시판_등록() {
         // given
         Menu menu = Menu.builder()
@@ -132,7 +109,7 @@ public class BoardsRepositoryTest {
 
         // when
         Boards savedBoard = boardsRepository.save(board);
-        savedBoard.update(dto);
+        savedBoard.update(dto.getName(), dto.getDescription(), dto.getLikeLimit());
         Boards updatedBoard = boardsRepository.save(savedBoard);
 
         // then

@@ -6,10 +6,7 @@ import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.web.dto.posts.PostsFindResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsFindByIdResponseDto;
-import net.chimhaha.clone.web.dto.posts.PostsSaveRequestDto;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
+import net.chimhaha.clone.web.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -21,12 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,43 +51,34 @@ public class PostsControllerTest {
     @Test
     public void  게시글_등록() throws Exception {
         //given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
-        PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
+        PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
                 .menuId(1L)
                 .boardId(1L)
                 .categoryId(1L)
+                .imageIdList(Arrays.asList(1L, 2L, 3L, 4L))
                 .popularFlag(flag)
                 .build();
 
-        given(postsService.save(any())).willReturn(1L); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
+        /* post entity mocking */
+        Posts post = mock(Posts.class);
+        given(post.getId()).willReturn(1L);
+
+        /* response dto 생성 */
+        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
+        responseDto.setImageValues(Arrays.asList(1L, 2L, 3L, 4L));
+
+        given(postsService.save(any(PostsSaveRequestDto.class))).willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
 
         //when
         //then
         mvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
                 .andExpect(status().isCreated()) // 상태 코드 201(created)반환
-                .andExpect(content().string("1")); // 결과값으로 생성한 게시글의 id반환
+                .andExpect(content().json(objectMapper.writeValueAsString(responseDto))); // 결과값으로 생성한 게시글의 id반환
     }
 
     @Test
@@ -143,7 +133,7 @@ public class PostsControllerTest {
         // when
         // then
         mvc.perform(get("/posts")
-                .param("page", "0"))
+                .queryParam("page", "0"))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)))
                 .andExpect(status().isOk());
@@ -393,7 +383,7 @@ public class PostsControllerTest {
                 .category(category)
                 .popularFlag(flag)
                 .build();
-        Long postId = 1l;
+        Long postId = 1L;
         ReflectionTestUtils.setField(posts, "id", postId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
@@ -446,7 +436,7 @@ public class PostsControllerTest {
                 .category(category)
                 .popularFlag(flag)
                 .build();
-        Long postId = 1l;
+        Long postId = 1L;
         ReflectionTestUtils.setField(posts, "id", postId);
         ReflectionTestUtils.setField(posts, "views", 0);
 

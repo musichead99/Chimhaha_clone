@@ -19,12 +19,13 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @PostMapping(value = "/comments")
-    public ResponseEntity<Long> save(@RequestBody CommentsSaveRequestDto dto) {
-        return new ResponseEntity<>(commentsService.save(dto), HttpStatus.CREATED);
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Long save(@RequestBody CommentsSaveRequestDto dto) {
+        return commentsService.save(dto);
     }
 
     @GetMapping(value = "/comments", params = "post")
-    public Page<CommentsFindByPostResponseDto> findByPost(@RequestParam("post") Long postId, @PageableDefault(size = 60, page = 0)Pageable pageable) {
+    public Page<CommentsFindByPostResponseDto> findByPost(@RequestParam("post") Long postId, @PageableDefault(size = 60)Pageable pageable) {
         return commentsService.findByPost(postId, pageable);
     }
 
@@ -34,8 +35,8 @@ public class CommentsController {
     }
 
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
         commentsService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

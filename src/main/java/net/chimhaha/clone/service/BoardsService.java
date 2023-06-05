@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 public class BoardsService {
 
     private final BoardsRepository boardsRepository;
-    private final MenuRepository menuRepository;
+    private final MenuService menuService;
 
     @Transactional
     public Long save(BoardsSaveRequestDto dto) {
-        Menu menu = menuRepository.getReferenceById(dto.getMenuId());
+        Menu menu = menuService.findById(dto.getMenuId());
 
         Boards board = Boards.builder()
                 .menu(menu)
@@ -47,15 +47,24 @@ public class BoardsService {
     @Transactional
     public Long update(Long id, BoardsUpdateRequestDto dto) {
         Boards board = boardsRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " 게시판이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시판을 찾을 수 없습니다. id=" + id));
 
-        board.update(dto);
+        board.update(dto.getName(), dto.getDescription(), dto.getLikeLimit());
         return board.getId();
     }
 
     @Transactional
     public void delete(Long id) {
         boardsRepository.deleteById(id);
+    }
+
+
+    /* 서비스 계층 내에서만 사용할 메소드들 */
+
+    @Transactional(readOnly = true)
+    Boards findById(Long id) {
+        return boardsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("해당 게시판을 찾을 수 없습니다. id=" + id));
     }
 
 }

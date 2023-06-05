@@ -8,8 +8,8 @@ import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.comments.Comments;
+import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.posts.PostsUpdateRequestDto;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
@@ -56,7 +56,10 @@ public class Posts extends BaseTimeEntity {
     private Category category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comments> comments = new ArrayList<>();
+    private final List<Comments> comments = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Images> images = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
@@ -69,15 +72,20 @@ public class Posts extends BaseTimeEntity {
         this.popularFlag = popularFlag;
     }
 
-    public void update(String title, String content, Category category, boolean popularFlag) {
+    public void update(String title, String content, Category category, List<Images> images, boolean popularFlag) {
         this.title = title;
         this.content = content;
         this.category = category;
+        this.images = images;
         this.popularFlag = popularFlag;
     }
 
     public void increaseViewCount() {
         views++;
+    }
+
+    public void addAttachedImages(List<Images> images) {
+        this.images.addAll(images);
     }
 
     /* @prePersist 어노테이션은 새로 생성된 엔티티가 영속상태가 되기 이전에 실행된다.
