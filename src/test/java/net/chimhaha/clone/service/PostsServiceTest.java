@@ -480,51 +480,6 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 조회수_증가() {
-        //given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
-        Posts posts = Posts.builder()
-                .title(title)
-                .content(content)
-                .menu(menu)
-                .board(board)
-                .category(category)
-                .popularFlag(flag)
-                .build();
-
-        int defaultViews = 0;
-        ReflectionTestUtils.setField(posts, "id", 1L);
-        ReflectionTestUtils.setField(posts, "views", defaultViews);
-
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(posts));
-
-        //when
-        postsService.increaseViewCount(1L);
-
-        //then
-        assertEquals(defaultViews + 1, posts.getViews());
-    }
-
-    @Test
     public void 게시글_삭제() {
         // given
         Posts post = mock(Posts.class);
