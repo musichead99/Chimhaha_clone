@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = MultipartExistValidator.class)
 public @interface MultipartExist {
-    String message() default "MultipartFile is Empty";
+    String message() default "MultipartFile 필드가 비어있습니다.";
     Class[] groups() default {};
     Class[] payload() default {};
 }
