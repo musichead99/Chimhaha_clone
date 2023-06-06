@@ -52,6 +52,18 @@ public class Comments extends BaseTimeEntity {
         this.isDeleted = !this.isDeleted;
     }
 
+    public boolean isParentExist() {
+        return parent != null;
+    }
+
+    public boolean isChildrenExist() {
+        return children.size() != 0;
+    }
+
+    public boolean isDeletable() {
+        return children.size() == 1 && this.isDeleted;
+    }
+
     @PrePersist
     public void prePersist() {
         isDeleted = isDeleted != null && isDeleted;

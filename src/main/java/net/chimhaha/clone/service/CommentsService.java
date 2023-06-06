@@ -97,7 +97,7 @@ public class CommentsService {
         Comments comment = commentsRepository.findByIdWithParents(id)
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다. id=" + id));
 
-        if(comment.getChildren().size() != 0) {
+        if(comment.isChildrenExist()) {
             comment.changeDeleteStatus();
         } else {
             commentsRepository.delete(getDeletableParentComment(comment));
@@ -106,10 +106,10 @@ public class CommentsService {
 
     private Comments getDeletableParentComment(Comments comment) {
 
-        if(comment.getParent() != null) {
+        if(comment.isParentExist()) {
             Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId()).get();
 
-            if(parent.getChildren().size() == 1 && parent.getIsDeleted()) {
+            if(parent.isDeletable()) {
                     return getDeletableParentComment(parent);
             }
         }
