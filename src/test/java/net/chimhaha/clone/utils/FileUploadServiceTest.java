@@ -39,7 +39,7 @@ public class FileUploadServiceTest {
         ReflectionTestUtils.setField(fileUploadService, "path", DEFAULT_STORE_PATH); // 저장 경로 설정
 
         // when
-        File uploadedFile = fileUploadService.upload(mockMultipartFile);
+        File uploadedFile = fileUploadService.save(mockMultipartFile);
 
         uploadedFile.deleteOnExit(); // 테스트 완료 후 jvm이 종료되면 삭제되도록 파일 설정
 

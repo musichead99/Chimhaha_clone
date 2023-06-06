@@ -32,7 +32,7 @@ public class ImagesService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ImagesSaveResponseDto save(MultipartFile image) {
-        File file = fileUploadService.upload(image);
+        File file = fileUploadService.save(image);
 
         Images uploadedImage = imagesRepository.save(Images.builder()
                 .realFileName(file.getName().substring(37))

@@ -103,7 +103,7 @@ public class ImagesServiceTest {
         /* repository 빈들 mocking */
         given(imagesRepository.save(any(Images.class)))
                 .willReturn(image);
-        given(fileUploadService.upload(any(MultipartFile.class)))
+        given(fileUploadService.save(any(MultipartFile.class)))
                 .willReturn(mockFile);
 
         // when
@@ -115,7 +115,7 @@ public class ImagesServiceTest {
                 () -> assertEquals(2, responseDtoList.get(0).getId()),
                 () -> assertEquals("테스트 이미지", responseDtoList.get(0).getName()),
                 () -> verify(imagesRepository, times(1)).save(any(Images.class)),
-                () -> verify(fileUploadService, times(1)).upload(any(MultipartFile.class))
+                () -> verify(fileUploadService, times(1)).save(any(MultipartFile.class))
         );
     }
 

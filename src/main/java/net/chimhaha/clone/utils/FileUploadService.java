@@ -20,7 +20,7 @@ public class FileUploadService {
     @Value("${file.store.path}")
     private String path;
 
-    public File upload(MultipartFile imageFile) {
+    public File save(MultipartFile imageFile) {
         UUID uuid = UUID.randomUUID();
         String realFileName = imageFile.getOriginalFilename();
         String storedFileName = uuid + "_" + realFileName;
