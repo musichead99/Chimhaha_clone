@@ -2,6 +2,8 @@ package net.chimhaha.clone.utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ public class FileUploadService {
             imageFile.transferTo(file);
             return file;
         } catch (IOException e) {
-            throw new FileUploadException("해당 파일을 업로드할 수 없습니다. : " + realFileName);
+            throw new CustomException(ErrorCode.FILE_NOT_UPLOADED);
         }
     }
 
@@ -43,7 +45,7 @@ public class FileUploadService {
             bytes = Files.readAllBytes(file.toPath());
             mediaType = MediaType.parseMediaType(Files.probeContentType(file.toPath()));
         } catch (Exception e) {
-            throw new FileDownloadException("해당 파일을 다운로드 할 수 없습니다.");
+            throw new CustomException(ErrorCode.FILE_LOAD_FAILED);
         }
 
         return ImageFileDto.builder()
@@ -57,7 +59,7 @@ public class FileUploadService {
             file.delete();
             log.info("file deleted: {}", file.getName());
         } else {
-            throw new FileUploadException("해당 파일이 존재하지 않습니다. : " + file.getName());
+            throw new CustomException(ErrorCode.FILE_NOT_EXIST);
         }
     }
 }

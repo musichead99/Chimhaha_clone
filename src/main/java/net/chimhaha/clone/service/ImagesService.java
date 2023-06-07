@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.images.ImagesSaveResponseDto;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ public class ImagesService {
         List<Images> images = imagesRepository.findByIdAndPostIsNullOrPostIn(imageIdList, post);
 
         if(images.size() != imageIdList.size()) {
-            throw new IllegalArgumentException("이미지를 첨부할 수 없습니다.");
+            throw new CustomException(ErrorCode.IMAGES_NOT_ATTACHED);
         }
 
         return images;
@@ -89,7 +90,7 @@ public class ImagesService {
         List<Images> images = imagesRepository.findByIdAndPostIsNullIn(imageIdList);
 
         if(images.size() != imageIdList.size()) {
-            throw new IllegalArgumentException("이미지를 첨부할 수 없습니다.");
+            throw new CustomException(ErrorCode.IMAGES_NOT_ATTACHED);
         }
 
         return images;
@@ -98,6 +99,6 @@ public class ImagesService {
     @Transactional(readOnly = true)
     public Images findById(Long id) {
         return imagesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다. id=" + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGES_NOT_FOUND));
     }
 }

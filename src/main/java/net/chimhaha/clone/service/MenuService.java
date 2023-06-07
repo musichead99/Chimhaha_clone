@@ -3,13 +3,14 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
+import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.web.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.web.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.web.dto.menu.MenuUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,6 @@ public class MenuService {
     @Transactional(readOnly = true)
     public Menu findById(Long id) {
         return menuRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 메뉴를 찾을 수 없습니다. id=" + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
     }
 }

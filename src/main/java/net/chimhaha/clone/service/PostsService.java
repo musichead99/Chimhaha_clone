@@ -8,6 +8,8 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
+ import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.posts.*;
 import org.springframework.data.domain.Page;
@@ -15,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -138,6 +139,6 @@ public class PostsService {
     @Transactional(readOnly = true)
     public Posts findPostsById(Long id) {
         return postsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다. id=" + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.POSTS_NOT_FOUND));
     }
 }

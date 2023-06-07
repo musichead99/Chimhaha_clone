@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.web.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.web.dto.comments.CommentsSaveRequestDto;
 import net.chimhaha.clone.web.dto.comments.CommentsUpdateRequestDto;
@@ -14,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 @Slf4j
@@ -95,7 +96,7 @@ public class CommentsService {
     @Transactional
     public void delete(Long id) {
         Comments comment = commentsRepository.findByIdWithParents(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다. id=" + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
 
         if(comment.isChildrenExist()) {
             comment.changeDeleteStatus();
@@ -120,6 +121,6 @@ public class CommentsService {
     @Transactional(readOnly = true)
     public Comments findById(Long id) {
         return commentsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("해당 댓글이 존재하지 않습니다. id=" + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
     }
 }
