@@ -4,15 +4,25 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class PostsUpdateRequestDto {
+
+    @NotNull
     String title;
+
+    @NotNull
     String content;
+
+    @NotNull
     Long categoryId;
+
     List<Long> imageIdList;
+
+    @NotNull
     Boolean popularFlag;
 
     @Builder

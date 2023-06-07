@@ -8,6 +8,7 @@ import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -18,9 +19,8 @@ public class BoardsController {
 
     @PostMapping("/boards")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@RequestBody BoardsSaveRequestDto dto) {
-        Long boardId = boardsService.save(dto);
-        return boardId;
+    public Long save(@Valid @RequestBody BoardsSaveRequestDto dto) {
+        return boardsService.save(dto);
     }
 
     @GetMapping("/boards")
@@ -29,7 +29,7 @@ public class BoardsController {
     }
 
     @PutMapping("/boards/{id}")
-    public Long update(@PathVariable("id")Long id, @RequestBody BoardsUpdateRequestDto dto) {
+    public Long update(@PathVariable("id")Long id, @Valid @RequestBody BoardsUpdateRequestDto dto) {
         return boardsService.update(id, dto);
     }
 

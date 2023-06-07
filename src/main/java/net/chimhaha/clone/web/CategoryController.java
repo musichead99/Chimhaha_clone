@@ -6,9 +6,9 @@ import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class CategoryController {
 
     @PostMapping("/category")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@RequestBody CategorySaveRequestDto dto) {
+    public Long save(@Valid @RequestBody CategorySaveRequestDto dto) {
         return categoryService.save(dto);
     }
 
@@ -29,7 +29,7 @@ public class CategoryController {
     }
 
     @PutMapping("/category/{id}")
-    public Long update(@PathVariable("id") Long id, @RequestBody CategoryUpdateRequestDto dto) {
+    public Long update(@PathVariable("id") Long id, @Valid @RequestBody CategoryUpdateRequestDto dto) {
         return categoryService.update(id, dto);
     }
 

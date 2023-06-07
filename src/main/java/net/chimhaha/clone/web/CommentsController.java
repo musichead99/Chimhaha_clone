@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @RestController
 public class CommentsController {
@@ -20,7 +22,7 @@ public class CommentsController {
 
     @PostMapping(value = "/comments")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@RequestBody CommentsSaveRequestDto dto) {
+    public Long save(@Valid @RequestBody CommentsSaveRequestDto dto) {
         return commentsService.save(dto);
     }
 
@@ -30,7 +32,7 @@ public class CommentsController {
     }
 
     @PutMapping("/comments/{id}")
-    public Long update(@PathVariable("id") Long id, @RequestBody CommentsUpdateRequestDto dto) {
+    public Long update(@PathVariable("id") Long id, @Valid @RequestBody CommentsUpdateRequestDto dto) {
         return commentsService.update(id, dto);
     }
 

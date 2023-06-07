@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @RestController
 public class PostsController {
@@ -19,7 +21,7 @@ public class PostsController {
     /* 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public PostsSaveResponseDto save(@RequestBody PostsSaveRequestDto dto) {
+    public PostsSaveResponseDto save(@Valid @RequestBody PostsSaveRequestDto dto) {
         return postsService.save(dto);
     }
 
@@ -51,7 +53,7 @@ public class PostsController {
     }
 
     @PutMapping("/posts/{id}")
-    public Long update(@PathVariable("id")Long id, @RequestBody PostsUpdateRequestDto dto) {
+    public Long update(@PathVariable("id")Long id, @Valid @RequestBody PostsUpdateRequestDto dto) {
         return postsService.update(id, dto);
     }
 

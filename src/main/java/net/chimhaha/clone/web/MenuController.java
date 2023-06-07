@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class MenuController {
 
     @PostMapping("/menu")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@RequestBody MenuSaveRequestDto dto) {
+    public Long save(@Valid @RequestBody MenuSaveRequestDto dto) {
         return menuService.save(dto);
     }
 
@@ -29,7 +30,7 @@ public class MenuController {
     }
 
     @PutMapping("/menu/{id}")
-    public Long update(@PathVariable("id") Long id, @RequestBody MenuUpdateRequestDto dto) {
+    public Long update(@PathVariable("id") Long id, @Valid @RequestBody MenuUpdateRequestDto dto) {
         return menuService.update(id, dto);
     }
 
