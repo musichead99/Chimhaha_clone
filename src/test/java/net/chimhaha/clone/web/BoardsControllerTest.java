@@ -47,12 +47,13 @@ public class BoardsControllerTest {
     static Integer likeLimit = 10;
 
     @Test
-    public void 게시글_등록() throws Exception {
+    public void 게시판_등록() throws Exception {
         // given
         BoardsSaveRequestDto dto = BoardsSaveRequestDto.builder()
                 .name(name)
                 .description(description)
                 .likeLimit(likeLimit)
+                .menuId(1L)
                 .build();
         Long boardId = 1L;
 
