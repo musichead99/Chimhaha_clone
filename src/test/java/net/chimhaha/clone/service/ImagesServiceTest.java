@@ -6,6 +6,7 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
+import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.utils.FileUploadService;
 import net.chimhaha.clone.web.dto.images.ImagesSaveResponseDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -216,7 +217,7 @@ public class ImagesServiceTest {
         // when
         // then
         assertAll(
-                () -> assertThrows(IllegalArgumentException.class,() -> {
+                () -> assertThrows(CustomException.class,() -> {
                     imagesService.findByIdIn(imageIdList);
                 })
         );
@@ -270,7 +271,7 @@ public class ImagesServiceTest {
         // when
         // then
         assertAll(
-                () -> assertThrows(IllegalArgumentException.class,() -> {
+                () -> assertThrows(CustomException.class,() -> {
                     imagesService.findByIdIn(imageIdList, post);
                 })
         );
