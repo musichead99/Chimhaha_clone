@@ -100,15 +100,17 @@ public class CommentsService {
 
         if(comment.isChildrenExist()) {
             comment.changeDeleteStatus();
-        } else {
-            commentsRepository.delete(getDeletableParentComment(comment));
+            return;
         }
+
+        commentsRepository.delete(getDeletableParentComment(comment));
     }
 
     private Comments getDeletableParentComment(Comments comment) {
 
         if(comment.isParentExist()) {
-            Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId()).get();
+            Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
 
             if(parent.isDeletable()) {
                     return getDeletableParentComment(parent);

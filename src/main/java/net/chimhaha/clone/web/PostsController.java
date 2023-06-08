@@ -28,22 +28,29 @@ public class PostsController {
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요
     *  여기서는 PageableDefault로 기본 설정을 정해두었기 때문에 page만 파라미터로 입력하면 자동으로 페이징이 이루어진다. */
     @GetMapping("/posts")
-    public Page<PostsFindResponseDto> find(@PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+    public Page<PostsFindResponseDto> find(
+            @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
         return postsService.find(pageable);
     }
 
     @GetMapping(path = "/posts", params = "category")
-    public Page<PostsFindResponseDto> findByCategory(@RequestParam("category")Long categoryId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+    public Page<PostsFindResponseDto> findByCategory(
+            @RequestParam("category")Long categoryId,
+            @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
         return postsService.findByCategory(categoryId, pageable);
     }
 
     @GetMapping(path = "/posts", params = "board")
-    public Page<PostsFindResponseDto> findByBoard(@RequestParam("board")Long boardId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+    public Page<PostsFindResponseDto> findByBoard(
+            @RequestParam("board")Long boardId,
+            @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
         return postsService.findByBoard(boardId, pageable);
     }
 
     @GetMapping(path = "/posts", params = "menu")
-    public Page<PostsFindResponseDto> findByMenu(@RequestParam("menu")Long menuId, @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
+    public Page<PostsFindResponseDto> findByMenu(
+            @RequestParam("menu")Long menuId,
+            @PageableDefault(size = 20, sort = "id", direction = Direction.ASC) Pageable pageable) {
         return postsService.findByMenu(menuId, pageable);
     }
 
