@@ -3,6 +3,7 @@ package net.chimhaha.clone.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.member.Role;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.service.PostsService;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,11 +29,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 /* @SpringBootTest는 모든 빈을 로드하기 때문에 Controller계층만 테스트할 때는 @WebMvcTest를 사용 */
 @WebMvcTest(controllers = PostsController.class)
@@ -74,6 +80,7 @@ public class PostsControllerTest {
         //when
         //then
         mvc.perform(post("/posts")
+                        .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
@@ -133,6 +140,7 @@ public class PostsControllerTest {
         // when
         // then
         mvc.perform(get("/posts")
+                        .with(csrf())
                 .queryParam("page", "0"))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)))
@@ -190,7 +198,8 @@ public class PostsControllerTest {
         //when
         //then
         mvc.perform(get("/posts")
-                        .param("category", "1"))
+                        .param("category", "1")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -247,7 +256,8 @@ public class PostsControllerTest {
         // when
         // then
         mvc.perform(get("/posts")
-                        .param("board", "1"))
+                        .param("board", "1")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -305,7 +315,8 @@ public class PostsControllerTest {
         // when
         // then
         mvc.perform(get("/posts")
-                .param("menu", "1"))
+                .param("menu", "1")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -347,7 +358,8 @@ public class PostsControllerTest {
 
         //when
         //then
-        mvc.perform(get("/posts/{id}", 1L))
+        mvc.perform(get("/posts/{id}", 1L)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(dto)));
@@ -400,7 +412,8 @@ public class PostsControllerTest {
         //then
         mvc.perform(put("/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(postId.toString()));
@@ -443,7 +456,8 @@ public class PostsControllerTest {
         doNothing().when(postsService).delete(any(Long.class));
         // when
         // then
-        mvc.perform(delete("/posts/{id}", 1))
+        mvc.perform(delete("/posts/{id}", 1)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

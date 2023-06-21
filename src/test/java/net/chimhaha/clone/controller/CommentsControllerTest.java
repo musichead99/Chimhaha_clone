@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,11 +31,13 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = CommentsController.class)
 public class CommentsControllerTest {
@@ -63,7 +66,8 @@ public class CommentsControllerTest {
         // then
         mvc.perform(post("/comments")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().string("1"));
@@ -121,7 +125,8 @@ public class CommentsControllerTest {
         // when
         // then
         mvc.perform(get("/comments")
-                        .param("post", "1"))
+                        .param("post", "1")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -141,7 +146,8 @@ public class CommentsControllerTest {
         // then
         mvc.perform(put("/comments/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("1"));
@@ -154,7 +160,8 @@ public class CommentsControllerTest {
 
         // when
         // then
-        mvc.perform(delete("/comments/{id}", "1"))
+        mvc.perform(delete("/comments/{id}", "1")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

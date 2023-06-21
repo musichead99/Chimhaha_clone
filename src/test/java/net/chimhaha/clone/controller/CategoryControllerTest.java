@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.LinkedList;
@@ -19,11 +20,13 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = CategoryController.class)
 public class CategoryControllerTest {
@@ -55,8 +58,9 @@ public class CategoryControllerTest {
         // when
         // then
         mvc.perform(post("/category")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().string(categoryId.toString()))
                 .andExpect(status().isCreated());
@@ -84,7 +88,8 @@ public class CategoryControllerTest {
 
         // when
         // then
-        mvc.perform(get("/category"))
+        mvc.perform(get("/category")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -108,8 +113,9 @@ public class CategoryControllerTest {
         // when
         // then
         mvc.perform(put("/category/{id}", categoryId)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().string(categoryId.toString()))
                 .andExpect(status().isOk());
@@ -123,7 +129,8 @@ public class CategoryControllerTest {
 
         // when
         // then
-        mvc.perform(delete("/category/{id}", categoryId))
+        mvc.perform(delete("/category/{id}", categoryId)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

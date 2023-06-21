@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.LinkedList;
@@ -22,11 +23,13 @@ import java.util.stream.Collectors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = MenuController.class)
 public class MenuControllerTest {
@@ -53,7 +56,8 @@ public class MenuControllerTest {
         // then
         mvc.perform(post("/menu")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().string("1"))
                 .andExpect(status().isCreated());
@@ -79,7 +83,8 @@ public class MenuControllerTest {
 
         // when
         // then
-        mvc.perform(get("/menu"))
+        mvc.perform(get("/menu")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -99,7 +104,8 @@ public class MenuControllerTest {
         // then
         mvc.perform(put("/menu/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().string("1"))
                 .andExpect(status().isOk());
@@ -113,7 +119,8 @@ public class MenuControllerTest {
 
         // when
         // then
-        mvc.perform(delete("/menu/{id}", 1L))
+        mvc.perform(delete("/menu/{id}", 1L)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

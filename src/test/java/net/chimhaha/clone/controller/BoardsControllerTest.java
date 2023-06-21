@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,11 +22,13 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @WebMvcTest(controllers = BoardsController.class)
 public class BoardsControllerTest {
@@ -63,8 +66,9 @@ public class BoardsControllerTest {
         // when
         // then
         mvc.perform(post("/boards")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().string(boardId.toString()));
@@ -90,7 +94,8 @@ public class BoardsControllerTest {
 
         // when
         // then
-        mvc.perform(get("/boards"))
+        mvc.perform(get("/boards")
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -112,8 +117,9 @@ public class BoardsControllerTest {
         // when
         // then
         mvc.perform(put("/boards/{id}", boardId)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(content().string(boardId.toString()))
                 .andExpect(status().isOk());

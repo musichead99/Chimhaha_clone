@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
@@ -27,10 +28,12 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WithMockUser
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = ImagesController.class)
 public class ImagesControllerTest {
@@ -61,7 +64,8 @@ public class ImagesControllerTest {
 
         // when
         // then
-        mvc.perform(get("/images/{id}", 1L))
+        mvc.perform(get("/images/{id}", 1L)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_GIF_VALUE))
@@ -92,7 +96,8 @@ public class ImagesControllerTest {
         // when
         // then
         mvc.perform(multipart("/images")
-                .file(mockMultipartFile))
+                        .file(mockMultipartFile)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)));
@@ -106,7 +111,8 @@ public class ImagesControllerTest {
 
         // when
         // then
-        mvc.perform(delete("/images/{id}", 1L))
+        mvc.perform(delete("/images/{id}", 1L)
+                        .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
