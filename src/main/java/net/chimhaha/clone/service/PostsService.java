@@ -11,7 +11,7 @@ import net.chimhaha.clone.domain.posts.PostsRepository;
  import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.web.dto.posts.*;
+import net.chimhaha.clone.controller.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

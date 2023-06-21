@@ -1,12 +1,11 @@
 package net.chimhaha.clone.service;
 
 import net.chimhaha.clone.domain.boards.Boards;
-import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
-import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
-import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
-import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.controller.dto.category.CategoryFindResponseDto;
+import net.chimhaha.clone.controller.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.controller.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

@@ -6,9 +6,9 @@ import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.web.dto.category.CategoryFindResponseDto;
-import net.chimhaha.clone.web.dto.category.CategorySaveRequestDto;
-import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.controller.dto.category.CategoryFindResponseDto;
+import net.chimhaha.clone.controller.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.controller.dto.category.CategoryUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

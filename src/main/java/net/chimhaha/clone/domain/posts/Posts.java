@@ -3,7 +3,7 @@ package net.chimhaha.clone.domain.posts;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.chimhaha.clone.converter.BooleanToYNConverter;
+import net.chimhaha.clone.domain.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;

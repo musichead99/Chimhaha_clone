@@ -7,7 +7,7 @@ import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
 import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.web.dto.posts.*;
+import net.chimhaha.clone.controller.dto.posts.*;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

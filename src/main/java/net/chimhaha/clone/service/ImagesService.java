@@ -7,7 +7,7 @@ import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.web.dto.images.ImagesSaveResponseDto;
+import net.chimhaha.clone.controller.dto.images.ImagesSaveResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

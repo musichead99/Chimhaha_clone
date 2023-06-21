@@ -3,7 +3,7 @@ package net.chimhaha.clone.domain.category;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.controller.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;

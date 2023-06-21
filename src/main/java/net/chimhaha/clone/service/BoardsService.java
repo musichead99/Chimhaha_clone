@@ -6,9 +6,9 @@ import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.web.dto.boards.BoardsFindResponseDto;
-import net.chimhaha.clone.web.dto.boards.BoardsSaveRequestDto;
-import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.controller.dto.boards.BoardsFindResponseDto;
+import net.chimhaha.clone.controller.dto.boards.BoardsSaveRequestDto;
+import net.chimhaha.clone.controller.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
