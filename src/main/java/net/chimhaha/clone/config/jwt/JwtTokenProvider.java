@@ -18,7 +18,7 @@ public class JwtTokenProvider {
     private final int expirationTime;
 
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-                            @Value("${jwt.expired_date}") int expirationTime) {
+                            @Value("${jwt.expiration.time}") int expirationTime) {
         this.secret = secret;
         this.expirationTime = expirationTime;
     }
