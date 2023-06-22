@@ -1,6 +1,7 @@
 package net.chimhaha.clone.config;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.config.auth.CustomOAuth2LoginSuccessHandler;
 import net.chimhaha.clone.config.auth.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService oauth2UserService;
+    private final CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,6 +38,8 @@ public class SecurityConfig {
                 .userService(oauth2UserService)
 
                 .and()
+                .successHandler(customOAuth2LoginSuccessHandler)
+
                 .and()
                 .build();
     }
