@@ -16,6 +16,14 @@ public enum ErrorCode {
     FILE_NOT_EXIST(HttpStatus.BAD_REQUEST, "해당 파일이 존재하지 않습니다."),
 
 
+    // 401 Unauthorized
+    SIGNATURE_NOT_VALID(HttpStatus.UNAUTHORIZED, "해당 jwt의 서명이 유효하지 않습니다."),
+    JWT_NOT_VALID(HttpStatus.UNAUTHORIZED, "해당 jwt가 유효하지 않습니다."),
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "해당 jwt가 만료되었습니다."),
+    JWT_NOT_SUPPORTED(HttpStatus.UNAUTHORIZED, "지원되지 않는 jwt 토큰입니다."),
+    JWT_IS_EMPTY(HttpStatus.UNAUTHORIZED, "비어있는 jwt 토큰입니다."),
+
+
     // 404 Not Found
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 메뉴를 찾을 수 없습니다."),
     BOARDS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시판을 찾을 수 없습니다."),
@@ -23,6 +31,7 @@ public enum ErrorCode {
     POSTS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다."),
     COMMENTS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
     IMAGES_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지를 DB에서 찾을 수 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."),
 
 
     // 405 Method Not Allowed

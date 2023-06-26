@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRepository;
 import net.chimhaha.clone.domain.member.Role;
+import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.exception.ErrorCode;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -54,5 +56,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .build());
 
         return memberRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public OAuth2User findOAuth2UserById(Long id) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return CustomOAuth2User.builder()
+                .member(member)
+                .build();
     }
 }
