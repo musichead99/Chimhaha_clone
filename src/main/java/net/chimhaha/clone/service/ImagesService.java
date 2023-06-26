@@ -6,8 +6,8 @@ import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.controller.dto.images.ImagesSaveResponseDto;
+import net.chimhaha.clone.utils.FileUploadUtils;
+import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class ImagesService {
 
     private final ImagesRepository imagesRepository;
-    private final FileUploadService fileUploadService;
+    private final FileUploadUtils fileUploadUtils;
 
     @Transactional
     public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
@@ -33,7 +33,7 @@ public class ImagesService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ImagesSaveResponseDto save(MultipartFile image) {
-        File file = fileUploadService.save(image);
+        File file = fileUploadUtils.save(image);
 
         Images uploadedImage = imagesRepository.save(Images.builder()
                 .realFileName(file.getName().substring(37))
@@ -56,7 +56,7 @@ public class ImagesService {
     public void delete(Long id) {
         Images image = this.findById(id);
 
-        fileUploadService.delete(new File(image.getStoredFilePath()));
+        fileUploadUtils.delete(new File(image.getStoredFilePath()));
         imagesRepository.delete(image);
     }
 

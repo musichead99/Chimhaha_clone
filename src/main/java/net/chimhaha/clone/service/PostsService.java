@@ -8,10 +8,10 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
- import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.dto.posts.*;
+import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.controller.dto.posts.*;
+import net.chimhaha.clone.utils.FileUploadUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class PostsService {
     private final CategoryService categoryService;
     private final MenuService menuService;
     private final ImagesService imagesService;
-    private final FileUploadService fileUploadService;
+    private final FileUploadUtils fileUploadUtils;
 
     @Transactional
     public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
@@ -130,7 +130,7 @@ public class PostsService {
         images.stream()
                 .map(Images::getStoredFilePath)
                 .map(File::new)
-                .forEach(fileUploadService::delete);
+                .forEach(fileUploadUtils::delete);
     }
 
 

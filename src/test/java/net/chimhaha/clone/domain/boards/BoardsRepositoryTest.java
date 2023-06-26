@@ -1,7 +1,7 @@
 package net.chimhaha.clone.domain.boards;
 
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.controller.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

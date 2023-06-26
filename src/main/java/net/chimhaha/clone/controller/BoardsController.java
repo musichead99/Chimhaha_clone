@@ -2,9 +2,9 @@ package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.BoardsService;
-import net.chimhaha.clone.controller.dto.boards.BoardsFindResponseDto;
-import net.chimhaha.clone.controller.dto.boards.BoardsSaveRequestDto;
-import net.chimhaha.clone.controller.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
+import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
+import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

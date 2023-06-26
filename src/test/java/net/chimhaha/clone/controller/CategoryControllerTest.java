@@ -2,9 +2,9 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.service.CategoryService;
-import net.chimhaha.clone.controller.dto.category.CategoryFindResponseDto;
-import net.chimhaha.clone.controller.dto.category.CategorySaveRequestDto;
-import net.chimhaha.clone.controller.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
+import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

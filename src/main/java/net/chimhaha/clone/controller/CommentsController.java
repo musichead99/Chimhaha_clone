@@ -2,9 +2,9 @@ package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.CommentsService;
-import net.chimhaha.clone.controller.dto.comments.CommentsFindByPostResponseDto;
-import net.chimhaha.clone.controller.dto.comments.CommentsSaveRequestDto;
-import net.chimhaha.clone.controller.dto.comments.CommentsUpdateRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
+import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;

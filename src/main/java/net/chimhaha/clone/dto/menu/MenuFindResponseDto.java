@@ -1,9 +1,9 @@
-package net.chimhaha.clone.controller.dto.menu;
+package net.chimhaha.clone.dto.menu;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.controller.dto.boards.BoardsFindResponseDto;
+import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 
 import java.util.List;
 import java.util.stream.Collectors;

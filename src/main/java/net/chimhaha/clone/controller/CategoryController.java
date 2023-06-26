@@ -2,9 +2,9 @@ package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.CategoryService;
-import net.chimhaha.clone.controller.dto.category.CategoryFindResponseDto;
-import net.chimhaha.clone.controller.dto.category.CategorySaveRequestDto;
-import net.chimhaha.clone.controller.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
+import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

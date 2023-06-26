@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.comments;
+package net.chimhaha.clone.dto.comments;
 
 import lombok.Getter;
 import net.chimhaha.clone.domain.comments.Comments;

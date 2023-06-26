@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.category;
+package net.chimhaha.clone.dto.menu;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,19 +6,16 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+
 @Getter
 @NoArgsConstructor
-public class CategorySaveRequestDto {
+public class MenuUpdateRequestDto {
 
     @NotNull
     private String name;
 
-    @NotNull
-    private Long boardId;
-
     @Builder
-    public CategorySaveRequestDto(String name, Long boardId) {
+    public MenuUpdateRequestDto(String name) {
         this.name = name;
-        this.boardId = boardId;
     }
 }

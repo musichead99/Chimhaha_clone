@@ -17,7 +17,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class FileUploadService {
+public class FileUploadUtils {
 
     @Value("${file.store.path}")
     private String path;

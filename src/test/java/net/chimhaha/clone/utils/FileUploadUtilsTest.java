@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class)
-public class FileUploadServiceTest {
+public class FileUploadUtilsTest {
 
     @InjectMocks
-    private FileUploadService fileUploadService;
+    private FileUploadUtils fileUploadUtils;
 
     private final String DEFAULT_STORE_PATH = "C:\\Users\\CMG16\\Desktop\\coding\\images";
 
@@ -36,10 +36,10 @@ public class FileUploadServiceTest {
 
         MockMultipartFile mockMultipartFile = new MockMultipartFile("images", filename + "." + contentType, contentType, fis);
 
-        ReflectionTestUtils.setField(fileUploadService, "path", DEFAULT_STORE_PATH); // 저장 경로 설정
+        ReflectionTestUtils.setField(fileUploadUtils, "path", DEFAULT_STORE_PATH); // 저장 경로 설정
 
         // when
-        File uploadedFile = fileUploadService.save(mockMultipartFile);
+        File uploadedFile = fileUploadUtils.save(mockMultipartFile);
 
         uploadedFile.deleteOnExit(); // 테스트 완료 후 jvm이 종료되면 삭제되도록 파일 설정
 
@@ -57,7 +57,7 @@ public class FileUploadServiceTest {
         File file = new File(filepath);
 
         // when
-        ImageFileDto dto = fileUploadService.getImageFile(filepath);
+        ImageFileDto dto = fileUploadUtils.getImageFile(filepath);
 
         // then
         assertAll(

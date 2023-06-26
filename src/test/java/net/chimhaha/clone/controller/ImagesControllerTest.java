@@ -3,9 +3,9 @@ package net.chimhaha.clone.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.service.ImagesService;
-import net.chimhaha.clone.utils.FileUploadService;
+import net.chimhaha.clone.utils.FileUploadUtils;
 import net.chimhaha.clone.utils.ImageFileDto;
-import net.chimhaha.clone.controller.dto.images.ImagesSaveResponseDto;
+import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class ImagesControllerTest {
     private ImagesService imagesService;
 
     @MockBean
-    private FileUploadService fileUploadService;
+    private FileUploadUtils fileUploadUtils;
 
     @Test
     public void 이미지_불러오기() throws Exception {
@@ -59,7 +59,7 @@ public class ImagesControllerTest {
 
         given(imagesService.findImagePathById(any(Long.class)))
                 .willReturn("test path");
-        given(fileUploadService.getImageFile(any(String.class)))
+        given(fileUploadUtils.getImageFile(any(String.class)))
                 .willReturn(dto);
 
         // when

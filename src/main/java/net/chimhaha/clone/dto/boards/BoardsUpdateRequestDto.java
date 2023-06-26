@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.boards;
+package net.chimhaha.clone.dto.boards;
 
 import lombok.Builder;
 import lombok.Getter;

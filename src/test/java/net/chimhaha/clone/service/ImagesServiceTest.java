@@ -7,8 +7,8 @@ import net.chimhaha.clone.domain.images.ImagesRepository;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.controller.dto.images.ImagesSaveResponseDto;
+import net.chimhaha.clone.utils.FileUploadUtils;
+import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class ImagesServiceTest {
     private ImagesRepository imagesRepository;
 
     @Mock
-    private FileUploadService fileUploadService;
+    private FileUploadUtils fileUploadUtils;
 
     @InjectMocks
     private ImagesService imagesService;
@@ -104,7 +104,7 @@ public class ImagesServiceTest {
         /* repository 빈들 mocking */
         given(imagesRepository.save(any(Images.class)))
                 .willReturn(image);
-        given(fileUploadService.save(any(MultipartFile.class)))
+        given(fileUploadUtils.save(any(MultipartFile.class)))
                 .willReturn(mockFile);
 
         // when
@@ -116,7 +116,7 @@ public class ImagesServiceTest {
                 () -> assertEquals(2, responseDtoList.get(0).getId()),
                 () -> assertEquals("테스트 이미지", responseDtoList.get(0).getName()),
                 () -> verify(imagesRepository, times(1)).save(any(Images.class)),
-                () -> verify(fileUploadService, times(1)).save(any(MultipartFile.class))
+                () -> verify(fileUploadUtils, times(1)).save(any(MultipartFile.class))
         );
     }
 
@@ -135,7 +135,7 @@ public class ImagesServiceTest {
 
         given(imagesRepository.findById(any(Long.class)))
                 .willReturn(Optional.of(image));
-        willDoNothing().given(fileUploadService).delete(any(File.class));
+        willDoNothing().given(fileUploadUtils).delete(any(File.class));
 
         // when
         imagesService.delete(1L);

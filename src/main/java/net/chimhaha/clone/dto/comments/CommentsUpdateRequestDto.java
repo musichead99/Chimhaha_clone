@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.comments;
+package net.chimhaha.clone.dto.comments;
 
 import lombok.Builder;
 import lombok.Getter;

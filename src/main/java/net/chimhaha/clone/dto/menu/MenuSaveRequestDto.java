@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.menu;
+package net.chimhaha.clone.dto.menu;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,13 +9,13 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
-public class MenuUpdateRequestDto {
+public class MenuSaveRequestDto {
 
     @NotNull
     private String name;
 
     @Builder
-    public MenuUpdateRequestDto(String name) {
+    public MenuSaveRequestDto(String name) {
         this.name = name;
     }
 }

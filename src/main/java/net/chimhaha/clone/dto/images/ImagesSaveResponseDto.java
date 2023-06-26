@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.images;
+package net.chimhaha.clone.dto.images;
 
 import lombok.AccessLevel;
 import lombok.Getter;

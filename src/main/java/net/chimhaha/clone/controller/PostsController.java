@@ -1,8 +1,8 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.dto.posts.*;
 import net.chimhaha.clone.service.PostsService;
-import net.chimhaha.clone.controller.dto.posts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;

@@ -2,9 +2,9 @@ package net.chimhaha.clone.service;
 
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
-import net.chimhaha.clone.controller.dto.menu.MenuFindResponseDto;
-import net.chimhaha.clone.controller.dto.menu.MenuSaveRequestDto;
-import net.chimhaha.clone.controller.dto.menu.MenuUpdateRequestDto;
+import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
+import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
+import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

@@ -6,8 +6,8 @@ import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.controller.dto.posts.*;
+import net.chimhaha.clone.dto.posts.*;
+import net.chimhaha.clone.utils.FileUploadUtils;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ public class PostsServiceTest {
     private ImagesService imagesService;
 
     @Mock
-    private FileUploadService fileUploadService;
+    private FileUploadUtils fileUploadUtils;
 
     @InjectMocks
     private PostsService postsService;
@@ -498,7 +498,7 @@ public class PostsServiceTest {
                 .willReturn(Optional.of(post));
         given(imagesService.findByPost(any(Posts.class)))
                 .willReturn(images);
-        willDoNothing().given(fileUploadService).delete(any(File.class));
+        willDoNothing().given(fileUploadUtils).delete(any(File.class));
 
         // when
         postsService.delete(1L);
@@ -509,7 +509,7 @@ public class PostsServiceTest {
         assertAll(
                 () -> verify(postsRepository, times(1)).findById(any(Long.class)),
                 () -> verify(imagesService, times(1)).findByPost(any(Posts.class)),
-                () -> verify(fileUploadService, times(5)).delete(any(File.class))
+                () -> verify(fileUploadUtils, times(5)).delete(any(File.class))
         );
     }
 }

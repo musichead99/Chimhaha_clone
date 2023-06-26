@@ -2,9 +2,9 @@ package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.service.MenuService;
-import net.chimhaha.clone.controller.dto.menu.MenuFindResponseDto;
-import net.chimhaha.clone.controller.dto.menu.MenuSaveRequestDto;
-import net.chimhaha.clone.controller.dto.menu.MenuUpdateRequestDto;
+import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
+import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
+import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

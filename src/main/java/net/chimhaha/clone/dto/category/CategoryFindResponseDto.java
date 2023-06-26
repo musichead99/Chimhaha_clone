@@ -1,4 +1,4 @@
-package net.chimhaha.clone.controller.dto.category;
+package net.chimhaha.clone.dto.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

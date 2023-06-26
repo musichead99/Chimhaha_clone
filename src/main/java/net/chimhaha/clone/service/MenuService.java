@@ -5,9 +5,9 @@ import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.controller.dto.menu.MenuFindResponseDto;
-import net.chimhaha.clone.controller.dto.menu.MenuSaveRequestDto;
-import net.chimhaha.clone.controller.dto.menu.MenuUpdateRequestDto;
+import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
+import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
+import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
