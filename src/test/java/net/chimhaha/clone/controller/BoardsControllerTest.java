@@ -1,6 +1,8 @@
 package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
@@ -10,8 +12,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -28,8 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WithMockUser
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
+@AutoConfigureMockMvc(addFilters = false)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = BoardsController.class)
 public class BoardsControllerTest {
 

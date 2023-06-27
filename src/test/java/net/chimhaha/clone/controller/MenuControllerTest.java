@@ -1,6 +1,8 @@
 package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.service.MenuService;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
@@ -10,8 +12,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,9 +34,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WithMockUser
+@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@WebMvcTest(controllers = MenuController.class)
+@WebMvcTest(controllers = MenuController.class, excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class, JwtAuthenticationFilter.class})
+})
 public class MenuControllerTest {
 
     @Autowired
