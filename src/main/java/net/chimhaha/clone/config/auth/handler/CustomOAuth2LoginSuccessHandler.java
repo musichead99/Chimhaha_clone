@@ -1,4 +1,4 @@
-package net.chimhaha.clone.config.auth;
+package net.chimhaha.clone.config.auth.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

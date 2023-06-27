@@ -1,4 +1,4 @@
-package net.chimhaha.clone.config.auth;
+package net.chimhaha.clone.config.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
