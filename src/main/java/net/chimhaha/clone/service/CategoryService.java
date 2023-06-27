@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final BoardsService boardsService;
 
+
+    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long save(CategorySaveRequestDto dto) {
 
@@ -44,6 +48,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long update(Long id, CategoryUpdateRequestDto dto) {
 
@@ -55,6 +60,7 @@ public class CategoryService {
         return category.getId();
     }
 
+    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);

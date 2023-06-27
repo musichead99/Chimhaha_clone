@@ -44,6 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(validateResult) {
             setAuthenticationAtSecurityContext(token, request);
+        } else {
+            log.info("Guest has been accessed. IP: {}", request.getRemoteAddr());
         }
 
         filterChain.doFilter(request, response);
@@ -59,6 +61,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void setAuthenticationAtSecurityContext(String token, HttpServletRequest request) {
         Long userId = jwtTokenProvider.getIdFromJwt(token);
         OAuth2User oAuth2User = customOAuth2UserService.findOAuth2UserById(userId);
+
+        log.info("User {} has been accessed. ROLE: {}", userId, oAuth2User.getAuthorities().iterator().next().getAuthority());
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 oAuth2User,

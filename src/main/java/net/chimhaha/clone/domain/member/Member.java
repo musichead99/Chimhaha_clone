@@ -31,16 +31,16 @@ public class Member extends BaseTimeEntity {
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private MemberRole memberRole;
 
     @Builder
-    public Member(String provider, String name, String nickname, String email, String profileImage, Role role) {
+    public Member(String provider, String name, String nickname, String email, String profileImage, MemberRole memberRole) {
         this.provider = provider;
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.profileImage = profileImage;
-        this.role = role;
+        this.memberRole = memberRole;
     }
 
     public Member update(String profileImage) {

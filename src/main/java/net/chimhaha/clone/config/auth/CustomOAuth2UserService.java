@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRepository;
-import net.chimhaha.clone.domain.member.Role;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -52,7 +52,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .nickname(userInfo.getNickname())
                         .email(userInfo.getEmail())
                         .profileImage(userInfo.getProfileImage())
-                        .role(Role.USER)
+                        .memberRole(MemberRole.USER)
                         .build());
 
         return memberRepository.save(member);

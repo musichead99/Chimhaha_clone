@@ -24,6 +24,10 @@ public enum ErrorCode {
     JWT_IS_EMPTY(HttpStatus.UNAUTHORIZED, "비어있는 jwt 토큰입니다."),
 
 
+    // 403 Forbidden
+    FORBIDDEN(HttpStatus.FORBIDDEN, "해당 작업을 요청할 권한을 가지고 있지 않습니다."),
+
+
     // 404 Not Found
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 메뉴를 찾을 수 없습니다."),
     BOARDS_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시판을 찾을 수 없습니다."),

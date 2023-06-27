@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
@@ -13,6 +14,7 @@ import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class CommentsService {
     private final PostsService postsService;
     private final CommentsRepository commentsRepository;
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
     @Transactional
     public Long save(CommentsSaveRequestDto dto) {
 
@@ -84,6 +87,7 @@ public class CommentsService {
         return new PageImpl<>(dtoList, pageable, dtoList.size());
     }
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
     @Transactional
     public Long update(Long id, CommentsUpdateRequestDto dto) {
         Comments comment = this.findById(id);
@@ -93,6 +97,8 @@ public class CommentsService {
         return comment.getId();
     }
 
+
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
     @Transactional
     public void delete(Long id) {
         Comments comment = commentsRepository.findByIdWithParents(id)

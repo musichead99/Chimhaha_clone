@@ -3,12 +3,14 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class BoardsService {
     private final BoardsRepository boardsRepository;
     private final MenuService menuService;
 
+    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long save(BoardsSaveRequestDto dto) {
         Menu menu = menuService.findById(dto.getMenuId());
@@ -45,6 +48,7 @@ public class BoardsService {
                 .collect(Collectors.toList());
     }
 
+    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long update(Long id, BoardsUpdateRequestDto dto) {
         Boards board = this.findById(id);

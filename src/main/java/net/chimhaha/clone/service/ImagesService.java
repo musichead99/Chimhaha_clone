@@ -3,11 +3,13 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
 import net.chimhaha.clone.utils.FileUploadUtils;
 import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class ImagesService {
     private final ImagesRepository imagesRepository;
     private final FileUploadUtils fileUploadUtils;
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
     @Transactional
     public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
         return images.stream()
