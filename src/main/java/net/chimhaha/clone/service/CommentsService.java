@@ -4,15 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.web.dto.comments.CommentsFindByPostResponseDto;
-import net.chimhaha.clone.web.dto.comments.CommentsSaveRequestDto;
-import net.chimhaha.clone.web.dto.comments.CommentsUpdateRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
+import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +27,13 @@ import java.util.*;
 public class CommentsService {
 
     private final PostsService postsService;
+    private final MemberService memberService;
     private final CommentsRepository commentsRepository;
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long save(CommentsSaveRequestDto dto) {
-
-        /* 댓글을 작성할 게시글 조회 */
+    public Long save(CommentsSaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
         Posts post = postsService.findPostsById(dto.getPostId());
 
         /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
@@ -47,6 +51,7 @@ public class CommentsService {
                 .content(dto.getContent())
                 .parent(parent)
                 .post(post)
+                .member(member)
                 .build();
 
         return commentsRepository.save(comment).getId();
@@ -84,6 +89,7 @@ public class CommentsService {
         return new PageImpl<>(dtoList, pageable, dtoList.size());
     }
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public Long update(Long id, CommentsUpdateRequestDto dto) {
         Comments comment = this.findById(id);
@@ -93,6 +99,8 @@ public class CommentsService {
         return comment.getId();
     }
 
+
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public void delete(Long id) {
         Comments comment = commentsRepository.findByIdWithParents(id)

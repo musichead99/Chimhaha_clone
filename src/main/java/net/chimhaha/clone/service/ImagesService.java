@@ -3,11 +3,14 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.web.dto.images.ImagesSaveResponseDto;
+import net.chimhaha.clone.utils.FileUploadUtils;
+import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,24 +25,29 @@ import java.util.stream.Collectors;
 public class ImagesService {
 
     private final ImagesRepository imagesRepository;
-    private final FileUploadService fileUploadService;
+    private final FileUploadUtils fileUploadUtils;
+    private final MemberService memberService;
 
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
+    public List<ImagesSaveResponseDto> save(List<MultipartFile> images, Long memberId) {
+        Member member = memberService.findById(memberId);
+
         return images.stream()
-                .map(this::save)
+                .map(image -> this.save(image, member))
                 .collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ImagesSaveResponseDto save(MultipartFile image) {
-        File file = fileUploadService.save(image);
+    public ImagesSaveResponseDto save(MultipartFile image, Member member) {
+        File file = fileUploadUtils.save(image);
 
         Images uploadedImage = imagesRepository.save(Images.builder()
                 .realFileName(file.getName().substring(37))
                 .storedFileName(file.getName())
                 .storedFileSize((int)file.length())
                 .storedFilePath(file.getAbsolutePath())
+                .member(member)
                 .build());
 
         return ImagesSaveResponseDto.from(uploadedImage);
@@ -56,7 +64,7 @@ public class ImagesService {
     public void delete(Long id) {
         Images image = this.findById(id);
 
-        fileUploadService.delete(new File(image.getStoredFilePath()));
+        fileUploadUtils.delete(new File(image.getStoredFilePath()));
         imagesRepository.delete(image);
     }
 

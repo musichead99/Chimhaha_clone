@@ -5,6 +5,9 @@ import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
 import net.chimhaha.clone.domain.images.Images;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
 import org.junit.jupiter.api.*;
@@ -30,24 +33,37 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PostsRepositoryTest {
 
     @Autowired
-    MenuRepository menuRepository;
+    private MenuRepository menuRepository;
 
     @Autowired
-    BoardsRepository boardsRepository;
+    private BoardsRepository boardsRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    PostsRepository postsRepository;
+    private PostsRepository postsRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     /* 단위 테스트 메소드 */
     @Test
     public void 게시글저장_불러오기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -57,6 +73,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -64,6 +81,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -74,6 +92,7 @@ public class PostsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         // when
@@ -94,9 +113,19 @@ public class PostsRepositoryTest {
     @Test
     public void 페이징_게시글_전체_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -106,6 +135,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -113,6 +143,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -124,6 +155,7 @@ public class PostsRepositoryTest {
                     .board(board)
                     .category(category)
                     .popularFlag(true)
+                    .member(member)
                     .build());
         }
 
@@ -144,9 +176,19 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_수정() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -156,6 +198,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -163,6 +206,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -170,6 +214,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨 짤")
+                        .member(member)
                         .build()
         );
 
@@ -180,6 +225,7 @@ public class PostsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         List<Images> images = new ArrayList<>();
@@ -201,9 +247,19 @@ public class PostsRepositoryTest {
     @Test
     public void 게시글_삭제() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -213,6 +269,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -220,6 +277,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -230,6 +288,7 @@ public class PostsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         // when
@@ -243,9 +302,19 @@ public class PostsRepositoryTest {
     @Test
     public void 페이징_메뉴별_게시글_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -255,6 +324,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -262,6 +332,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -274,6 +345,7 @@ public class PostsRepositoryTest {
                     .board(board)
                     .category(category)
                     .popularFlag(true)
+                    .member(member)
                     .build());
         }
 
@@ -297,9 +369,19 @@ public class PostsRepositoryTest {
     @Test
     public void 페이징_게시판별_게시글_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -309,6 +391,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -316,6 +399,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -328,6 +412,7 @@ public class PostsRepositoryTest {
                     .board(board)
                     .category(category)
                     .popularFlag(true)
+                    .member(member)
                     .build());
         }
 
@@ -350,9 +435,19 @@ public class PostsRepositoryTest {
     @Test
     public void 페이징_카테고리별_게시글_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -362,6 +457,7 @@ public class PostsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -369,6 +465,7 @@ public class PostsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -381,6 +478,7 @@ public class PostsRepositoryTest {
                     .board(board)
                     .category(category)
                     .popularFlag(true)
+                    .member(member)
                     .build());
         }
 

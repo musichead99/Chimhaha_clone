@@ -2,8 +2,11 @@ package net.chimhaha.clone.domain.category;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,16 +26,28 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CategoryRepositoryTest {
 
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    BoardsRepository boardsRepository;
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private BoardsRepository boardsRepository;
 
     String name = "침착맨";
 
     @Test
     public void 카테고리_등록() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -43,6 +58,7 @@ public class CategoryRepositoryTest {
                 .description("침착맨에 대해 이야기하는 게시판입니다")
                 .menu(menu)
                 .likeLimit(10)
+                .member(member)
                 .build();
 
         boardsRepository.save(board);
@@ -50,6 +66,7 @@ public class CategoryRepositoryTest {
         Category category = Category.builder()
                 .name(name)
                 .board(board)
+                .member(member)
                 .build();
 
         // when
@@ -66,6 +83,15 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_전체_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -75,6 +101,7 @@ public class CategoryRepositoryTest {
                 .name("침착맨")
                 .description("침착맨에 대해 이야기하는 게시판입니다")
                 .menu(menu)
+                .member(member)
                 .likeLimit(10)
                 .build();
 
@@ -85,6 +112,7 @@ public class CategoryRepositoryTest {
             categoryRepository.save(Category.builder()
                     .name(name)
                     .board(board)
+                    .member(member)
                     .build());
         }
 
@@ -102,6 +130,15 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_수정() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -111,6 +148,7 @@ public class CategoryRepositoryTest {
                 .name("침착맨")
                 .description("침착맨에 대해 이야기하는 게시판입니다")
                 .menu(menu)
+                .member(member)
                 .likeLimit(10)
                 .build();
 
@@ -119,6 +157,7 @@ public class CategoryRepositoryTest {
         Category category = Category.builder()
                 .name(name)
                 .board(board)
+                .member(member)
                 .build();
 
         CategoryUpdateRequestDto dto = CategoryUpdateRequestDto.builder()
@@ -143,6 +182,15 @@ public class CategoryRepositoryTest {
     @Test
     public void 카테고리_삭제() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -152,6 +200,7 @@ public class CategoryRepositoryTest {
                 .name("침착맨")
                 .description("침착맨에 대해 이야기하는 게시판입니다")
                 .menu(menu)
+                .member(member)
                 .likeLimit(10)
                 .build();
 
@@ -160,6 +209,7 @@ public class CategoryRepositoryTest {
         Category category = categoryRepository.save(Category.builder()
                 .name(name)
                 .board(board)
+                .member(member)
                 .build());
         Long categoryId = category.getId();
 

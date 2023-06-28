@@ -3,12 +3,13 @@ package net.chimhaha.clone.domain.posts;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.chimhaha.clone.converter.BooleanToYNConverter;
+import net.chimhaha.clone.domain.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.images.Images;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -46,6 +47,10 @@ public class Posts extends BaseTimeEntity {
     @JoinColumn(name = "menu_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Menu menu;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     /* fk설정 해제 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -62,9 +67,10 @@ public class Posts extends BaseTimeEntity {
     private List<Images> images = new ArrayList<>();
 
     @Builder
-    public Posts(String title, String content, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
+    public Posts(String title, String content, Member member, Menu menu, Boards board, Category category, Integer views, Boolean popularFlag) {
         this.title = title;
         this.content = content;
+        this.member = member;
         this.menu = menu;
         this.board = board;
         this.category = category;

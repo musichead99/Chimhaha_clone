@@ -5,15 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.images.Images;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
- import net.chimhaha.clone.exception.CustomException;
+import net.chimhaha.clone.dto.posts.*;
+import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.utils.FileUploadService;
-import net.chimhaha.clone.web.dto.posts.*;
+import net.chimhaha.clone.utils.FileUploadUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,10 +34,13 @@ public class PostsService {
     private final CategoryService categoryService;
     private final MenuService menuService;
     private final ImagesService imagesService;
-    private final FileUploadService fileUploadService;
+    private final MemberService memberService;
+    private final FileUploadUtils fileUploadUtils;
 
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
-    public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
+    public PostsSaveResponseDto save(PostsSaveRequestDto dto, Long userId) {
+        Member member = memberService.findById(userId);
         Boards board = boardsService.findById(dto.getBoardId());
         Category category = categoryService.findById(dto.getCategoryId());
         Menu menu = menuService.findById(dto.getMenuId());
@@ -47,6 +53,7 @@ public class PostsService {
                 .board(board)
                 .category(category)
                 .menu(menu)
+                .member(member)
                 .build();
 
         post.addAttachedImages(images);
@@ -99,6 +106,7 @@ public class PostsService {
         return PostsFindByIdResponseDto.from(post);
     }
 
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
     public Long update(Long id, PostsUpdateRequestDto dto) {
         Posts post = this.findPostsById(id);
@@ -120,6 +128,7 @@ public class PostsService {
         return post.getId();
     }
 
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
     public void delete(Long id) {
         Posts post = this.findPostsById(id);
@@ -130,7 +139,7 @@ public class PostsService {
         images.stream()
                 .map(Images::getStoredFilePath)
                 .map(File::new)
-                .forEach(fileUploadService::delete);
+                .forEach(fileUploadUtils::delete);
     }
 
 

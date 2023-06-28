@@ -1,10 +1,11 @@
 package net.chimhaha.clone.service;
 
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
-import net.chimhaha.clone.web.dto.menu.MenuFindResponseDto;
-import net.chimhaha.clone.web.dto.menu.MenuSaveRequestDto;
-import net.chimhaha.clone.web.dto.menu.MenuUpdateRequestDto;
+import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
+import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
+import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -31,14 +32,20 @@ public class MenuServiceTest {
     @Mock
     private MenuRepository menuRepository;
 
+    @Mock
+    private MemberService memberService;
+
     @InjectMocks
     private MenuService menuService;
 
     @Test
     public void 메뉴_등록() {
         // given
+        Member member = mock(Member.class);
+
         Menu menu = Menu.builder()
                 .name("침하하")
+                .member(member)
                 .build();
         ReflectionTestUtils.setField(menu, "id", 1L);
 
@@ -48,14 +55,17 @@ public class MenuServiceTest {
 
         given(menuRepository.save(any(Menu.class)))
                 .willReturn(menu);
+        given(memberService.findById(any(Long.class)))
+                .willReturn(member);
 
         // when
-        Long savedMenuId = menuService.save(dto);
+        Long savedMenuId = menuService.save(dto, 1L);
 
         // then
         assertAll(
                 () -> assertEquals(1L, savedMenuId),
-                () -> verify(menuRepository, times(1)).save(any(Menu.class))
+                () -> verify(menuRepository, times(1)).save(any(Menu.class)),
+                () -> verify(memberService, times(1)).findById(any(Long.class))
         );
     }
 

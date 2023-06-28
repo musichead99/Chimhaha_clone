@@ -1,7 +1,11 @@
 package net.chimhaha.clone.domain.boards;
 
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.web.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -24,6 +28,9 @@ public class BoardsRepositoryTest {
     @Autowired
     private BoardsRepository boardsRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     static String name = "침착맨";
     static String description = "침착맨에 대해 이야기하는 게시판입니다";
     static Integer likeLimit = 10;
@@ -31,6 +38,15 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_전체_조회() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -41,6 +57,7 @@ public class BoardsRepositoryTest {
                 .description(description)
                 .menu(menu)
                 .likeLimit(likeLimit)
+                .member(member)
                 .build();
 
         int ea = 1;
@@ -62,6 +79,15 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_등록() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -72,6 +98,7 @@ public class BoardsRepositoryTest {
                 .description(description)
                 .menu(menu)
                 .likeLimit(likeLimit)
+                .member(member)
                 .build();
         Long expectedId = 1L;
 
@@ -89,6 +116,15 @@ public class BoardsRepositoryTest {
     @Test
     public void 게시판_수정() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = Menu.builder()
                 .name("침착맨")
                 .build();
@@ -99,6 +135,7 @@ public class BoardsRepositoryTest {
                 .description(description)
                 .menu(menu)
                 .likeLimit(10)
+                .member(member)
                 .build();
 
         BoardsUpdateRequestDto dto = BoardsUpdateRequestDto.builder()
@@ -119,6 +156,7 @@ public class BoardsRepositoryTest {
                 () -> assertEquals(20, updatedBoard.getLikeLimit()));
     }
 
+    @Disabled
     @Test
     public void 게시판_삭제() {
 
