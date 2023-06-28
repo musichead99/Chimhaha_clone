@@ -2,6 +2,7 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.service.CategoryService;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
@@ -25,13 +26,14 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = CategoryController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class, JwtAuthenticationFilter.class})
@@ -52,6 +54,8 @@ public class CategoryControllerTest {
     @Test
     public void 카테고리_등록() throws Exception {
         // given
+        CustomOAuth2User customOAuth2User = mock(CustomOAuth2User.class);
+        
         Long boardId = 1L;
         Long categoryId = 1L;
 
@@ -60,14 +64,22 @@ public class CategoryControllerTest {
                 .boardId(boardId)
                 .build();
 
-        given(categoryService.save(any(CategorySaveRequestDto.class)))
+        given(categoryService.save(any(CategorySaveRequestDto.class), any(Long.class)))
                 .willReturn(categoryId);
+        given(customOAuth2User.getId())
+                .willReturn(1L);
+        given(customOAuth2User.getName())
+                .willReturn("침착맨");
+        
+        
         // when
         // then
         mvc.perform(post("/category")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()
+                                .oauth2User(customOAuth2User)))
                 .andDo(print())
                 .andExpect(content().string(categoryId.toString()))
                 .andExpect(status().isCreated());
@@ -96,7 +108,8 @@ public class CategoryControllerTest {
         // when
         // then
         mvc.perform(get("/category")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -122,7 +135,8 @@ public class CategoryControllerTest {
         mvc.perform(put("/category/{id}", categoryId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().string(categoryId.toString()))
                 .andExpect(status().isOk());
@@ -137,7 +151,8 @@ public class CategoryControllerTest {
         // when
         // then
         mvc.perform(delete("/category/{id}", categoryId)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

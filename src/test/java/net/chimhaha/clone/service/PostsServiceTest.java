@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.images.Images;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.domain.posts.PostsRepository;
@@ -51,6 +52,9 @@ public class PostsServiceTest {
     private ImagesService imagesService;
 
     @Mock
+    private MemberService memberService;
+
+    @Mock
     private FileUploadUtils fileUploadUtils;
 
     @InjectMocks
@@ -63,24 +67,10 @@ public class PostsServiceTest {
     @Test
     public void 게시글_등록() {
         //given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
+        Menu menu = mock(Menu.class);
+        Boards board = mock(Boards.class);
+        Category category = mock(Category.class);
+        Member member = mock(Member.class);
 
         PostsSaveRequestDto dto = PostsSaveRequestDto.builder()
                 .title(title)
@@ -121,9 +111,11 @@ public class PostsServiceTest {
                 .willReturn(category);
         given(imagesService.findByIdIn(anyList()))
                 .willReturn(images);
+        given(memberService.findById(any(Long.class)))
+                .willReturn(member);
 
         //when
-        PostsSaveResponseDto responseDto = postsService.save(dto);
+        PostsSaveResponseDto responseDto = postsService.save(dto, 1L);
 
         //then
         assertAll(

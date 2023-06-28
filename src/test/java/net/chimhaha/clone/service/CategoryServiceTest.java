@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
@@ -36,6 +37,9 @@ public class CategoryServiceTest {
     @Mock
     private BoardsService boardsService;
 
+    @Mock
+    private MemberService memberService;
+
     @InjectMocks
     private CategoryService categoryService;
 
@@ -44,37 +48,30 @@ public class CategoryServiceTest {
     @Test
     public void 카테고리_등록() {
         // given
-        Boards board = Boards.builder()
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        Long boardId = 1L;
-        ReflectionTestUtils.setField(board, "id", boardId);
-
-        Category category = Category.builder()
-                .name(name)
-                .board(board)
-                .build();
-        Long categoryId = 1L;
-        ReflectionTestUtils.setField(category, "id", categoryId);
-
         CategorySaveRequestDto dto = CategorySaveRequestDto.builder()
                 .name(name)
                 .boardId(1L)
                 .build();
 
+        Boards board = mock(Boards.class);
+        Category category = mock(Category.class);
+        Member member = mock(Member.class);
+
         given(categoryRepository.save(any(Category.class)))
                 .willReturn(category);
         given(boardsService.findById(any(Long.class)))
                 .willReturn(board);
+        given(memberService.findById(any(Long.class)))
+                .willReturn(member);
+        given(category.getId())
+                .willReturn(1L);
 
         // when
-        Long createdCategoryId = categoryService.save(dto);
+        Long createdCategoryId = categoryService.save(dto, 1L);
 
         // then
         assertAll(
-                () -> assertEquals(categoryId, createdCategoryId),
+                () -> assertEquals(1L, createdCategoryId),
                 () -> verify(categoryRepository, times(1)).save(any(Category.class)),
                 () -> verify(boardsService, times(1)).findById(any(Long.class))
         );

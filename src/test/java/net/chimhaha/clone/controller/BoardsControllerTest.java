@@ -2,8 +2,10 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
@@ -12,13 +14,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,15 +27,18 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-@WebMvcTest(controllers = BoardsController.class)
+@WebMvcTest(controllers = BoardsController.class, excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class, JwtAuthenticationFilter.class})
+})
 public class BoardsControllerTest {
 
     @Autowired
@@ -57,6 +60,12 @@ public class BoardsControllerTest {
     @Test
     public void 게시판_등록() throws Exception {
         // given
+        Member member = mock(Member.class);
+
+        CustomOAuth2User oAuth2User = CustomOAuth2User.builder()
+                .member(member)
+                .build();
+
         BoardsSaveRequestDto dto = BoardsSaveRequestDto.builder()
                 .name(name)
                 .description(description)
@@ -65,15 +74,20 @@ public class BoardsControllerTest {
                 .build();
         Long boardId = 1L;
 
-        given(boardsService.save(any(BoardsSaveRequestDto.class)))
+        given(boardsService.save(any(BoardsSaveRequestDto.class), any(Long.class)))
                 .willReturn(boardId);
+        given(member.getId())
+                .willReturn(1L);
+        given(member.getName())
+                .willReturn("침착맨");
 
         // when
         // then
         mvc.perform(post("/boards")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login().oauth2User(oAuth2User)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().string(boardId.toString()));
@@ -100,7 +114,8 @@ public class BoardsControllerTest {
         // when
         // then
         mvc.perform(get("/boards")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -124,7 +139,8 @@ public class BoardsControllerTest {
         mvc.perform(put("/boards/{id}", boardId)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().string(boardId.toString()))
                 .andExpect(status().isOk());

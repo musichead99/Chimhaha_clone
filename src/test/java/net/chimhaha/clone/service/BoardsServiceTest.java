@@ -2,6 +2,7 @@ package net.chimhaha.clone.service;
 
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
@@ -23,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 @ExtendWith(MockitoExtension.class)
@@ -36,6 +36,9 @@ public class BoardsServiceTest {
     @Mock
     private MenuService menuService;
 
+    @Mock
+    private MemberService memberService;
+
     @InjectMocks // 위의 mock객체들을 주입
     private BoardsService boardsService;
 
@@ -46,10 +49,6 @@ public class BoardsServiceTest {
     @Test
     public void 게시판_등록() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-
         BoardsSaveRequestDto dto = BoardsSaveRequestDto.builder()
                 .menuId(1L)
                 .name(name)
@@ -57,25 +56,24 @@ public class BoardsServiceTest {
                 .likeLimit(likeLimit)
                 .build();
 
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .likeLimit(dto.getLikeLimit())
-                .build();
-        Long boardId = 1L;
-        ReflectionTestUtils.setField(board, "id", boardId);
+        Menu menu = mock(Menu.class);
+        Boards board = mock(Boards.class);
+        Member member = mock(Member.class);
 
         given(boardsRepository.save(any(Boards.class)))
                 .willReturn(board);
         given(menuService.findById(any(Long.class)))
                 .willReturn(menu);
+        given(memberService.findById(any(Long.class)))
+                .willReturn(member);
+        given(board.getId())
+                .willReturn(1L);
 
         // when
-        Long createdBoardId = boardsService.save(dto);
+        Long createdBoardId = boardsService.save(dto, 1L);
 
         // then
-        assertEquals(boardId, createdBoardId);
+        assertEquals(1L, createdBoardId);
     }
 
     @Test

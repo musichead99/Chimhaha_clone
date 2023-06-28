@@ -4,6 +4,9 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.member.Member;
+import net.chimhaha.clone.domain.member.MemberRepository;
+import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
 import net.chimhaha.clone.domain.posts.Posts;
@@ -49,12 +52,25 @@ public class CommentsRepositoryTest {
     @Autowired
     private CommentsRepository commentsRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     @Test
     public void 댓글_등록하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -64,6 +80,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -71,6 +88,7 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -81,12 +99,14 @@ public class CommentsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         Comments comment = Comments.builder()
                 .post(post)
                 .content("테스트 댓글")
                 .parent(null)
+                .member(member)
                 .build();
 
         // when
@@ -103,9 +123,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 대댓글_등록하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -115,6 +145,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -122,6 +153,7 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -132,18 +164,21 @@ public class CommentsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         Comments parentComment = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 댓글")
                 .parent(null)
+                .member(member)
                 .build());
 
         Comments comment = Comments.builder()
                 .post(post)
                 .content("테스트 대댓글")
                 .parent(parentComment)
+                .member(member)
                 .build();
 
         // when
@@ -160,9 +195,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 댓글_조회하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -172,6 +217,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -179,6 +225,7 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -189,12 +236,14 @@ public class CommentsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         Comments comment = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 댓글")
                 .parent(null)
+                .member(member)
                 .build());
 
         Pageable pageable = PageRequest.of(0, 20);
@@ -214,9 +263,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 부모댓글_댓글_자식댓글_모두_조회하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -226,6 +285,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -233,6 +293,7 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -243,24 +304,28 @@ public class CommentsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         Comments parent = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 부모댓글")
                 .parent(null)
+                .member(member)
                 .build());
 
         Comments comment = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 댓글")
                 .parent(parent)
+                .member(member)
                 .build());
 
         Comments child = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 자식댓글")
                 .parent(comment)
+                .member(member)
                 .build());
 
         testEntityManager.clear(); // 영속성 컨텍스트에 캐시된 엔티티들을 제거한다.
@@ -282,9 +347,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 대댓글_조회하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -294,6 +369,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -301,32 +377,33 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
-        Posts post = postsRepository.save(
-                Posts.builder()
-                    .title("테스트 게시글")
-                    .content("테스트 본문")
-                    .menu(menu)
-                    .board(board)
-                    .category(category)
-                    .popularFlag(true)
-                    .build());
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .member(member)
+                .build());
 
-        Comments parentComment = commentsRepository.save(
-                Comments.builder()
-                    .post(post)
-                    .content("테스트 댓글")
-                    .parent(null)
-                    .build());
+        Comments parentComment = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 댓글")
+                .parent(null)
+                .member(member)
+                .build());
 
-        Comments comment = commentsRepository.save(
-                Comments.builder()
-                        .post(post)
-                        .content("테스트 대댓글")
-                        .parent(parentComment)
-                        .build());
+        Comments comment = commentsRepository.save(Comments.builder()
+                .post(post)
+                .content("테스트 대댓글")
+                .parent(parentComment)
+                .member(member)
+                .build());
 
         Pageable pageable = PageRequest.of(0, 20);
 
@@ -348,9 +425,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 댓글_수정하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -360,6 +447,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -367,24 +455,26 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
-        Posts post = postsRepository.save(
-                Posts.builder()
-                        .title("테스트 게시글")
-                        .content("테스트 본문")
-                        .menu(menu)
-                        .board(board)
-                        .category(category)
-                        .popularFlag(true)
-                        .build());
+        Posts post = postsRepository.save(Posts.builder()
+                .title("테스트 게시글")
+                .content("테스트 본문")
+                .menu(menu)
+                .board(board)
+                .category(category)
+                .popularFlag(true)
+                .member(member)
+                .build());
 
         Comments comment = commentsRepository.save(
                 Comments.builder()
                         .post(post)
                         .content("테스트 대댓글")
                         .parent(null)
+                        .member(member)
                         .build());
 
         // when
@@ -400,9 +490,19 @@ public class CommentsRepositoryTest {
     @Test
     public void 댓글_삭제하기() {
         // given
+        Member member = memberRepository.save(Member.builder()
+                .name("이병건")
+                .nickname("침착맨")
+                .profileImage(" ")
+                .memberRole(MemberRole.ADMIN)
+                .email(" ")
+                .provider("Naver")
+                .build());
+
         Menu menu = menuRepository.save(
                 Menu.builder()
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -412,6 +512,7 @@ public class CommentsRepositoryTest {
                         .description("침착맨에 대해 이야기하는 게시판입니다")
                         .menu(menu)
                         .likeLimit(20)
+                        .member(member)
                         .build()
         );
 
@@ -419,6 +520,7 @@ public class CommentsRepositoryTest {
                 Category.builder()
                         .board(board)
                         .name("침착맨")
+                        .member(member)
                         .build()
         );
 
@@ -429,12 +531,14 @@ public class CommentsRepositoryTest {
                 .board(board)
                 .category(category)
                 .popularFlag(true)
+                .member(member)
                 .build());
 
         Comments comment = commentsRepository.save(Comments.builder()
                 .post(post)
                 .content("테스트 부모댓글")
                 .parent(null)
+                .member(member)
                 .build());
         Long commentId = comment.getId();
 

@@ -4,6 +4,7 @@ import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
@@ -42,43 +43,18 @@ public class ImagesServiceTest {
     @Mock
     private FileUploadUtils fileUploadUtils;
 
+    @Mock
+    private MemberService memberService;
+
     @InjectMocks
     private ImagesService imagesService;
 
     @Test
     public void 이미지_정보_DB에_등록하기() {
         // given
-        Menu menu = Menu.builder()
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(menu, "id", 1L);
-
-        Boards board = Boards.builder()
-                .menu(menu)
-                .name("침착맨")
-                .description("침착맨에 대해 이야기하는 게시판입니다")
-                .likeLimit(10)
-                .build();
-        ReflectionTestUtils.setField(board, "id", 1L);
-
-        Category category = Category.builder()
-                .board(board)
-                .name("침착맨")
-                .build();
-        ReflectionTestUtils.setField(category, "id", 1L);
-
-        Posts post = Posts.builder()
-                .title("테스트 게시글")
-                .content("테스트 본문")
-                .menu(menu)
-                .board(board)
-                .category(category)
-                .popularFlag(true)
-                .build();
-        ReflectionTestUtils.setField(post, "id", 1L);
+        Member member = mock(Member.class);
 
         Images image = Images.builder()
-                .post(post)
                 .realFileName("테스트 이미지")
                 .storedFileName("stored_테스트 이미지")
                 .storedFilePath("C:\\test")
@@ -106,9 +82,11 @@ public class ImagesServiceTest {
                 .willReturn(image);
         given(fileUploadUtils.save(any(MultipartFile.class)))
                 .willReturn(mockFile);
+        given(memberService.findById(any(Long.class)))
+                .willReturn(member);
 
         // when
-        List<ImagesSaveResponseDto> responseDtoList = imagesService.save(originalFiles);
+        List<ImagesSaveResponseDto> responseDtoList = imagesService.save(originalFiles, 1L);
 
         // then
         assertAll(
@@ -116,7 +94,8 @@ public class ImagesServiceTest {
                 () -> assertEquals(2, responseDtoList.get(0).getId()),
                 () -> assertEquals("테스트 이미지", responseDtoList.get(0).getName()),
                 () -> verify(imagesRepository, times(1)).save(any(Images.class)),
-                () -> verify(fileUploadUtils, times(1)).save(any(MultipartFile.class))
+                () -> verify(fileUploadUtils, times(1)).save(any(MultipartFile.class)),
+                () -> verify(memberService, times(1)).findById(any(Long.class))
         );
     }
 

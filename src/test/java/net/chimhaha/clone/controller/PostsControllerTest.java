@@ -2,6 +2,7 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
@@ -35,12 +36,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class) // 테스트 메소드 이름에서 언더바 제거
 /* @SpringBootTest는 모든 빈을 로드하기 때문에 Controller계층만 테스트할 때는 @WebMvcTest를 사용 */
 @WebMvcTest(controllers = PostsController.class, excludeFilters = {
@@ -63,6 +64,8 @@ public class PostsControllerTest {
     @Test
     public void  게시글_등록() throws Exception {
         //given
+        CustomOAuth2User customOAuth2User = mock(CustomOAuth2User.class);
+
         PostsSaveRequestDto requestDto = PostsSaveRequestDto.builder()
                 .title(title)
                 .content(content)
@@ -81,12 +84,19 @@ public class PostsControllerTest {
         PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
         responseDto.setImageValues(Arrays.asList(1L, 2L, 3L, 4L));
 
-        given(postsService.save(any(PostsSaveRequestDto.class))).willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
+        given(postsService.save(any(PostsSaveRequestDto.class), any(Long.class)))
+                .willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
+        given(customOAuth2User.getId())
+                .willReturn(1L);
+        given(customOAuth2User.getName())
+                .willReturn("침착맨");
 
         //when
         //then
         mvc.perform(post("/posts")
                         .with(csrf())
+                        .with(oauth2Login()
+                                .oauth2User(customOAuth2User))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
@@ -147,6 +157,7 @@ public class PostsControllerTest {
         // then
         mvc.perform(get("/posts")
                         .with(csrf())
+                        .with(oauth2Login())
                 .queryParam("page", "0"))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)))
@@ -205,7 +216,8 @@ public class PostsControllerTest {
         //then
         mvc.perform(get("/posts")
                         .param("category", "1")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -263,7 +275,8 @@ public class PostsControllerTest {
         // then
         mvc.perform(get("/posts")
                         .param("board", "1")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -322,7 +335,8 @@ public class PostsControllerTest {
         // then
         mvc.perform(get("/posts")
                 .param("menu", "1")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(pagedDtoList)));
@@ -365,7 +379,8 @@ public class PostsControllerTest {
         //when
         //then
         mvc.perform(get("/posts/{id}", 1L)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(dto)));
@@ -419,7 +434,8 @@ public class PostsControllerTest {
         mvc.perform(put("/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(postId.toString()));
@@ -463,7 +479,8 @@ public class PostsControllerTest {
         // when
         // then
         mvc.perform(delete("/posts/{id}", 1)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

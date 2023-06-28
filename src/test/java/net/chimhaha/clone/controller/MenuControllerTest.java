@@ -2,6 +2,7 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.service.MenuService;
@@ -12,13 +13,11 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.LinkedList;
@@ -28,13 +27,14 @@ import java.util.stream.Collectors;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = MenuController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class, JwtAuthenticationFilter.class})
@@ -52,19 +52,26 @@ public class MenuControllerTest {
     @Test
     public void 메뉴_등록() throws Exception {
         // given
+        CustomOAuth2User customOAuth2User = mock(CustomOAuth2User.class);
+
         MenuSaveRequestDto dto = MenuSaveRequestDto.builder()
                 .name("침착맨")
                 .build();
 
-        given(menuService.save(any(MenuSaveRequestDto.class)))
+        given(menuService.save(any(MenuSaveRequestDto.class), any(Long.class)))
                 .willReturn(1L);
+        given(customOAuth2User.getId())
+                .willReturn(1L);
+        given(customOAuth2User.getName())
+                .willReturn("침착맨");
 
         // when
         // then
         mvc.perform(post("/menu")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login().oauth2User(customOAuth2User)))
                 .andDo(print())
                 .andExpect(content().string("1"))
                 .andExpect(status().isCreated());
@@ -91,7 +98,8 @@ public class MenuControllerTest {
         // when
         // then
         mvc.perform(get("/menu")
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)))
                 .andExpect(status().isOk());
@@ -112,7 +120,8 @@ public class MenuControllerTest {
         mvc.perform(put("/menu/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(dto))
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(content().string("1"))
                 .andExpect(status().isOk());
@@ -127,7 +136,8 @@ public class MenuControllerTest {
         // when
         // then
         mvc.perform(delete("/menu/{id}", 1L)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

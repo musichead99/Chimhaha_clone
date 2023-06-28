@@ -2,6 +2,7 @@ package net.chimhaha.clone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.chimhaha.clone.config.SecurityConfig;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.service.ImagesService;
@@ -34,11 +35,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @WebMvcTest(controllers = ImagesController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class, JwtAuthenticationFilter.class})
@@ -72,7 +73,8 @@ public class ImagesControllerTest {
         // when
         // then
         mvc.perform(get("/images/{id}", 1L)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_GIF_VALUE))
@@ -82,6 +84,8 @@ public class ImagesControllerTest {
     @Test
     public void 이미지_등록하기() throws Exception {
         // given
+        CustomOAuth2User customOAuth2User = mock(CustomOAuth2User.class);
+
         String filename = "testGif";
         String contentType = "gif";
         String filepath = "src\\test\\resources\\images\\";
@@ -97,14 +101,20 @@ public class ImagesControllerTest {
         List<ImagesSaveResponseDto> dtoList = new ArrayList<>();
         dtoList.add(responseDto);
 
-        given(imagesService.save(anyList()))
+        given(imagesService.save(anyList(), any(Long.class)))
                 .willReturn(dtoList);
+        given(customOAuth2User.getId())
+                .willReturn(1L);
+        given(customOAuth2User.getName())
+                .willReturn("침착맨");
 
         // when
         // then
         mvc.perform(multipart("/images")
                         .file(mockMultipartFile)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()
+                                .oauth2User(customOAuth2User)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(dtoList)));
@@ -119,7 +129,8 @@ public class ImagesControllerTest {
         // when
         // then
         mvc.perform(delete("/images/{id}", 1L)
-                        .with(csrf()))
+                        .with(csrf())
+                        .with(oauth2Login()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
