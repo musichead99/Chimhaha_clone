@@ -25,7 +25,7 @@ public class CategoryService {
     private final BoardsService boardsService;
 
 
-    @Secured({MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
     public Long save(CategorySaveRequestDto dto) {
 
@@ -48,7 +48,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    @Secured({MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
     public Long update(Long id, CategoryUpdateRequestDto dto) {
 
@@ -60,7 +60,7 @@ public class CategoryService {
         return category.getId();
     }
 
-    @Secured({MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);

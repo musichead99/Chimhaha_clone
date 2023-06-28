@@ -28,7 +28,7 @@ public class CommentsService {
     private final PostsService postsService;
     private final CommentsRepository commentsRepository;
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public Long save(CommentsSaveRequestDto dto) {
 
@@ -87,7 +87,7 @@ public class CommentsService {
         return new PageImpl<>(dtoList, pageable, dtoList.size());
     }
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public Long update(Long id, CommentsUpdateRequestDto dto) {
         Comments comment = this.findById(id);
@@ -98,7 +98,7 @@ public class CommentsService {
     }
 
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public void delete(Long id) {
         Comments comment = commentsRepository.findByIdWithParents(id)

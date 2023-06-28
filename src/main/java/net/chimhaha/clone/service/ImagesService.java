@@ -26,7 +26,7 @@ public class ImagesService {
     private final ImagesRepository imagesRepository;
     private final FileUploadUtils fileUploadUtils;
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.ADMIN})
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
     public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
         return images.stream()

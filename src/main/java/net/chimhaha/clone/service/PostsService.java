@@ -35,7 +35,7 @@ public class PostsService {
     private final ImagesService imagesService;
     private final FileUploadUtils fileUploadUtils;
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.USER})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
     public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
         Boards board = boardsService.findById(dto.getBoardId());
@@ -102,7 +102,7 @@ public class PostsService {
         return PostsFindByIdResponseDto.from(post);
     }
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.USER})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
     public Long update(Long id, PostsUpdateRequestDto dto) {
         Posts post = this.findPostsById(id);
@@ -124,7 +124,7 @@ public class PostsService {
         return post.getId();
     }
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.USER})
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
     public void delete(Long id) {
         Posts post = this.findPostsById(id);
