@@ -1,6 +1,7 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.service.CommentsService;
 import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,8 +23,9 @@ public class CommentsController {
 
     @PostMapping(value = "/comments")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@Valid @RequestBody CommentsSaveRequestDto dto) {
-        return commentsService.save(dto);
+    public Long save(@Valid @RequestBody CommentsSaveRequestDto dto,
+                     @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return commentsService.save(dto, oAuth2User.getId());
     }
 
     @GetMapping(value = "/comments", params = "post")

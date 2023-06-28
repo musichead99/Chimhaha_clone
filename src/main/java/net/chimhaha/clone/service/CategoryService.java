@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.category.CategoryRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
@@ -23,17 +24,19 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final BoardsService boardsService;
+    private final MemberService memberService;
 
 
     @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
-    public Long save(CategorySaveRequestDto dto) {
-
+    public Long save(CategorySaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
         Boards board = boardsService.findById(dto.getBoardId());
 
         Category category = categoryRepository.save(Category.builder()
                 .name(dto.getName())
                 .board(board)
+                .member(member)
                 .build());
 
         return category.getId();

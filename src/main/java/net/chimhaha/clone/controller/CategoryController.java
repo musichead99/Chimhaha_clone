@@ -1,11 +1,13 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.service.CategoryService;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,8 +21,9 @@ public class CategoryController {
 
     @PostMapping("/category")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@Valid @RequestBody CategorySaveRequestDto dto) {
-        return categoryService.save(dto);
+    public Long save(@Valid @RequestBody CategorySaveRequestDto dto,
+                     @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return categoryService.save(dto, oAuth2User.getId());
     }
 
     @GetMapping("/category")

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
@@ -26,13 +27,13 @@ import java.util.*;
 public class CommentsService {
 
     private final PostsService postsService;
+    private final MemberService memberService;
     private final CommentsRepository commentsRepository;
 
     @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long save(CommentsSaveRequestDto dto) {
-
-        /* 댓글을 작성할 게시글 조회 */
+    public Long save(CommentsSaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
         Posts post = postsService.findPostsById(dto.getPostId());
 
         /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
@@ -50,6 +51,7 @@ public class CommentsService {
                 .content(dto.getContent())
                 .parent(parent)
                 .post(post)
+                .member(member)
                 .build();
 
         return commentsRepository.save(comment).getId();

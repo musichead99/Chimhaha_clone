@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.BaseTimeEntity;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.posts.Posts;
 
 import javax.persistence.*;
@@ -33,12 +34,17 @@ public class Images extends BaseTimeEntity {
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Posts post;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Builder
-    public Images(String realFileName, String storedFileName, String storedFilePath, int storedFileSize, Posts post) {
+    public Images(String realFileName, String storedFileName, String storedFilePath, int storedFileSize, Member member, Posts post) {
         this.realFileName = realFileName;
         this.storedFileName = storedFileName;
         this.storedFilePath = storedFilePath;
         this.storedFileSize = storedFileSize;
+        this.member = member;
         this.post = post;
     }
 

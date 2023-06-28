@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.chimhaha.clone.domain.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.posts.Posts;
 
 import javax.persistence.*;
@@ -31,6 +32,10 @@ public class Comments extends BaseTimeEntity {
     @JoinColumn(name = "parent_id")
     private Comments parent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
     private final List<Comments> children = new ArrayList<>();
 
@@ -38,10 +43,11 @@ public class Comments extends BaseTimeEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Comments(String content, Posts post, Comments parent) {
+    public Comments(String content, Posts post, Comments parent, Member member) {
         this.content = content;
         this.post = post;
         this.parent = parent;
+        this.member = member;
     }
 
     public void update(String content) {

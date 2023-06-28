@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.images.Images;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
@@ -33,11 +34,13 @@ public class PostsService {
     private final CategoryService categoryService;
     private final MenuService menuService;
     private final ImagesService imagesService;
+    private final MemberService memberService;
     private final FileUploadUtils fileUploadUtils;
 
     @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
-    public PostsSaveResponseDto save(PostsSaveRequestDto dto) {
+    public PostsSaveResponseDto save(PostsSaveRequestDto dto, Long userId) {
+        Member member = memberService.findById(userId);
         Boards board = boardsService.findById(dto.getBoardId());
         Category category = categoryService.findById(dto.getCategoryId());
         Menu menu = menuService.findById(dto.getMenuId());
@@ -50,6 +53,7 @@ public class PostsService {
                 .board(board)
                 .category(category)
                 .menu(menu)
+                .member(member)
                 .build();
 
         post.addAttachedImages(images);

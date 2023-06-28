@@ -2,6 +2,7 @@ package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.config.annotation.MultipartExist;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.service.ImagesService;
 import net.chimhaha.clone.utils.FileUploadUtils;
 import net.chimhaha.clone.utils.ImageFileDto;
@@ -9,6 +10,7 @@ import net.chimhaha.clone.dto.images.ImagesSaveResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,8 +27,9 @@ public class ImagesController {
 
     @PostMapping(value = "/images")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public List<ImagesSaveResponseDto> save(@MultipartExist @RequestPart("images") List<MultipartFile> images) {
-        return imagesService.save(images);
+    public List<ImagesSaveResponseDto> save(@MultipartExist @RequestPart("images") List<MultipartFile> images,
+                                            @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return imagesService.save(images, oAuth2User.getId());
     }
 
     @GetMapping(value = "/images/{id}")

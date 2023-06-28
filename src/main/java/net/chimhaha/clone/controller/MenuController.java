@@ -1,11 +1,13 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.service.MenuService;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,8 +21,9 @@ public class MenuController {
 
     @PostMapping("/menu")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@Valid @RequestBody MenuSaveRequestDto dto) {
-        return menuService.save(dto);
+    public Long save(@Valid @RequestBody MenuSaveRequestDto dto,
+                     @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return menuService.save(dto, oAuth2User.getId());
     }
 
     @GetMapping("/menu")

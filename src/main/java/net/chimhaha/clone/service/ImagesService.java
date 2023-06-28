@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.images.ImagesRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
@@ -25,17 +26,20 @@ public class ImagesService {
 
     private final ImagesRepository imagesRepository;
     private final FileUploadUtils fileUploadUtils;
+    private final MemberService memberService;
 
     @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public List<ImagesSaveResponseDto> save(List<MultipartFile> images) {
+    public List<ImagesSaveResponseDto> save(List<MultipartFile> images, Long memberId) {
+        Member member = memberService.findById(memberId);
+
         return images.stream()
-                .map(this::save)
+                .map(image -> this.save(image, member))
                 .collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public ImagesSaveResponseDto save(MultipartFile image) {
+    public ImagesSaveResponseDto save(MultipartFile image, Member member) {
         File file = fileUploadUtils.save(image);
 
         Images uploadedImage = imagesRepository.save(Images.builder()
@@ -43,6 +47,7 @@ public class ImagesService {
                 .storedFileName(file.getName())
                 .storedFileSize((int)file.length())
                 .storedFilePath(file.getAbsolutePath())
+                .member(member)
                 .build());
 
         return ImagesSaveResponseDto.from(uploadedImage);

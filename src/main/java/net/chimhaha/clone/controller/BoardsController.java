@@ -1,11 +1,13 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,8 +21,9 @@ public class BoardsController {
 
     @PostMapping("/boards")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public Long save(@Valid @RequestBody BoardsSaveRequestDto dto) {
-        return boardsService.save(dto);
+    public Long save(@Valid @RequestBody BoardsSaveRequestDto dto,
+                     @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return boardsService.save(dto, oAuth2User.getId());
     }
 
     @GetMapping("/boards")

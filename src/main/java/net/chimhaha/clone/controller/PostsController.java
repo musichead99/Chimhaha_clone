@@ -1,6 +1,8 @@
 package net.chimhaha.clone.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.dto.posts.*;
 import net.chimhaha.clone.service.PostsService;
 import org.springframework.data.domain.Page;
@@ -9,10 +11,13 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class PostsController {
@@ -21,8 +26,9 @@ public class PostsController {
     /* 게시글 업로드 */
     @PostMapping(value = "/posts", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public PostsSaveResponseDto save(@Valid @RequestBody PostsSaveRequestDto dto) {
-        return postsService.save(dto);
+    public PostsSaveResponseDto save(
+            @Valid @RequestBody PostsSaveRequestDto dto, @AuthenticationPrincipal CustomOAuth2User oAuth2User) {
+        return postsService.save(dto, oAuth2User.getId());
     }
 
     /* 쿼리스트링으로 page=1&size=20&sort=id&direction=DESC 형식의 파라미터 필요

@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.boards.BoardsRepository;
+import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.exception.CustomException;
@@ -23,10 +24,12 @@ public class BoardsService {
 
     private final BoardsRepository boardsRepository;
     private final MenuService menuService;
+    private final MemberService memberService;
 
     @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long save(BoardsSaveRequestDto dto) {
+    public Long save(BoardsSaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
         Menu menu = menuService.findById(dto.getMenuId());
 
         Boards board = Boards.builder()
@@ -34,6 +37,7 @@ public class BoardsService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .likeLimit(dto.getLikeLimit())
+                .member(member)
                 .build();
 
         return boardsRepository.save(board).getId();
