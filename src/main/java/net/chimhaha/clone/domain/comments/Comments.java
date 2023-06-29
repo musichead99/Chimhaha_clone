@@ -7,6 +7,7 @@ import net.chimhaha.clone.domain.BooleanToYNConverter;
 import net.chimhaha.clone.domain.BaseTimeEntity;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.posts.Posts;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class Comments extends BaseTimeEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @BatchSize(size = 60)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
     private final List<Comments> children = new ArrayList<>();
 
@@ -68,6 +70,16 @@ public class Comments extends BaseTimeEntity {
 
     public boolean isDeletable() {
         return children.size() == 1 && this.isDeleted;
+    }
+
+    public Comments getDeletableParents() {
+        if(isParentExist()) {
+            if(this.parent.isDeletable()) {
+                return parent.getDeletableParents();
+            }
+        }
+
+        return this;
     }
 
     @PrePersist

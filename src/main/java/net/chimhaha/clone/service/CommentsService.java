@@ -65,25 +65,7 @@ public class CommentsService {
 
         /* 게시글에 달린 모든 댓글을 페이징해 조회 */
         Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
-
-        List<CommentsFindByPostResponseDto> dtoList = new ArrayList<>(); // 이후 PageImpl로 변환하기 위한 댓글 dto list
-        Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>(); // 댓글들을 계층 구조로 만들기 위한 맵
-
-        /* 계층구조 변환 과정 */
-        comments.stream()
-                .map(CommentsFindByPostResponseDto::from)
-                .forEach(dto -> {
-                    map.put(dto.getId(), dto);
-
-                    /* 현재 댓글이 대댓글이라면 */
-                    if(dto.getParentId() != null) {
-                        map.get(dto.getParentId()).getChildren().add(dto); // 부모 댓글에 children으로 추가
-                    }
-                    /* 대댓글이 아니라면 */
-                    else {
-                        dtoList.add(dto); // 그대로 list에 추가
-                    }
-                });
+        List<CommentsFindByPostResponseDto> dtoList = this.toHierarchyDto(comments);
 
         /* 계층 구조로 변환이 완료된 댓글 리스트 PageImpl객체로 변환 */
         return new PageImpl<>(dtoList, pageable, dtoList.size());
@@ -111,26 +93,37 @@ public class CommentsService {
             return;
         }
 
-        commentsRepository.delete(getDeletableParentComment(comment));
-    }
-
-    private Comments getDeletableParentComment(Comments comment) {
-
-        if(comment.isParentExist()) {
-            Comments parent = commentsRepository.findByIdWithParents(comment.getParent().getId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
-
-            if(parent.isDeletable()) {
-                    return getDeletableParentComment(parent);
-            }
-        }
-
-        return comment;
+        commentsRepository.delete(comment.getDeletableParents());
     }
 
     @Transactional(readOnly = true)
     public Comments findById(Long id) {
         return commentsRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
+    }
+
+    /* 계층 구조로 변환 */
+    private List<CommentsFindByPostResponseDto> toHierarchyDto(Page<Comments> comments) {
+
+        List<CommentsFindByPostResponseDto> list = new ArrayList<>(); // 이후 PageImpl로 변환하기 위한 댓글 dto list
+        Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>(); // 댓글들을 계층 구조로 만들기 위한 맵
+
+        /* 계층구조 변환 과정 */
+        comments.stream()
+                .map(CommentsFindByPostResponseDto::from)
+                .forEach(dto -> {
+                    map.put(dto.getId(), dto);
+
+                    /* 현재 댓글이 대댓글이라면 */
+                    if(dto.getParentId() != null) {
+                        map.get(dto.getParentId()).getChildren().add(dto); // 부모 댓글에 children으로 추가
+                    }
+                    /* 대댓글이 아니라면 */
+                    else {
+                        list.add(dto); // 그대로 list에 추가
+                    }
+                });
+
+        return list;
     }
 }
