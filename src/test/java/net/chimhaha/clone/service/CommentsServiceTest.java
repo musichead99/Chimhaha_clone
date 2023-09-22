@@ -466,9 +466,7 @@ public class CommentsServiceTest {
         parentComment.getChildren().add(comment);
 
 
-        given(commentsRepository.findByIdWithParents(1L))
-                .willReturn(Optional.of(parentComment));
-        given(commentsRepository.findByIdWithParents(2L))
+        given(commentsRepository.findByIdWithParents(any(Long.class)))
                 .willReturn(Optional.of(comment));
         willDoNothing().given(commentsRepository).delete(any(Comments.class));
 
@@ -477,7 +475,7 @@ public class CommentsServiceTest {
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(2)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
         );
 
@@ -537,9 +535,7 @@ public class CommentsServiceTest {
 
         parentComment.getChildren().add(comment);
 
-        given(commentsRepository.findByIdWithParents(1L))
-                .willReturn(Optional.of(parentComment));
-        given(commentsRepository.findByIdWithParents(2L))
+        given(commentsRepository.findByIdWithParents(any(Long.class)))
                 .willReturn(Optional.of(comment));
         willDoNothing().given(commentsRepository).delete(any(Comments.class));
 
@@ -548,7 +544,7 @@ public class CommentsServiceTest {
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(2)).findByIdWithParents(any(Long.class)),
+                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
         );
 
