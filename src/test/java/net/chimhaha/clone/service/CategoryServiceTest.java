@@ -34,12 +34,6 @@ public class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
-    @Mock
-    private BoardsService boardsService;
-
-    @Mock
-    private MemberService memberService;
-
     @InjectMocks
     private CategoryService categoryService;
 
@@ -59,21 +53,16 @@ public class CategoryServiceTest {
 
         given(categoryRepository.save(any(Category.class)))
                 .willReturn(category);
-        given(boardsService.findById(any(Long.class)))
-                .willReturn(board);
-        given(memberService.findById(any(Long.class)))
-                .willReturn(member);
         given(category.getId())
                 .willReturn(1L);
 
         // when
-        Long createdCategoryId = categoryService.save(dto, 1L);
+        Long createdCategoryId = categoryService.save(dto, member, board);
 
         // then
         assertAll(
                 () -> assertEquals(1L, createdCategoryId),
-                () -> verify(categoryRepository, times(1)).save(any(Category.class)),
-                () -> verify(boardsService, times(1)).findById(any(Long.class))
+                () -> verify(categoryRepository, times(1)).save(any(Category.class))
         );
     }
 
@@ -100,15 +89,15 @@ public class CategoryServiceTest {
                 .willReturn(categories);
 
         // when
-        List<CategoryFindResponseDto> dtoList = categoryService.find();
+        List<Category> categoryList = categoryService.find();
 
         // then
         assertAll(
-                () -> assertEquals(amount, dtoList.size()),
-                () -> assertEquals(categories.get(0).getId(), dtoList.get(0).getId()),
-                () -> assertEquals(categories.get(0).getName(), dtoList.get(0).getName()),
-                () -> assertEquals(categories.get(0).getBoard().getId(), dtoList.get(0).getBoardId()),
-                () -> assertEquals(categories.get(0).getBoard().getName(), dtoList.get(0).getBoardName()),
+                () -> assertEquals(amount, categoryList.size()),
+                () -> assertEquals(categories.get(0).getId(), categoryList.get(0).getId()),
+                () -> assertEquals(categories.get(0).getName(), categoryList.get(0).getName()),
+                () -> assertEquals(categories.get(0).getBoard().getId(), categoryList.get(0).getBoard().getId()),
+                () -> assertEquals(categories.get(0).getBoard().getName(), categoryList.get(0).getBoard().getName()),
                 () -> verify(categoryRepository, times(1)).findAll()
         );
     }
@@ -136,19 +125,12 @@ public class CategoryServiceTest {
                 .boardId(boardId)
                 .build();
 
-        given(boardsService.findById(any(Long.class)))
-                .willReturn(board);
-        given(categoryRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(category));
-
         // when
-        Long updatedCategoryId = categoryService.update(categoryId, dto);
+        Long updatedCategoryId = categoryService.update(board, category, dto);
 
         // then
         assertAll(
-                () -> assertEquals(categoryId, updatedCategoryId),
-                () -> verify(boardsService, times(1)).findById(any(Long.class)),
-                () -> verify(categoryRepository, times(1)).findById(any(Long.class))
+                () -> assertEquals(categoryId, updatedCategoryId)
         );
 
     }

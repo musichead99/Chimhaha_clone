@@ -24,14 +24,9 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final BoardsService boardsService;
-    private final MemberService memberService;
 
-
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
-    public Long save(CategorySaveRequestDto dto, Long memberId) {
-        Member member = memberService.findById(memberId);
-        Boards board = boardsService.findById(dto.getBoardId());
+    public Long save(CategorySaveRequestDto dto, Member member, Boards board) {
 
         Category category = categoryRepository.save(Category.builder()
                 .name(dto.getName())
@@ -43,27 +38,18 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryFindResponseDto> find() {
-        List<Category> categories = categoryRepository.findAll();
-
-        return categories.stream()
-                .map(CategoryFindResponseDto::from)
-                .collect(Collectors.toList());
+    public List<Category> find() {
+        return categoryRepository.findAll();
     }
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
-    public Long update(Long id, CategoryUpdateRequestDto dto) {
-
-        Boards board = boardsService.findById(dto.getBoardId());
-        Category category = this.findById(id);
+    public Long update(Boards board, Category category, CategoryUpdateRequestDto dto) {
 
         category.update(dto.getName(), board);
 
         return category.getId();
     }
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
     @Transactional
     public void delete(Long id) {
         categoryRepository.deleteById(id);

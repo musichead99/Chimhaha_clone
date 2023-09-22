@@ -8,6 +8,7 @@ import net.chimhaha.clone.service.CategoryService;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.service.CommunityService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class CategoryControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private CategoryService categoryService;
+    private CommunityService communityService;
 
     String name = "침착맨";
     String boardName = "침착맨";
@@ -64,7 +65,7 @@ public class CategoryControllerTest {
                 .boardId(boardId)
                 .build();
 
-        given(categoryService.save(any(CategorySaveRequestDto.class), any(Long.class)))
+        given(communityService.saveCategory(any(CategorySaveRequestDto.class), any(Long.class)))
                 .willReturn(categoryId);
         given(customOAuth2User.getId())
                 .willReturn(1L);
@@ -102,7 +103,7 @@ public class CategoryControllerTest {
                     boardName));
         }
 
-        given(categoryService.find())
+        given(communityService.findCategory())
                 .willReturn(dtoList);
 
         // when
@@ -127,7 +128,7 @@ public class CategoryControllerTest {
                 .boardId(boardId)
                 .build();
 
-        given(categoryService.update(any(Long.class), any(CategoryUpdateRequestDto.class)))
+        given(communityService.updateCategory(any(Long.class), any(CategoryUpdateRequestDto.class)))
                 .willReturn(categoryId);
 
         // when

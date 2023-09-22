@@ -2,12 +2,16 @@ package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
+import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
+import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
+import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
@@ -66,6 +70,7 @@ public class CommunityService {
     }
     
     /* Board 관련 */
+
     @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long saveBoards(BoardsSaveRequestDto dto, Long memberId) {
@@ -95,5 +100,39 @@ public class CommunityService {
     @Transactional
     public void deleteBoards(Long id) {
         boardsService.delete(id);
+    }
+
+    /* Category 관련 */
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
+    @Transactional
+    public Long saveCategory(CategorySaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
+        Boards board = boardsService.findById(dto.getBoardId());
+
+        return categoryService.save(dto, member, board);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryFindResponseDto> findCategory() {
+        List<Category> categoryList = categoryService.find();
+
+        return categoryList.stream()
+                .map(CategoryFindResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
+    @Transactional
+    public Long updateCategory(Long id, CategoryUpdateRequestDto dto) {
+        Boards board = boardsService.findById(dto.getBoardId());
+        Category category = categoryService.findById(id);
+
+        return categoryService.update(board, category, dto);
+    }
+
+    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER})
+    @Transactional
+    public void deleteCategory(Long id) {
+        categoryService.delete(id);
     }
 }
