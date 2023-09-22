@@ -1,9 +1,13 @@
 package net.chimhaha.clone.service;
 
 import lombok.RequiredArgsConstructor;
+import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
+import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
+import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
+import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
@@ -31,6 +35,8 @@ public class CommunityService {
     private final MemberService memberService;
     private final PostsService postsService;
 
+    /* Menu 관련 */
+    
     @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
     public Long saveMenu(MenuSaveRequestDto dto, Long memberId) {
@@ -40,9 +46,9 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public List<MenuFindResponseDto> findMenu() {
-        List<Menu> menu = menuService.find();
+        List<Menu> menuList = menuService.find();
 
-        return menu.stream()
+        return menuList.stream()
                 .map(MenuFindResponseDto::from)
                 .collect(Collectors.toList());
     }
@@ -57,5 +63,37 @@ public class CommunityService {
     @Transactional
     public void deleteMenu(Long id) {
         menuService.delete(id);
+    }
+    
+    /* Board 관련 */
+    @Secured({MemberRole.ROLES.ADMIN})
+    @Transactional
+    public Long saveBoards(BoardsSaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
+        Menu menu = menuService.findById(dto.getMenuId());
+
+        return boardsService.save(dto, menu, member);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BoardsFindResponseDto> findBoards() {
+        List<Boards> boardsList = boardsService.find();
+
+        return boardsList.stream()
+                .map(BoardsFindResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Secured({MemberRole.ROLES.ADMIN})
+    @Transactional
+    public Long updateBoards(Long id, BoardsUpdateRequestDto dto) {
+        Boards board = boardsService.findById(id);
+        return boardsService.update(board, dto);
+    }
+
+    @Secured({MemberRole.ROLES.ADMIN})
+    @Transactional
+    public void deleteBoards(Long id) {
+        boardsService.delete(id);
     }
 }

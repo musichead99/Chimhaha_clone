@@ -8,7 +8,6 @@ import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
-import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import org.springframework.security.access.annotation.Secured;
@@ -16,21 +15,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class BoardsService {
 
     private final BoardsRepository boardsRepository;
-    private final MenuService menuService;
-    private final MemberService memberService;
 
-    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long save(BoardsSaveRequestDto dto, Long memberId) {
-        Member member = memberService.findById(memberId);
-        Menu menu = menuService.findById(dto.getMenuId());
+    public Long save(BoardsSaveRequestDto dto, Menu menu, Member member) {
 
         Boards board = Boards.builder()
                 .menu(menu)
@@ -44,20 +37,14 @@ public class BoardsService {
     }
 
     @Transactional(readOnly = true)
-    public List<BoardsFindResponseDto> find() {
-        List<Boards> boards = boardsRepository.findAll();
-
-        return boards.stream()
-                .map(BoardsFindResponseDto::from)
-                .collect(Collectors.toList());
+    public List<Boards> find() {
+        return boardsRepository.findAll();
     }
 
-    @Secured({MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long update(Long id, BoardsUpdateRequestDto dto) {
-        Boards board = this.findById(id);
-
+    public Long update(Boards board, BoardsUpdateRequestDto dto) {
         board.update(dto.getName(), dto.getDescription(), dto.getLikeLimit());
+
         return board.getId();
     }
 

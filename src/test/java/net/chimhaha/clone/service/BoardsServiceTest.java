@@ -33,12 +33,6 @@ public class BoardsServiceTest {
     @Mock
     private BoardsRepository boardsRepository;
 
-    @Mock
-    private MenuService menuService;
-
-    @Mock
-    private MemberService memberService;
-
     @InjectMocks // 위의 mock객체들을 주입
     private BoardsService boardsService;
 
@@ -62,15 +56,11 @@ public class BoardsServiceTest {
 
         given(boardsRepository.save(any(Boards.class)))
                 .willReturn(board);
-        given(menuService.findById(any(Long.class)))
-                .willReturn(menu);
-        given(memberService.findById(any(Long.class)))
-                .willReturn(member);
         given(board.getId())
                 .willReturn(1L);
 
         // when
-        Long createdBoardId = boardsService.save(dto, 1L);
+        Long createdBoardId = boardsService.save(dto, menu, member);
 
         // then
         assertEquals(1L, createdBoardId);
@@ -91,7 +81,7 @@ public class BoardsServiceTest {
         given(boardsRepository.findAll())
                 .willReturn(boards);
         // when
-        List<BoardsFindResponseDto> dtoList =  boardsService.find();
+        List<Boards> dtoList =  boardsService.find();
 
         // then
         assertAll(
@@ -121,16 +111,12 @@ public class BoardsServiceTest {
         Long boardId = 1L;
         ReflectionTestUtils.setField(board, "id", boardId);
 
-        given(boardsRepository.findById(any(Long.class)))
-                .willReturn(Optional.ofNullable(board));
-
         // when
-        Long updatedBoardId = boardsService.update(boardId, dto);
+        Long updatedBoardId = boardsService.update(board, dto);
 
         // then
         assertAll(
-                () -> assertEquals(boardId,updatedBoardId),
-                () -> verify(boardsRepository, times(1)).findById(any(Long.class))
+                () -> assertEquals(boardId,updatedBoardId)
         );
     }
 }

@@ -6,10 +6,10 @@ import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.member.Member;
-import net.chimhaha.clone.service.BoardsService;
 import net.chimhaha.clone.dto.boards.BoardsFindResponseDto;
 import net.chimhaha.clone.dto.boards.BoardsSaveRequestDto;
 import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
+import net.chimhaha.clone.service.CommunityService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ public class BoardsControllerTest {
     *  @MockBean : Bean이 붙어 있다 -> springboot container에 bean으로써 적재된다. -> container가 자동으로 해당 빈을 사용하는 객체에게 주입
     *  쉽게 생각하면 WebMvcTest에서는 @MockBean, 다른 경우에는 @Mock를 사용한다고 한다. */
     @MockBean
-    private BoardsService boardsService;
+    private CommunityService communityService;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -74,7 +74,7 @@ public class BoardsControllerTest {
                 .build();
         Long boardId = 1L;
 
-        given(boardsService.save(any(BoardsSaveRequestDto.class), any(Long.class)))
+        given(communityService.saveBoards(any(BoardsSaveRequestDto.class), any(Long.class)))
                 .willReturn(boardId);
         given(member.getId())
                 .willReturn(1L);
@@ -108,7 +108,7 @@ public class BoardsControllerTest {
         List<BoardsFindResponseDto> dtoList = new ArrayList<>();
         dtoList.add(dto);
 
-        given(boardsService.find())
+        given(communityService.findBoards())
                 .willReturn(dtoList);
 
         // when
@@ -132,7 +132,7 @@ public class BoardsControllerTest {
 
         Long boardId = 1L;
 
-        given(boardsService.update(any(Long.class), any(BoardsUpdateRequestDto.class)))
+        given(communityService.updateBoards(any(Long.class), any(BoardsUpdateRequestDto.class)))
                 .willReturn(1L);
         // when
         // then
