@@ -3,7 +3,6 @@ package net.chimhaha.clone.service;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.menu.MenuRepository;
-import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -55,17 +54,14 @@ public class MenuServiceTest {
 
         given(menuRepository.save(any(Menu.class)))
                 .willReturn(menu);
-        given(memberService.findById(any(Long.class)))
-                .willReturn(member);
 
         // when
-        Long savedMenuId = menuService.save(dto, 1L);
+        Long savedMenuId = menuService.save(dto, member);
 
         // then
         assertAll(
                 () -> assertEquals(1L, savedMenuId),
-                () -> verify(menuRepository, times(1)).save(any(Menu.class)),
-                () -> verify(memberService, times(1)).findById(any(Long.class))
+                () -> verify(menuRepository, times(1)).save(any(Menu.class))
         );
     }
 
@@ -86,7 +82,7 @@ public class MenuServiceTest {
                 .willReturn(menuList);
 
         // when
-        List<MenuFindResponseDto> dtoList = menuService.find();
+        List<Menu> dtoList = menuService.find();
 
         // then
         assertAll(

@@ -5,7 +5,7 @@ import net.chimhaha.clone.config.SecurityConfig;
 import net.chimhaha.clone.config.auth.CustomOAuth2User;
 import net.chimhaha.clone.config.jwt.JwtAuthenticationFilter;
 import net.chimhaha.clone.domain.menu.Menu;
-import net.chimhaha.clone.service.MenuService;
+import net.chimhaha.clone.service.CommunityService;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
@@ -45,7 +45,7 @@ public class MenuControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private MenuService menuService;
+    private CommunityService communityService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -58,7 +58,7 @@ public class MenuControllerTest {
                 .name("침착맨")
                 .build();
 
-        given(menuService.save(any(MenuSaveRequestDto.class), any(Long.class)))
+        given(communityService.saveMenu(any(MenuSaveRequestDto.class), any(Long.class)))
                 .willReturn(1L);
         given(customOAuth2User.getId())
                 .willReturn(1L);
@@ -92,7 +92,7 @@ public class MenuControllerTest {
                         .map(MenuFindResponseDto::from)
                         .collect(Collectors.toList());
 
-        given(menuService.find())
+        given(communityService.findMenu())
                 .willReturn(dtoList);
 
         // when
@@ -112,7 +112,7 @@ public class MenuControllerTest {
                 .name("침하하")
                 .build();
 
-        given(menuService.update(any(Long.class), any(MenuUpdateRequestDto.class)))
+        given(communityService.updateMenu(any(Long.class), any(MenuUpdateRequestDto.class)))
                 .willReturn(1L);
 
         // when
@@ -131,7 +131,7 @@ public class MenuControllerTest {
     public void 메뉴_삭제() throws Exception {
         // given
 
-        willDoNothing().given(menuService).delete(any(Long.class));
+        willDoNothing().given(communityService).deleteMenu(any(Long.class));
 
         // when
         // then
