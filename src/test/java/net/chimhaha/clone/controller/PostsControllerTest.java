@@ -9,23 +9,19 @@ import net.chimhaha.clone.domain.category.Category;
 import net.chimhaha.clone.domain.menu.Menu;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.dto.posts.*;
-import net.chimhaha.clone.service.PostsService;
+import net.chimhaha.clone.service.CommunityService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -53,7 +49,7 @@ public class PostsControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private PostsService postsService;
+    private CommunityService communityService;
 
     String title = "테스트 게시글";
     String content = "테스트 본문";
@@ -84,7 +80,7 @@ public class PostsControllerTest {
         PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(post);
         responseDto.setImageValues(Arrays.asList(1L, 2L, 3L, 4L));
 
-        given(postsService.save(any(PostsSaveRequestDto.class), any(Long.class)))
+        given(communityService.savePost(any(PostsSaveRequestDto.class), any(Long.class)))
                 .willReturn(responseDto); // mockbean이 어떠한 행동을 취하면 어떠한 결과를 반환한다는 것을 정의
         given(customOAuth2User.getId())
                 .willReturn(1L);
@@ -150,7 +146,7 @@ public class PostsControllerTest {
 
         Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
-        given(postsService.find(any(Pageable.class)))
+        given(communityService.findPosts(any(Pageable.class)))
                 .willReturn(pagedDtoList);
 
         // when
@@ -210,7 +206,7 @@ public class PostsControllerTest {
 
         Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
-        given(postsService.findByCategory(any(Long.class), any(Pageable.class))).willReturn(pagedDtoList);
+        given(communityService.findPostsByCategory(any(Long.class), any(Pageable.class))).willReturn(pagedDtoList);
 
         //when
         //then
@@ -268,7 +264,7 @@ public class PostsControllerTest {
 
         Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
-        given(postsService.findByBoard(any(Long.class), any(Pageable.class)))
+        given(communityService.findPostsByBoard(any(Long.class), any(Pageable.class)))
                 .willReturn(pagedDtoList);
 
         // when
@@ -328,7 +324,7 @@ public class PostsControllerTest {
 
         Page<PostsFindResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
-        given(postsService.findByMenu(any(Long.class), any(Pageable.class)))
+        given(communityService.findPostsByMenu(any(Long.class), any(Pageable.class)))
                 .willReturn(pagedDtoList);
 
         // when
@@ -374,7 +370,7 @@ public class PostsControllerTest {
                 .build();
 
         PostsFindByIdResponseDto dto = PostsFindByIdResponseDto.from(post);
-        given(postsService.findById(any())).willReturn(dto);
+        given(communityService.findPostById(any())).willReturn(dto);
 
         //when
         //then
@@ -427,7 +423,7 @@ public class PostsControllerTest {
                 .popularFlag(flag)
                 .build();
 
-        given(postsService.update(any(Long.class), any(PostsUpdateRequestDto.class)))
+        given(communityService.updatePost(any(Long.class), any(PostsUpdateRequestDto.class)))
                 .willReturn(postId);
         //when
         //then
@@ -475,7 +471,7 @@ public class PostsControllerTest {
         ReflectionTestUtils.setField(posts, "id", postId);
         ReflectionTestUtils.setField(posts, "views", 0);
 
-        doNothing().when(postsService).delete(any(Long.class));
+        doNothing().when(communityService).deletePost(any(Long.class));
         // when
         // then
         mvc.perform(delete("/posts/{id}", 1)

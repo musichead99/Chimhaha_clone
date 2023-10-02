@@ -27,7 +27,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
@@ -38,21 +37,6 @@ public class PostsServiceTest {
 
     @Mock
     private PostsRepository postsRepository;
-
-    @Mock
-    private MenuService menuService;
-
-    @Mock
-    private BoardsService boardsService;
-
-    @Mock
-    private CategoryService categoryService;
-
-    @Mock
-    private ImagesService imagesService;
-
-    @Mock
-    private MemberService memberService;
 
     @Mock
     private FileUploadUtils fileUploadUtils;
@@ -96,30 +80,20 @@ public class PostsServiceTest {
         List<Images> images = new ArrayList<>();
         for(int i = 1; i < 5; i++) {
             Images image = mock(Images.class);
-            given(image.getId()).willReturn((long)i);
 
             images.add(image);
         }
 
         given(postsRepository.save(any(Posts.class)))
                 .willReturn(post);
-        given(menuService.findById(any(Long.class)))
-                .willReturn(menu);
-        given(boardsService.findById(any(Long.class)))
-                .willReturn(board);
-        given(categoryService.findById(any(Long.class)))
-                .willReturn(category);
-        given(imagesService.findByIdIn(anyList()))
-                .willReturn(images);
-        given(memberService.findById(any(Long.class)))
-                .willReturn(member);
+
 
         //when
-        PostsSaveResponseDto responseDto = postsService.save(dto, 1L);
+        Posts savedPost = postsService.save(member, board, category, menu, images, dto);
 
         //then
         assertAll(
-                () -> assertEquals(1L, responseDto.getPostId())
+                () -> assertEquals(1L, savedPost.getId())
         );
     }
 
@@ -171,14 +145,14 @@ public class PostsServiceTest {
                 .willReturn(pagedPosts);
 
         // when
-        Page<PostsFindResponseDto> dtoList = postsService.find(pageable);
+        Page<Posts> postsList = postsService.find(pageable);
 
         // then
         assertAll(
-                () -> assertEquals(page, dtoList.getNumber()),
-                () -> assertEquals(size, dtoList.getSize()),
-                () -> assertEquals(amount, dtoList.getNumberOfElements()),
-                () -> assertEquals(1,dtoList.getContent().get(0).getId())
+                () -> assertEquals(0, postsList.getNumber()),
+                () -> assertEquals(20, postsList.getSize()),
+                () -> assertEquals(5, postsList.getNumberOfElements()),
+                () -> assertEquals(1,postsList.getContent().get(0).getId())
         );
     }
 
@@ -205,8 +179,7 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(category, "id", 1L);
 
         List<Posts> posts = new LinkedList<>();
-        int amount = 5;
-        for(int i = 0; i < amount; i++) {
+        for(int i = 0; i < 5; i++) {
 
             Posts post = Posts.builder()
                     .title(title)
@@ -229,18 +202,15 @@ public class PostsServiceTest {
         given(postsRepository.findByCategory(any(Category.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
 
-        given(categoryService.findById(any(Long.class)))
-                .willReturn(category);
-
         //when
-        Page<PostsFindResponseDto> dtoList = postsService.findByCategory(1L, pageable);
+        Page<Posts> postsList = postsService.findByCategory(category, pageable);
 
         //then
         assertAll(
-                () -> assertEquals(page, dtoList.getNumber()),
-                () -> assertEquals(size, dtoList.getSize()),
-                () -> assertEquals(amount, dtoList.getNumberOfElements()),
-                () -> assertEquals(1,dtoList.getContent().get(0).getId())
+                () -> assertEquals(0, postsList.getNumber()),
+                () -> assertEquals(20, postsList.getSize()),
+                () -> assertEquals(5, postsList.getNumberOfElements()),
+                () -> assertEquals(1, postsList.getContent().get(0).getId())
         );
     }
 
@@ -267,8 +237,7 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(category, "id", 1L);
 
         List<Posts> posts = new LinkedList<>();
-        int amount = 5;
-        for(int i = 0; i < amount; i++) {
+        for(int i = 0; i < 5; i++) {
 
             Posts post = Posts.builder()
                     .title(title)
@@ -288,20 +257,18 @@ public class PostsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
 
-        given(boardsService.findById(any(Long.class)))
-                .willReturn(board);
         given(postsRepository.findByBoard(any(Boards.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
 
         // when
-        Page<PostsFindResponseDto> dtoList = postsService.findByBoard(1L, pageable);
+        Page<Posts> postsList = postsService.findByBoard(board, pageable);
 
         // then
         assertAll(
-                () -> assertEquals(page, dtoList.getNumber()),
-                () -> assertEquals(size, dtoList.getSize()),
-                () -> assertEquals(amount, dtoList.getNumberOfElements()),
-                () -> assertEquals(board.getName(),dtoList.getContent().get(0).getBoardName())
+                () -> assertEquals(0, postsList.getNumber()),
+                () -> assertEquals(20, postsList.getSize()),
+                () -> assertEquals(5, postsList.getNumberOfElements()),
+                () -> assertEquals("침착맨", postsList.getContent().get(0).getBoard().getName())
         );
     }
 
@@ -328,8 +295,7 @@ public class PostsServiceTest {
         ReflectionTestUtils.setField(category, "id", 1L);
 
         List<Posts> posts = new LinkedList<>();
-        int amount = 5;
-        for(int i = 0; i < amount; i++) {
+        for(int i = 0; i < 5; i++) {
 
             Posts post = Posts.builder()
                     .title(title)
@@ -349,20 +315,18 @@ public class PostsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         Page<Posts> pagedPosts = new PageImpl<>(posts, pageable, posts.size());
 
-        given(menuService.findById(any(Long.class)))
-                .willReturn(menu);
         given(postsRepository.findByMenu(any(Menu.class), any(Pageable.class)))
                 .willReturn(pagedPosts);
 
         // when
-        Page<PostsFindResponseDto> dtoList = postsService.findByMenu(1L, pageable);
+        Page<Posts> postsList = postsService.findByMenu(menu, pageable);
 
         // then
         assertAll(
-                () -> assertEquals(page, dtoList.getNumber()),
-                () -> assertEquals(size, dtoList.getSize()),
-                () -> assertEquals(amount, dtoList.getNumberOfElements()),
-                () -> assertEquals(menu.getName(),dtoList.getContent().get(0).getMenuName())
+                () -> assertEquals(0, postsList.getNumber()),
+                () -> assertEquals(20, postsList.getSize()),
+                () -> assertEquals(5, postsList.getNumberOfElements()),
+                () -> assertEquals("침착맨", postsList.getContent().get(0).getMenu().getName())
         );
     }
 
@@ -404,12 +368,13 @@ public class PostsServiceTest {
         
         given(postsRepository.findById(any(Long.class)))
                 .willReturn(Optional.ofNullable(post));
+
         //when
         Long postsId = 1L;
-        PostsFindByIdResponseDto dto = postsService.findById(postsId);
+        Posts foundPost = postsService.findById(postsId);
 
         //then
-        assertEquals(expectedDto.getId(), dto.getId());
+        assertEquals(1L, foundPost.getId());
     }
 
     @Test
@@ -434,7 +399,7 @@ public class PostsServiceTest {
                 .build();
         ReflectionTestUtils.setField(category, "id", 1L);
 
-        Posts posts = Posts.builder()
+        Posts post = Posts.builder()
                 .title(title)
                 .content(content)
                 .menu(menu)
@@ -442,9 +407,8 @@ public class PostsServiceTest {
                 .category(category)
                 .popularFlag(flag)
                 .build();
-        Long postsId = 1L;
-        ReflectionTestUtils.setField(posts, "id", postsId);
-        ReflectionTestUtils.setField(posts, "views", 0);
+        ReflectionTestUtils.setField(post, "id", 1L);
+        ReflectionTestUtils.setField(post, "views", 0);
 
         List<Images> images = new ArrayList<>();
 
@@ -456,19 +420,12 @@ public class PostsServiceTest {
                 .popularFlag(flag)
                 .build();
 
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(posts));
-        given(categoryService.findById(any(Long.class)))
-                .willReturn(category);
-        given(imagesService.findByIdIn(anyList(), any(Posts.class)))
-                .willReturn(images);
-
         // when
-        Long updatedId = postsService.update(postsId, dto);
+        Posts updatedPost = postsService.update(post, images, category, dto);
 
         // then
-        assertAll(() -> assertEquals(postsId, updatedId),
-                () -> assertEquals("테스트 본문 2", posts.getContent()));
+        assertAll(() -> assertEquals(1L, updatedPost.getId()),
+                () -> assertEquals("테스트 본문 2", post.getContent()));
     }
 
     @Test
@@ -486,21 +443,16 @@ public class PostsServiceTest {
             images.add(image);
         }
 
-        given(postsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(post));
-        given(imagesService.findByPost(any(Posts.class)))
-                .willReturn(images);
-        willDoNothing().given(fileUploadUtils).delete(any(File.class));
+        willDoNothing().given(postsRepository).delete(any(Posts.class));
 
         // when
-        postsService.delete(1L);
+        postsService.delete(post, images);
 
         // then
         /* postsService.delete()가 반환값이 없으므로 delete()내부의 postsRepository가 제대로 실행되었는지를 검증한다
         *  verify를 통해서 deletebyId가 예상대로 1번 호출되었는지를 검증한다 */
         assertAll(
-                () -> verify(postsRepository, times(1)).findById(any(Long.class)),
-                () -> verify(imagesService, times(1)).findByPost(any(Posts.class)),
+                () -> verify(postsRepository, times(1)).delete(any(Posts.class)),
                 () -> verify(fileUploadUtils, times(5)).delete(any(File.class))
         );
     }

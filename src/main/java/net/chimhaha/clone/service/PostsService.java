@@ -30,21 +30,12 @@ import java.util.stream.Collectors;
 public class PostsService {
 
     private final PostsRepository postsRepository;
-    private final BoardsService boardsService;
-    private final CategoryService categoryService;
-    private final MenuService menuService;
-    private final ImagesService imagesService;
-    private final MemberService memberService;
     private final FileUploadUtils fileUploadUtils;
 
     @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
-    public PostsSaveResponseDto save(PostsSaveRequestDto dto, Long userId) {
-        Member member = memberService.findById(userId);
-        Boards board = boardsService.findById(dto.getBoardId());
-        Category category = categoryService.findById(dto.getCategoryId());
-        Menu menu = menuService.findById(dto.getMenuId());
-        List<Images> images = imagesService.findByIdIn(dto.getImageIdList());
+    public Posts save(
+            Member member, Boards board, Category category, Menu menu, List<Images> images, PostsSaveRequestDto dto) {
 
         Posts post = Posts.builder()
                 .title(dto.getTitle())
@@ -59,60 +50,39 @@ public class PostsService {
         post.addAttachedImages(images);
         images.forEach(image -> image.attachedToPost(post));
 
-        PostsSaveResponseDto responseDto = PostsSaveResponseDto.from(postsRepository.save(post));
-        responseDto.setImageValues(images.stream()
-                .map(Images::getId)
-                .collect(Collectors.toList()));
-
-        return responseDto;
+        return postsRepository.save(post);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsFindResponseDto> find(Pageable pageable) {
-        Page<Posts> posts = postsRepository.findAll(pageable);
-
-        return posts.map(PostsFindResponseDto::from);
+    public Page<Posts> find(Pageable pageable) {
+        return postsRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsFindResponseDto> findByCategory(Long categoryId, Pageable pageable) {
-        Category category = categoryService.findById(categoryId);
-        Page<Posts> posts = postsRepository.findByCategory(category, pageable);
-
-        return posts.map(PostsFindResponseDto::from);
+    public Page<Posts> findByCategory(Category category, Pageable pageable) {
+        return postsRepository.findByCategory(category, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsFindResponseDto> findByBoard(Long boardId, Pageable pageable) {
-        Boards boards = boardsService.findById(boardId);
-        Page<Posts> posts = postsRepository.findByBoard(boards, pageable);
-
-        return posts.map(PostsFindResponseDto::from);
+    public Page<Posts> findByBoard(Boards board, Pageable pageable) {
+        return postsRepository.findByBoard(board, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostsFindResponseDto> findByMenu(Long menuId, Pageable pageable) {
-        Menu menu = menuService.findById(menuId);
-        Page<Posts> posts = postsRepository.findByMenu(menu, pageable);
-
-        return posts.map(PostsFindResponseDto::from);
+    public Page<Posts> findByMenu(Menu menu, Pageable pageable) {
+        return postsRepository.findByMenu(menu, pageable);
     }
 
-    @Transactional(readOnly = true)
-    public PostsFindByIdResponseDto findById(Long id) {
-        Posts post = this.findPostsById(id);
-        post.increaseViewCount();
-
-        return PostsFindByIdResponseDto.from(post);
-    }
-
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
-    public Long update(Long id, PostsUpdateRequestDto dto) {
+    public Posts findById(Long id) {
         Posts post = this.findPostsById(id);
-        List<Images> images = imagesService.findByIdIn(dto.getImageIdList(), post);
-        Category category = categoryService.findById(dto.getCategoryId());
+        post.increaseViewCount(); // 더티 체킹을 사용한 조회수 증가 기능 때문에 readOnly를 사용하지 않음
 
+        return post;
+    }
+
+    @Transactional
+    public Posts update(Posts post, List<Images> images, Category category, PostsUpdateRequestDto dto) {
         post.update(
                 dto.getTitle(),
                 dto.getContent(),
@@ -125,14 +95,11 @@ public class PostsService {
                 .filter(image -> image.getPost() == null)
                 .forEach(image -> image.attachedToPost(post));
 
-        return post.getId();
+        return post;
     }
 
-    @Secured({MemberRole.ROLES.ADMIN, MemberRole.ROLES.MANAGER, MemberRole.ROLES.USER})
     @Transactional
-    public void delete(Long id) {
-        Posts post = this.findPostsById(id);
-        List<Images> images = imagesService.findByPost(post);
+    public void delete(Posts post, List<Images> images) {
 
         postsRepository.delete(post);
 
