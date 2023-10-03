@@ -13,6 +13,7 @@ import net.chimhaha.clone.service.CommentsService;
 import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
 import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
+import net.chimhaha.clone.service.CommunityService;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ public class CommentsControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private CommentsService commentsService;
+    private CommunityService communityService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -70,7 +71,7 @@ public class CommentsControllerTest {
                 .parentId(null)
                 .build();
 
-        given(commentsService.save(any(CommentsSaveRequestDto.class), any(Long.class)))
+        given(communityService.saveComment(any(CommentsSaveRequestDto.class), any(Long.class)))
                 .willReturn(1L);
         given(customOAuth2User.getId())
                 .willReturn(1L);
@@ -136,7 +137,7 @@ public class CommentsControllerTest {
         Pageable pageable = PageRequest.of(0, 20);
         Page<CommentsFindByPostResponseDto> pagedDtoList = new PageImpl<>(dtoList, pageable, dtoList.size());
 
-        given(commentsService.findByPost(any(Long.class), any(Pageable.class)))
+        given(communityService.findCommentsByPost(any(Long.class), any(Pageable.class)))
                 .willReturn(pagedDtoList);
 
         // when
@@ -157,7 +158,7 @@ public class CommentsControllerTest {
                 .content("테스트 댓글 수정")
                 .build();
 
-        given(commentsService.update(any(Long.class), any(CommentsUpdateRequestDto.class)))
+        given(communityService.updateComment(any(Long.class), any(CommentsUpdateRequestDto.class)))
                 .willReturn(1L);
 
         // when
@@ -175,7 +176,7 @@ public class CommentsControllerTest {
     @Test
     public void 댓글_삭제하기() throws Exception {
         // given
-        willDoNothing().given(commentsService).delete(any(Long.class));
+        willDoNothing().given(communityService).deleteComment(any(Long.class));
 
         // when
         // then

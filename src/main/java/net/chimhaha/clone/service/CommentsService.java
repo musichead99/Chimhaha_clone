@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.comments.CommentsRepository;
 import net.chimhaha.clone.domain.member.Member;
-import net.chimhaha.clone.domain.member.MemberRole;
 import net.chimhaha.clone.domain.posts.Posts;
 import net.chimhaha.clone.exception.CustomException;
 import net.chimhaha.clone.exception.ErrorCode;
@@ -13,9 +12,7 @@ import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
 import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
 import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +23,10 @@ import java.util.*;
 @Service
 public class CommentsService {
 
-    private final PostsService postsService;
-    private final MemberService memberService;
     private final CommentsRepository commentsRepository;
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long save(CommentsSaveRequestDto dto, Long memberId) {
-        Member member = memberService.findById(memberId);
-        Posts post = postsService.findPostsById(dto.getPostId());
+    public Long save(CommentsSaveRequestDto dto, Member member, Posts post) {
 
         /* 대댓글이라면 부모 댓글 조회, 아니라면 그대로 null */
         Comments parent = null;
@@ -58,35 +50,22 @@ public class CommentsService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CommentsFindByPostResponseDto> findByPost(Long postId, Pageable pageable) {
-
-        /* 해당 게시글에 달린 댓글을 조회하기 위해 게시글 조회 */
-        Posts post = postsService.findPostsById(postId);
+    public Page<Comments> findByPost(Pageable pageable, Posts post) {
 
         /* 게시글에 달린 모든 댓글을 페이징해 조회 */
-        Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
-        List<CommentsFindByPostResponseDto> dtoList = this.toHierarchyDto(comments);
-
-        /* 계층 구조로 변환이 완료된 댓글 리스트 PageImpl객체로 변환 */
-        return new PageImpl<>(dtoList, pageable, dtoList.size());
+        return commentsRepository.findAllByPost(post, pageable);
     }
 
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public Long update(Long id, CommentsUpdateRequestDto dto) {
-        Comments comment = this.findById(id);
+    public Long update(CommentsUpdateRequestDto dto, Comments comment) {
 
         comment.update(dto.getContent());
 
         return comment.getId();
     }
 
-
-    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
     @Transactional
-    public void delete(Long id) {
-        Comments comment = commentsRepository.findByIdWithParents(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENTS_NOT_FOUND));
+    public void delete(Comments comment) {
 
         if(comment.isChildrenExist()) {
             comment.changeDeleteStatus();
@@ -103,7 +82,7 @@ public class CommentsService {
     }
 
     /* 계층 구조로 변환 */
-    private List<CommentsFindByPostResponseDto> toHierarchyDto(Page<Comments> comments) {
+    List<CommentsFindByPostResponseDto> toHierarchy(Page<Comments> comments) {
 
         List<CommentsFindByPostResponseDto> list = new ArrayList<>(); // 이후 PageImpl로 변환하기 위한 댓글 dto list
         Map<Long, CommentsFindByPostResponseDto> map = new HashMap<>(); // 댓글들을 계층 구조로 만들기 위한 맵

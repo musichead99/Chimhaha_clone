@@ -3,6 +3,7 @@ package net.chimhaha.clone.service;
 import lombok.RequiredArgsConstructor;
 import net.chimhaha.clone.domain.boards.Boards;
 import net.chimhaha.clone.domain.category.Category;
+import net.chimhaha.clone.domain.comments.Comments;
 import net.chimhaha.clone.domain.images.Images;
 import net.chimhaha.clone.domain.member.Member;
 import net.chimhaha.clone.domain.member.MemberRole;
@@ -14,11 +15,15 @@ import net.chimhaha.clone.dto.boards.BoardsUpdateRequestDto;
 import net.chimhaha.clone.dto.category.CategoryFindResponseDto;
 import net.chimhaha.clone.dto.category.CategorySaveRequestDto;
 import net.chimhaha.clone.dto.category.CategoryUpdateRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsFindByPostResponseDto;
+import net.chimhaha.clone.dto.comments.CommentsSaveRequestDto;
+import net.chimhaha.clone.dto.comments.CommentsUpdateRequestDto;
 import net.chimhaha.clone.dto.menu.MenuFindResponseDto;
 import net.chimhaha.clone.dto.menu.MenuSaveRequestDto;
 import net.chimhaha.clone.dto.menu.MenuUpdateRequestDto;
 import net.chimhaha.clone.dto.posts.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
@@ -43,6 +48,7 @@ public class CommunityService {
     private final CategoryService categoryService;
     private final MemberService memberService;
     private final PostsService postsService;
+    private final CommentsService commentsService;
     private final ImagesService imagesService;
 
     /* Menu 관련 */
@@ -217,5 +223,42 @@ public class CommunityService {
         List<Images> images = imagesService.findByPost(post);
 
         postsService.delete(post, images);
+    }
+
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
+    @Transactional
+    public Long saveComment(CommentsSaveRequestDto dto, Long memberId) {
+        Member member = memberService.findById(memberId);
+        Posts post = postsService.findPostsById(dto.getPostId());
+
+        return commentsService.save(dto, member, post);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CommentsFindByPostResponseDto> findCommentsByPost(Long postId, Pageable pageable) {
+        /* 해당 게시글에 달린 댓글을 조회하기 위해 게시글 조회 */
+        Posts post = postsService.findPostsById(postId);
+
+        Page<Comments> comments = commentsService.findByPost(pageable, post);
+        List<CommentsFindByPostResponseDto> dtoList = commentsService.toHierarchy(comments);
+
+        /* 계층 구조로 변환이 완료된 댓글 리스트 PageImpl객체로 변환 */
+        return new PageImpl<>(dtoList, pageable, dtoList.size());
+    }
+
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
+    @Transactional
+    public Long updateComment(Long id, CommentsUpdateRequestDto dto) {
+        Comments comment = commentsService.findById(id);
+
+        return commentsService.update(dto, comment);
+    }
+
+    @Secured({MemberRole.ROLES.USER, MemberRole.ROLES.MANAGER, MemberRole.ROLES.ADMIN})
+    @Transactional
+    public void deleteComment(Long id) {
+        Comments comment = commentsService.findById(id);
+
+        commentsService.delete(comment);
     }
 }

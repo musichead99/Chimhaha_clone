@@ -68,20 +68,15 @@ public class CommentsServiceTest {
                 .parentId(null)
                 .build();
 
-        given(postsService.findPostsById(any(Long.class)))
-                .willReturn(post);
         given(commentsRepository.save(any(Comments.class)))
                 .willReturn(comment);
-        given(memberService.findById(any(Long.class)))
-                .willReturn(member);
 
         // when
-        Long createdCommentId = commentsService.save(dto, 1L);
+        Long createdCommentId = commentsService.save(dto, member, post);
 
         // then
         assertAll(
                 () -> assertEquals(1L, createdCommentId),
-                () -> verify(postsService, times(1)).findPostsById(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).save(any(Comments.class))
         );
     }
@@ -131,20 +126,18 @@ public class CommentsServiceTest {
         Pageable pageable = PageRequest.of(0, 20);
         Page<Comments> pagedComments = new PageImpl<>(comments, pageable, comments.size());
 
-        given(postsService.findPostsById(any(Long.class)))
-                .willReturn(post);
         given(commentsRepository.findAllByPost(any(Posts.class), any(Pageable.class)))
                 .willReturn(pagedComments);
 
         // when
-        Page<CommentsFindByPostResponseDto> dtoList = commentsService.findByPost(1L, pageable);
+        Page<Comments> resultCommentsList = commentsService.findByPost(pageable, post);
 
         // then
         assertAll(
-                () -> assertEquals(0, dtoList.getNumber()),
-                () -> assertEquals(20, dtoList.getSize()),
-                () -> assertEquals(1, dtoList.getNumberOfElements()),
-                () -> assertEquals(1, dtoList.getContent().get(0).getId())
+                () -> assertEquals(0, resultCommentsList.getNumber()),
+                () -> assertEquals(20, resultCommentsList.getSize()),
+                () -> assertEquals(1, resultCommentsList.getNumberOfElements()),
+                () -> assertEquals(1, resultCommentsList.getContent().get(0).getId())
         );
     }
 
@@ -214,21 +207,19 @@ public class CommentsServiceTest {
         Pageable pageable = PageRequest.of(0, 20);
         Page<Comments> pagedComments = new PageImpl<>(comments, pageable, comments.size());
 
-        given(postsService.findPostsById(any(Long.class)))
-                .willReturn(post);
         given(commentsRepository.findAllByPost(any(Posts.class), any(Pageable.class)))
                 .willReturn(pagedComments);
 
         // when
-        Page<CommentsFindByPostResponseDto> dtoList = commentsService.findByPost(1L, pageable);
+        Page<Comments> resultCommentsList = commentsService.findByPost(pageable, post);
 
         // then
         assertAll(
-                () -> assertEquals(0, dtoList.getNumber()),
-                () -> assertEquals(20, dtoList.getSize()),
-                () -> assertEquals(1, dtoList.getNumberOfElements()),
-                () -> assertNotNull(dtoList.getContent().get(0).getChildren()),
-                () -> assertEquals(2, dtoList.getContent().get(0).getChildren().size())
+                () -> assertEquals(0, resultCommentsList.getNumber()),
+                () -> assertEquals(20, resultCommentsList.getSize()),
+                () -> assertEquals(3, resultCommentsList.getNumberOfElements()), // 계층화 작업이 이루어지지 않음
+                () -> assertNotNull(resultCommentsList.getContent().get(0).getChildren()),
+                () -> assertEquals(0, resultCommentsList.getContent().get(0).getChildren().size()) // 계층화 작업이 이루어지지 않음
         );
     }
 
@@ -275,16 +266,12 @@ public class CommentsServiceTest {
                 .content("테스트 댓글 수정")
                 .build();
 
-        given(commentsRepository.findById(any(Long.class)))
-                .willReturn(Optional.of(comment));
-
         // when
-        Long updatedCommentId = commentsService.update(1L, dto);
+        Long updatedCommentId = commentsService.update(dto, comment);
 
         // then
         assertAll(
-                () -> assertEquals(1, updatedCommentId),
-                () -> verify(commentsRepository, times(1)).findById(any(Long.class))
+                () -> assertEquals(1, updatedCommentId)
         );
     }
 
@@ -327,16 +314,13 @@ public class CommentsServiceTest {
                 .build();
         ReflectionTestUtils.setField(comment,"id", 1L);
 
-        given(commentsRepository.findByIdWithParents(any(Long.class)))
-                .willReturn(Optional.of(comment));
         willDoNothing().given(commentsRepository).delete(any(Comments.class));
 
         // when
-        commentsService.delete(1L);
+        commentsService.delete(comment);
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
         );
 
@@ -397,15 +381,11 @@ public class CommentsServiceTest {
         parentComment.getChildren().add(comment);
 
 
-        given(commentsRepository.findByIdWithParents(1L))
-                .willReturn(Optional.of(parentComment));
-
         // when
-        commentsService.delete(1L);
+        commentsService.delete(parentComment);
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, never()).delete(any(Comments.class))
         );
 
@@ -465,17 +445,13 @@ public class CommentsServiceTest {
 
         parentComment.getChildren().add(comment);
 
-
-        given(commentsRepository.findByIdWithParents(any(Long.class)))
-                .willReturn(Optional.of(comment));
         willDoNothing().given(commentsRepository).delete(any(Comments.class));
 
         // when
-        commentsService.delete(2L);
+        commentsService.delete(comment);
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
         );
 
@@ -535,16 +511,13 @@ public class CommentsServiceTest {
 
         parentComment.getChildren().add(comment);
 
-        given(commentsRepository.findByIdWithParents(any(Long.class)))
-                .willReturn(Optional.of(comment));
         willDoNothing().given(commentsRepository).delete(any(Comments.class));
 
         // when
-        commentsService.delete(2L);
+        commentsService.delete(comment);
 
         // then
         assertAll(
-                () -> verify(commentsRepository, times(1)).findByIdWithParents(any(Long.class)),
                 () -> verify(commentsRepository, times(1)).delete(any(Comments.class))
         );
 
