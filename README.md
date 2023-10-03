@@ -58,3 +58,4 @@
 &nbsp;
 ## API Spec
 
+Link: https://www.notion.so/API-5cdb8fe3d1ee433ebafc80cdd05da179
